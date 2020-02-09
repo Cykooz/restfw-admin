@@ -1,0 +1,4 @@
+graft example_app
+
+global-exclude __pycache__ *.py[cod]
+global-exclude .DS_Store

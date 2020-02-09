@@ -1,0 +1,58 @@
+{
+  "rootUrl": "http://localhost:6543",
+  "title": "Admin for Example App",
+  "resources": {
+    "users": {
+      "index": 1,
+      "name": "users",
+      "title": "User",
+      "location": "/users",
+      "id_field": "id",
+      "embedded_name": "users",
+      "update_method": "PATCH",
+      "views": {
+          "list": {
+            "fields": [
+              {
+                "type": "NumberField",
+                "name": "id"
+              },
+              {
+                "type": "TextField",
+                "name": "name"
+              },
+              {
+                "type": "DateTimeField",
+                "name": "created"
+              }
+            ]
+          },
+          "show": {
+            "fields": [
+              {
+                "type": "NumberField",
+                "name": "id"
+              },
+              {
+                "type": "TextField",
+                "name": "name"
+              },
+              {
+                "type": "DateTimeField",
+                "name": "created"
+              }
+            ]
+          },
+          "create": {
+            "fields": [
+              {
+                "type": "TextInput",
+                "name": "name"
+              }
+            ]
+          },
+          "edit": null
+      }
+    }
+  }
+}

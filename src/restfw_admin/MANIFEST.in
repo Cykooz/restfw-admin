@@ -1,0 +1,6 @@
+graft restfw
+include README.rst CHANGES.rst
+include RELEASE-VERSION version.py
+
+global-exclude __pycache__ *.py[cod]
+global-exclude .DS_Store
