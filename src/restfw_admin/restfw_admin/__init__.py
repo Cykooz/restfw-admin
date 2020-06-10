@@ -3,25 +3,29 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
+from pyramid.config import Configurator
 
 
-def includeme(config):
-    """
-    :type config: pyramid.config.Configurator
-    """
+def includeme(config: Configurator):
     config.include('restfw')
 
-    from restfw.interfaces import IRootCreated
-    from .resources import AdminChoices
+    from .resources import AdminChoices, ApiInfo
 
     def add_to_root(event):
         root = event.root
         root['admin_choices'] = AdminChoices()
+        root['api_info.json'] = ApiInfo()
 
+    from restfw.interfaces import IRootCreated
     config.add_subscriber(add_to_root, IRootCreated)
 
-    from .utils import add_static_admin_react_resource
-    config.add_directive('add_static_admin_react_resource', add_static_admin_react_resource)
+    from .config import add_resource_admin
+    config.add_directive('add_resource_admin', add_resource_admin)
+
+    import os
+    from pathlib import Path
+    admin_ui_dir = Path(__file__).parent / '..' / '..' / 'admin_ui' / 'build'
+    config.add_static_view(name='admin', path=os.fspath(admin_ui_dir))
 
     from restfw.utils import scan_ignore
     config.scan(ignore=scan_ignore(config.registry))

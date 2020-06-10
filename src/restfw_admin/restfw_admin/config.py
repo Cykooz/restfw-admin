@@ -3,20 +3,14 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
+from typing import Type, Union
+
 import venusian
-from mountbit.utils import Enum
-import inspect
+from pyramid.config import Configurator
 
+from . import interfaces
 from .interfaces import IAdminChoices
-
-
-# FIRST_CAP_RE = re.compile('(.)([A-Z][a-z]+)')
-# ALL_CAP_RE = re.compile('([a-z0-9])([A-Z])')
-#
-#
-# def convert_to_snake_case(name):
-#     tmp = FIRST_CAP_RE.sub(r'\1_\2', name)
-#     return ALL_CAP_RE.sub(r'\1_\2', tmp).lower()
+from .resource_admin import ResourceAdmin
 
 
 class admin_choices_config(object):
@@ -24,12 +18,6 @@ class admin_choices_config(object):
     developer to register adapter for IAdminChoices interface.
 
     Example, this code in a module ``interfaces.py``::
-
-        @admin_choices_config()
-        class OrderStatus(Enum):
-            running = 'running'
-            completed = 'completed'
-            canceled = 'canceled'
 
         @admin_choices_config('product_types')
         def get_product_types(request):
@@ -70,11 +58,7 @@ class admin_choices_config(object):
 
     def register(self, scanner, name, wrapped):
         config = scanner.config
-        if inspect.isclass(wrapped) and issubclass(wrapped, Enum):
-            def factory(request):
-                return ((value, value.title()) for value in wrapped.enum_values())
-        else:
-            factory = wrapped
+        factory = wrapped
 
         config.registry.registerUtility(
             factory,
@@ -88,3 +72,30 @@ class admin_choices_config(object):
         self.venusian.attach(wrapped, self.register, category=self.category,
                              depth=self.depth + 1)
         return wrapped
+
+
+def add_resource_admin(config: Configurator, name: str, fabric: Union[Type[ResourceAdmin], str]):
+    dotted = config.maybe_dotted
+    fabric = dotted(fabric)
+    #verifyObject(interfaces.IExternalLinkFabric, fabric, tentative=True)
+
+    # if not isinstance(resource_type, (tuple, list)):
+    #     resource_type = (resource_type,)
+
+    intr = config.introspectable(
+        category_name='restfw_resource_admin',
+        discriminator=id(fabric),
+        title=config.object_description(fabric),
+        type_name='restfw_resource_admin',
+    )
+    intr['fabric'] = fabric
+
+    def register():
+        config.registry.registerUtility(
+            fabric,
+            provided=interfaces.IResourceAdminFabric,
+            name=name,
+        )
+
+    config.action(None, register, introspectables=(intr,))
+    return fabric

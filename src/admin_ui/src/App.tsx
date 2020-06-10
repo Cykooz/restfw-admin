@@ -23,7 +23,7 @@ const App = () => {
 
     useEffect(() => {
         async function fetchApiInfo() {
-            const url = '/api_info.json';
+            const url = 'http://0.0.0.0:6543/api_info.json';
             const {json}  = await httpClient(url);
             const apiInfoInstance = new ApiInfo(json);
             setApiInfo(

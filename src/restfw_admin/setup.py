@@ -29,11 +29,10 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Framework :: Pyramid',
@@ -50,23 +49,24 @@ setup(
     zip_safe=False,
     extras_require={
         'test': [
-            'pytest<5.0',
+            'pytest',
             'mock',
             'asset',
             'WebTest',
             'cykooz.testing',
+            'restfw[test]',
         ],
         'docs': [
             'WebTest',
-            'sphinx<2.0',
+            'sphinx',
             'jinja2',
             'pathlib2;python_version<"3.4"',
         ]
     },
     install_requires=[
-        'setuptools<45.0',
+        'setuptools',
         'six',
-        'restfw',
+        'restfw>=4.0',
     ],
     entry_points={
         'console_scripts':

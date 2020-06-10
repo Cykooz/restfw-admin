@@ -1,11 +1,18 @@
 import {Identifier, Record} from "ra-core";
 
 
+export interface IValidator {
+    name: string;
+    args: any[];
+}
+
 export interface IField {
     type: string;
     name: string;
+    label: string;
+    validators: IValidator[];
+    props: any;
 }
-
 
 export interface IListView {
     fields: IField[];
@@ -31,6 +38,7 @@ export interface IResourceInfo {
     id_field: string;
     embedded_name: string;
     update_method: string;
+    deletable: boolean;
     views: {
         list: IListView | null,
         show: IShowView | null,
@@ -38,7 +46,6 @@ export interface IResourceInfo {
         edit: IEditView | null,
     }
 }
-
 
 type MapCallback<T> = (resource: IResourceInfo) => T;
 
@@ -59,14 +66,14 @@ export interface IApiInfo {
 
 
 export class ApiInfo implements IApiInfo {
-    private readonly rootUrl: string;
+    private readonly root_url: string;
     private readonly title: string;
     private readonly resources: {
         [name: string]: IResourceInfo
     };
 
     constructor(public raw_info: any) {
-        this.rootUrl = raw_info.rootUrl;
+        this.root_url = raw_info.root_url;
         this.title = raw_info.title;
         this.resources = raw_info.resources;
     }
@@ -76,7 +83,7 @@ export class ApiInfo implements IApiInfo {
     }
 
     resourceUrl(name: string) {
-        return this.rootUrl + this.resources[name].location;
+        return this.root_url + this.resources[name].location;
     }
 
     resourceId(name: string, data: any, def: Identifier | null = null): Identifier {
@@ -101,7 +108,7 @@ export class ApiInfo implements IApiInfo {
 
     resourceUpdateMethod(name: string): string {
         if (!(name in this.resources)) {
-            console.warn(`ApiInfo: Unknown resource with name "${name}".`);
+            console.warn(`ApiInfo: Unknown resource with a name "${name}".`);
             return 'PUT';
         }
 
@@ -110,7 +117,7 @@ export class ApiInfo implements IApiInfo {
 
     getEmbeddedResources(name: string, data: any): Record[] {
         if (!(name in this.resources)) {
-            console.warn(`ApiInfo: Unknown resource with name "${name}".`);
+            console.warn(`ApiInfo: Unknown resource with a name "${name}".`);
             return [];
         }
 
@@ -128,7 +135,7 @@ export class ApiInfo implements IApiInfo {
         const embedded_data = data._embedded;
         if (!embedded_data.hasOwnProperty(embedded_name)) {
             console.warn(
-                `ApiInfo: Embedded resources with name "${embedded_name}" ` +
+                `ApiInfo: Embedded resources with a name "${embedded_name}" ` +
                 `has not found inside of "_embedded" field of "${name}" resource.`
             );
             return [];

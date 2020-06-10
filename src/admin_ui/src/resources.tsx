@@ -1,5 +1,17 @@
 import React from "react";
-import {Create, Datagrid, Edit, EditButton, List, Resource, Show, SimpleForm, SimpleShowLayout} from "react-admin";
+import {
+    Create,
+    Datagrid,
+    Edit,
+    EditButton,
+    List,
+    Resource,
+    SaveButton,
+    Show,
+    SimpleForm,
+    SimpleShowLayout,
+    Toolbar
+} from "react-admin";
 import {IApiInfo, IResourceInfo} from "./apiInfo";
 import {getFields, getInputs} from "./fields";
 
@@ -34,6 +46,8 @@ function getListView(resourceInfo: IResourceInfo) {
     }
 
     return (props: any) => {
+        if (!resourceInfo.deletable)
+            props['bulkActionButtons'] = false;
         return (
             <List {...props}>
                 <Datagrid rowClick={show ? 'show' : ''}>
@@ -81,16 +95,27 @@ function getCreateView(resourceInfo: IResourceInfo) {
 }
 
 
+const EditWithoutDeleteToolbar = props => (
+    <Toolbar {...props} >
+        <SaveButton />
+    </Toolbar>
+);
+
+
 function getEditView(resourceInfo: IResourceInfo) {
     const {edit} = resourceInfo.views;
     if (!edit) {
         return null;
     }
+    let form_props = {};
+    if (!resourceInfo.deletable) {
+        form_props['toolbar'] = <EditWithoutDeleteToolbar />;
+    }
 
     return (props: any) => {
         return (
             <Edit {...props}>
-                <SimpleForm>
+                <SimpleForm {...form_props}>
                     {getInputs(edit.fields)}
                 </SimpleForm>
             </Edit>

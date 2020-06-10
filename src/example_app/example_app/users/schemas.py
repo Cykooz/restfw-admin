@@ -7,10 +7,72 @@ import colander
 from restfw import schemas
 
 
+class Child(schemas.MappingSchema):
+    sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
+    name = schemas.StringNode(title='Name')
+    age = schemas.UnsignedIntegerNode(title='Age', nullable=True)
+
+
 class UserSchema(schemas.HalResourceSchema):
     id = schemas.UnsignedIntegerNode(title='ID')
-    name = schemas.StringNode(title='Name')
     created = schemas.DateTimeNode(title='Created')
+    first_name = schemas.StringNode(title='First Name')
+    last_name = schemas.StringNode(title='Last Name')
+    age = schemas.UnsignedIntegerNode(title='Age', nullable=True)
+    sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
+    children = schemas.SequenceNode(Child(title='Child'))
+
+
+class CreateUserSchema(schemas.MappingSchema):
+    first_name = schemas.StringNode(
+        title='First Name',
+        validator=colander.All(
+            colander.Length(max=50),
+            colander.Regex(r'^[a-zA-z0-9]+$')
+        ),
+    )
+    last_name = schemas.StringNode(
+        title='Last Name',
+        validator=colander.All(
+            colander.Length(max=50),
+            colander.Regex(r'^[a-zA-z0-9]+$')
+        ),
+    )
+    age = schemas.UnsignedIntegerNode(
+        title='Age', nullable=True, missing=colander.drop,
+    )
+    sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
+    children = schemas.SequenceNode(
+        Child(title='Child', missing=colander.drop),
+    )
+
+
+class PatchUserSchema(schemas.MappingSchema):
+    first_name = schemas.StringNode(
+        title='First Name', missing=colander.drop,
+        validator=colander.All(
+            colander.Length(max=50),
+            colander.Regex(r'^[a-zA-z0-9]+$')
+        ),
+    )
+    last_name = schemas.StringNode(
+        title='Last Name', missing=colander.drop,
+        validator=colander.All(
+            colander.Length(max=50),
+            colander.Regex(r'^[a-zA-z0-9]+$')
+        ),
+    )
+    age = schemas.UnsignedIntegerNode(
+        title='Age', nullable=True, missing=colander.drop,
+    )
+    sex = schemas.StringNode(
+        title='Sex', missing=colander.drop,
+        validator=colander.OneOf(['m', 'f'])
+    )
+    children = schemas.SequenceNode(
+        Child(title='Child', missing=colander.drop),
+        missing=colander.drop,
+    )
 
 
 class UsersSchema(schemas.HalResourceWithEmbeddedSchema):
@@ -20,10 +82,4 @@ class UsersSchema(schemas.HalResourceWithEmbeddedSchema):
             name='users', title='List of embedded users'
         ),
         missing=colander.drop,
-    )
-
-
-class CreateUserSchema(schemas.MappingSchema):
-    name = schemas.StringNode(
-        title='Name', validator=colander.Length(max=50),
     )
