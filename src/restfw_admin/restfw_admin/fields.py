@@ -4,7 +4,7 @@
 :Date: 25.04.2020
 """
 from functools import partial
-from typing import Callable, List, Optional, Type
+from typing import Callable, Dict, Optional, Type
 
 import colander
 import venusian
@@ -12,120 +12,107 @@ from pyramid.config import Configurator
 from pyramid.registry import Registry
 
 from . import interfaces
-from .models import FieldModel
 from .typing import ColanderNode
 from .utils import slug_to_title
-from .validators import get_validators, get_validators_by_name
+from .validators import Choices, Required
+from .validators_converters import get_validators, get_validators_by_type
+from .widgets import FieldWidget, InputWidget, SelectField, SelectInput
 
 
-FieldPredicate = Callable[[str], bool]
-Converter = Callable[[Registry, ColanderNode, str, Optional[FieldPredicate]], Optional[FieldModel]]
+FieldConverter = Callable[[Registry, ColanderNode], Optional[FieldWidget]]
+InputConverter = Callable[[Registry, ColanderNode], Optional[InputWidget]]
 
 
-def get_view_fields(registry: Registry, schema: ColanderNode, predicate: Optional[FieldPredicate] = None):
-    fields: List[FieldModel] = []
+def get_field_widgets(registry: Registry, schema: ColanderNode):
+    widgets: Dict[str, FieldWidget] = {}
     for sub_node in schema.children:
-        field = get_view_field(registry, sub_node, predicate=predicate)
-        if field:
-            fields.append(field)
-    return fields
+        widget = get_field_widget(registry, sub_node)
+        if widget:
+            widgets[sub_node.name] = widget
+    return widgets
 
 
-def get_input_fields(registry: Registry, schema: ColanderNode, predicate: Optional[FieldPredicate] = None):
-    fields: List[FieldModel] = []
+def get_input_widgets(registry: Registry, schema: ColanderNode):
+    widgets: Dict[str, InputWidget] = {}
     for sub_node in schema.children:
-        field = get_input_field(registry, sub_node, predicate=predicate)
-        if field:
-            fields.append(field)
-    return fields
+        widget = get_input_widget(registry, sub_node)
+        if widget:
+            widgets[sub_node.name] = widget
+    return widgets
 
 
-def get_view_field(
+def get_field_widget(
         registry: Registry,
         node: ColanderNode,
         node_type: Optional[colander.SchemaType] = None,
-        parent_name: str = '',
-        predicate: Optional[FieldPredicate] = None,
-) -> Optional[FieldModel]:
-    name = node.name
-    if parent_name:
-        name = f'{parent_name}.{name}'
-
-    if predicate is not None and not predicate(name):
-        return
-
+) -> Optional[FieldWidget]:
     node_type = node_type or node.typ
-    converter: Optional[Converter] = registry.queryAdapter(node_type, interfaces.IViewFieldConverter)
+    converter: Optional[FieldConverter] = registry.queryAdapter(node_type, interfaces.IViewFieldConverter)
     if converter:
-        field = converter(registry, node, name, predicate)
-        if field:
-            field = _try_convert_to_select_view(registry, field, node)
-        return field
+        widget = converter(registry, node)
+        if widget:
+            widget = _try_convert_to_select_view(registry, widget, node)
+        return widget
 
 
-def get_input_field(
+def get_input_widget(
         registry: Registry,
         node: ColanderNode,
         node_type: Optional[colander.SchemaType] = None,
-        parent_name: str = '',
-        predicate: Optional[FieldPredicate] = None,
-) -> Optional[FieldModel]:
-    name = node.name
-    if parent_name:
-        name = f'{parent_name}.{name}'
-
-    if predicate is not None and not predicate(name):
-        return
-
+) -> Optional[InputWidget]:
     node_type = node_type or node.typ
-    converter: Optional[Converter] = registry.queryAdapter(node_type, interfaces.IInputFieldConverter)
+    converter: Optional[InputConverter] = registry.queryAdapter(node_type, interfaces.IInputFieldConverter)
     if converter:
-        field = converter(registry, node, name, predicate)
-        if field:
-            field = _try_convert_to_select_input(field, node)
-        return field
+        widget = converter(registry, node)
+        if widget:
+            widget = _try_convert_to_select_input(registry, widget, node)
+        return widget
 
 
-def _try_convert_to_select_view(registry: Registry, field: FieldModel, node: ColanderNode) -> FieldModel:
+def _try_convert_to_select_view(registry: Registry, widget: FieldWidget, node: ColanderNode) -> FieldWidget:
+    if isinstance(FieldWidget, SelectField):
+        return widget
+
     validators = get_validators(registry, node)
-    choices_validators = get_validators_by_name(validators, 'choices')
+    choices_validators = get_validators_by_type(validators, Choices)
     if not choices_validators:
-        return field
+        return widget
 
     choices = [
-        {'id': choice, 'name': slug_to_title(str(choice))}
-        for choice in choices_validators[0].args[0]
+        (choice, slug_to_title(str(choice)))
+        for choice in choices_validators[0].choices
     ]
-    return FieldModel(
-        type='SelectField',
-        name=field.name,
-        label=field.label,
-        props={'choices': choices},
+    return SelectField(
+        choices=choices,
+        **widget.get_fields()
     )
 
 
-def _try_convert_to_select_input(field: FieldModel, node: ColanderNode) -> FieldModel:
-    choices_validators = get_validators_by_name(field.validators, 'choices')
+def _try_convert_to_select_input(registry: Registry, widget: InputWidget, node: ColanderNode) -> InputWidget:
+    if isinstance(FieldWidget, SelectInput):
+        return widget
+
+    validators = get_validators(registry, node)
+    choices_validators = get_validators_by_type(validators, Choices)
     if not choices_validators:
-        return field
+        return widget
 
     choices = [
-        {'id': choice, 'name': slug_to_title(str(choice))}
-        for choice in choices_validators[0].args[0]
+        (choice, slug_to_title(str(choice)))
+        for choice in choices_validators[0].choices
     ]
-    return FieldModel(
-        type='SelectInput',
-        name=field.name,
-        label=field.label,
-        validators=get_validators_by_name(field.validators, 'required'),
-        props={'choices': choices},
+    params = widget.get_fields()
+    params['validators'] = get_validators_by_type(validators, Required)
+    return SelectInput(
+        choices=choices,
+        **params
     )
 
 
 def add_field_converter(
         config: Configurator,
         node_type: Type[colander.SchemaType],
-        converter: Converter,
+        converter: FieldConverter,
         is_input=False,
 ):
     dotted = config.maybe_dotted

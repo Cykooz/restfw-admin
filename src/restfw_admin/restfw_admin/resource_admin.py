@@ -3,8 +3,8 @@
 :Authors: cykooz
 :Date: 25.04.2020
 """
-import dataclasses
-from typing import List, Literal, Optional, Set, Type, Union
+from dataclasses import dataclass, field
+from typing import Dict, List, Literal, Optional, Sequence, Tuple, Type, Union
 
 import colander
 from pyramid.registry import Registry
@@ -12,29 +12,32 @@ from pyramid.request import Request
 from restfw.hal import HalResource
 
 from . import models
-from .fields import FieldPredicate, get_input_fields, get_view_fields
+from .fields import get_field_widgets, get_input_widgets
+from .models import FieldModel
 from .typing import ColanderNode
+from .widgets import Widget
 
 
-@dataclasses.dataclass()
+@dataclass()
 class Only:
-    names: Set[str]
+    names: Tuple[str, ...]
 
-    def is_enabled(self, name: str):
-        return name in self.names
+    def __init__(self, *args: str):
+        self.names = args
 
 
-@dataclasses.dataclass()
+@dataclass()
 class Exclude:
-    names: Set[str]
+    names: Tuple[str, ...]
 
-    def is_enabled(self, name: str):
-        return name not in self.names
+    def __init__(self, *args: str):
+        self.names = args
 
 
-@dataclasses.dataclass()
+@dataclass()
 class ViewSettings:
     fields: Optional[Union[Only, Exclude]] = None
+    widgets: Dict[str, Widget] = field(default_factory=dict)
 
 
 class ResourceAdmin:
@@ -160,13 +163,12 @@ class ResourceAdmin:
         if schema_node is None:
             return
 
-        predicate = self._get_field_predicate(view_settings)
         if fields_type == 'input':
-            get_fields = get_input_fields
+            get_fields = get_input_widgets
         else:
-            get_fields = get_view_fields
-        fields = get_fields(self._registry, schema_node, predicate)
-
+            get_fields = get_field_widgets
+        widgets = get_fields(self._registry, schema_node)
+        fields = self._widgets_to_fields(view_settings, widgets)
         return view_model_class(fields=fields)
 
     def _get_schema_node(
@@ -186,16 +188,56 @@ class ResourceAdmin:
         if schema_class:
             return schema_class()
 
-    def _get_field_predicate(self, view_settings: ViewSettings) -> Optional[FieldPredicate]:
-        predicates: List[FieldPredicate] = [
-            f.is_enabled
-            for f in (self.fields, view_settings.fields)
-            if f
+    def _widgets_to_fields(self, view_settings: ViewSettings, widgets: Dict[str, Widget]) -> List[FieldModel]:
+        for fields in (self.fields, view_settings.fields):
+            if fields:
+                names = unflat(fields.names)
+                if isinstance(fields, Only):
+                    widgets = only_widgets(widgets, names)
+                elif isinstance(fields, Exclude):
+                    widgets = exclude_widgets(widgets, names)
+        return [
+            widget.to_model(name)
+            for name, widget in widgets.items()
         ]
-        if not predicates:
-            return
 
-        if len(predicates) == 1:
-            return predicates[0]
 
-        return lambda x: all(p(x) for p in predicates)
+def unflat(names: Sequence[str]) -> Dict[str, dict]:
+    """Convert a sequence of doted names into a dictionary.
+
+    >>> unflat(['name', 'child.name', 'child.age', 'child', 'parent.work.name'])
+    {'name': {}, 'child': {'name': {}, 'age': {}}, 'parent': {'work': {'name': {}}}}
+    """
+    fields = {}
+    for name in names:
+        inner_fields = fields
+        while name:
+            prefix, _, name = name.partition('.')
+            inner_fields = inner_fields.setdefault(prefix, {})
+    return fields
+
+
+def only_widgets(widgets: Dict[str, Widget], names: Dict[str, dict]) -> Dict[str, Widget]:
+    """Returns a dictionary with widgets whose name is contained in "names" dictionary."""
+    res = {}
+    for name, inner_names in names.items():
+        widget = widgets.get(name)
+        if not widget:
+            continue
+        if inner_names and hasattr(widget, 'fields'):
+            widget.fields = only_widgets(widget.fields, inner_names)
+        res[name] = widget
+    return res
+
+
+def exclude_widgets(widgets: Dict[str, Widget], names: Dict[str, dict]) -> Dict[str, Widget]:
+    """Returns a dictionary without widgets whose name is contained in "names" dictionary."""
+    widgets = widgets.copy()
+    for name, inner_names in names.items():
+        if inner_names:
+            widget = widgets.get(name)
+            if widget and hasattr(widget, 'fields'):
+                widget.fields = exclude_widgets(widget.fields, inner_names)
+        else:
+            widgets.pop(name, None)
+    return widgets

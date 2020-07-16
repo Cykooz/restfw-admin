@@ -42,31 +42,13 @@ function view_fabric(Component: ComponentType, default_props?: any) {
         return (
             <Component
                 key={key}
-                source={field.name}
-                label={field.label}
+                source={field.source}
                 style={defaultFieldStyle}
                 {...default_props}
-                {...field.props}
+                {...field.params}
             />
         );
     };
-}
-
-
-function array_view_fabric(key: string, field: IField) {
-    let {sub_fields, ...props} = field.props;
-    return (
-        <ArrayField
-            key={key}
-            source={field.name}
-            label={field.label}
-            {...props}
-        >
-            <Datagrid>
-                {getFields(sub_fields)}
-            </Datagrid>
-        </ArrayField>
-    );
 }
 
 
@@ -76,32 +58,64 @@ function input_fabric(Component: ComponentType) {
         return (
             <Component
                 key={key}
-                source={field.name}
-                label={field.label}
-                validators={validators}
+                source={field.source}
+                validate={validators}
                 style={defaultFieldStyle}
-                {...field.props}
+                {...field.params}
             />
         );
     };
 }
 
 
+// Array field and input
+
+function array_view_fabric(key: string, field: IField) {
+    let {fields, ...params} = field.params;
+    return (
+        <ArrayField
+            key={key}
+            source={field.source}
+            {...params}
+        >
+            <Datagrid>
+                {getFields(fields)}
+            </Datagrid>
+        </ArrayField>
+    );
+}
+
+
 function array_input_fabric(key: string, field: IField) {
     let validators = getFieldValidators(field);
-    let {sub_fields, ...props} = field.props;
+    let {fields, ...params} = field.params;
     return (
         <ArrayInput
             key={key}
-            source={field.name}
-            label={field.label}
+            source={field.source}
             validate={validators}
-            {...props}
+            {...params}
         >
             <SimpleFormIterator>
-                {getInputs(sub_fields)}
+                {getInputs(fields)}
             </SimpleFormIterator>
         </ArrayInput>
+    );
+}
+
+
+// Reference field and input
+
+function referenceViewFabric(key: string, field: IField) {
+    let {fields, ...params} = field.params;
+    return (
+        <ReferenceField
+            key={key}
+            source={field.source}
+            {...params}
+        >
+            {getFieldComponent('1', fields)}
+        </ReferenceField>
     );
 }
 
@@ -119,7 +133,7 @@ export const COMPONENTS: Record<string, IFabric> = {
     'BooleanField': view_fabric(BooleanField),
     'FunctionField': view_fabric(FunctionField),
     'ReferenceManyField': view_fabric(ReferenceManyField),
-    'ReferenceField': view_fabric(ReferenceField),
+    'ReferenceField': referenceViewFabric,
     'SelectField': view_fabric(SelectField),
     'ArrayField': array_view_fabric,
     // Inputs
@@ -139,10 +153,15 @@ export const COMPONENTS: Record<string, IFabric> = {
 };
 
 
+function getFieldComponent(key, field: IField): JSX.Element {
+    let fabric = COMPONENTS[field.type] || view_fabric(TextField);
+    return fabric(key, field);
+}
+
+
 export function getFields(fields: IField[]) {
     return fields.map((field, index) => {
-        let fabric = COMPONENTS[field.type] || view_fabric(TextField);
-        return fabric(index.toString(), field);
+        return getFieldComponent(index.toString(), field);
     });
 }
 

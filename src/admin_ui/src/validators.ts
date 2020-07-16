@@ -20,12 +20,12 @@ function create_regex(pattern: string) {
 
 const VALIDATORS: Record<string, any> = {
     'required': required,
-    'min_value': minValue,
-    'max_value': maxValue,
-    'min_length': minLength,
-    'max_length': maxLength,
-    'is_number': number,
-    'is_email': email,
+    'minValue': minValue,
+    'maxValue': maxValue,
+    'minLength': minLength,
+    'maxLength': maxLength,
+    'number': number,
+    'email': email,
     'regex': create_regex,
     'choices': choices,
 };

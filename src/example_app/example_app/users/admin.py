@@ -14,5 +14,5 @@ class UsersAdmin(ResourceAdmin):
     location = '/users'
     index = 0
     list_view = ViewSettings(
-        fields=Exclude({'last_name', 'children'})
+        fields=Exclude('last_name', 'children')
     )

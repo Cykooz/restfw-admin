@@ -8,10 +8,9 @@ export interface IValidator {
 
 export interface IField {
     type: string;
-    name: string;
-    label: string;
+    source: string;
+    params: any;
     validators: IValidator[];
-    props: any;
 }
 
 export interface IListView {

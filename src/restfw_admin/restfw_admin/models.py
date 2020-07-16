@@ -5,39 +5,27 @@
 """
 from __future__ import annotations
 
-import dataclasses
-from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Tuple, TypeVar
 
-from .utils import slug_to_title
-
-
-_ArgsType = Union[str, bool, int, float, list, tuple, dict]
+from .typing import Json
 
 
-@dataclasses.dataclass()
+@dataclass()
 class ValidatorModel:
     name: str
-    args: Tuple[_ArgsType, ...] = dataclasses.field(default_factory=list)
-
-    def __init__(self, name: str, *args: _ArgsType):
-        self.name = name
-        self.args = args
+    args: Tuple[Json, ...] = field(default_factory=tuple)
 
 
-@dataclasses.dataclass()
+@dataclass()
 class FieldModel:
     type: str
-    name: str
-    label: str = ''
-    validators: List[ValidatorModel] = dataclasses.field(default_factory=list)
-    props: Dict[str, Any] = dataclasses.field(default_factory=dict)
-
-    def __post_init__(self):
-        if not self.label:
-            self.label = slug_to_title(self.name)
+    source: str
+    params: Dict[str, Json] = field(default_factory=dict)
+    validators: List[ValidatorModel] = field(default_factory=list)
 
 
-@dataclasses.dataclass()
+@dataclass()
 class ViewModel:
     fields: List[FieldModel]
 
@@ -61,7 +49,7 @@ class EditViewModel(ViewModel):
 ViewModelType = TypeVar('ViewModelType', ListViewModel, ShowViewModel, CreateViewModel, EditViewModel)
 
 
-@dataclasses.dataclass()
+@dataclass()
 class ViewsModel:
     list: Optional[ListViewModel] = None
     show: Optional[ShowViewModel] = None
@@ -69,7 +57,7 @@ class ViewsModel:
     edit: Optional[EditViewModel] = None
 
 
-@dataclasses.dataclass()
+@dataclass()
 class ResourceInfoModel:
     index: int
     name: str
@@ -82,7 +70,7 @@ class ResourceInfoModel:
     views: ViewsModel
 
 
-@dataclasses.dataclass()
+@dataclass()
 class ApiInfoModel:
     root_url: str
     title: str
