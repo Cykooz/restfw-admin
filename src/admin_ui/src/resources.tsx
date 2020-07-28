@@ -20,7 +20,6 @@ export function getResources(apiInfo: IApiInfo) {
     return (
         apiInfo.mapResources((resourceInfo) => (
             <Resource
-                key={resourceInfo.index}
                 name={resourceInfo.name}
                 {...getResourceViews(resourceInfo)}
             />

@@ -4,27 +4,24 @@ import {fetchUtils} from 'ra-core';
 import halRestDataProvider from './dataProvider';
 import {ApiInfo, IApiInfo} from './apiInfo';
 import {getResources} from "./resources";
+import {AppParams} from "./types";
 
 
-function httpClient(url: string, options: fetchUtils.Options = {}) {
+function defaultHttpClient(url: string, options: fetchUtils.Options = {}) {
     if (!options.headers)
         options.headers = new Headers({Accept: 'application/json'});
-    const token = localStorage.getItem('token');
-    if (token) {
-        let headers = options.headers as Headers;
-        headers.set('Mountbit-Auth', token);
-    }
+    let headers = options.headers as Headers;
+    headers.set('X-Requested-With', 'XMLHttpRequest');
     return fetchUtils.fetchJson(url, options);
 }
 
 
-const App = () => {
+function App(appParams: AppParams) {
     const [apiInfo, setApiInfo] = useState<IApiInfo | null>(null);
 
     useEffect(() => {
         async function fetchApiInfo() {
-            const url = 'http://0.0.0.0:6543/api_info.json';
-            const {json}  = await httpClient(url);
+            const {json} = await defaultHttpClient(appParams.apiInfoUrl);
             const apiInfoInstance = new ApiInfo(json);
             setApiInfo(
                 // GOTCHA: apiInfoInstance can be a function
@@ -33,7 +30,7 @@ const App = () => {
         }
 
         fetchApiInfo();
-    }, []);
+    }, [appParams]);
 
     if (!apiInfo) {
         return (
@@ -43,17 +40,19 @@ const App = () => {
         );
     }
 
+    const authProvider = appParams.getAuthProvider?.(defaultHttpClient, apiInfo);
+    const httpClient = appParams.getHttpClient?.(fetchUtils.fetchJson) ?? defaultHttpClient;
     const dataProvider = halRestDataProvider(apiInfo, httpClient);
 
     return (
         <Admin
             title={apiInfo.getTitle()}
             dataProvider={dataProvider}
-            // authProvider={authProvider}
+            authProvider={authProvider}
         >
             {getResources(apiInfo)}
         </Admin>
     );
-};
+}
 
 export default App;

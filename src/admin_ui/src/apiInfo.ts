@@ -88,7 +88,7 @@ export class ApiInfo implements IApiInfo {
     resourceId(name: string, data: any, def: Identifier | null = null): Identifier {
         if (name in this.resources) {
             const info = this.resources[name];
-            if (info.id_field || data.hasOwnProperty(info.id_field))
+            if (info.id_field && data.hasOwnProperty(info.id_field))
                 return data[info.id_field];
         }
 

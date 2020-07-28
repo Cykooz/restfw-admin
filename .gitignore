@@ -52,6 +52,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+/src/restfw_admin/restfw_admin/admin_ui
 
 # Unit test / coverage reports
 htmlcov/

@@ -4,7 +4,7 @@
 :Date: 25.04.2020
 """
 from dataclasses import dataclass, field
-from typing import Dict, List, Literal, Optional, Sequence, Tuple, Type, Union
+from typing import Dict, Iterable, List, Literal, Optional, Tuple, Type, Union
 
 import colander
 from pyramid.registry import Registry
@@ -34,10 +34,13 @@ class Exclude:
         self.names = args
 
 
+WidgetReplaces = Dict[str, Union[None, Widget, 'WidgetReplaces']]
+
+
 @dataclass()
 class ViewSettings:
     fields: Optional[Union[Only, Exclude]] = None
-    widgets: Dict[str, Widget] = field(default_factory=dict)
+    widgets: WidgetReplaces = field(default_factory=dict)
 
 
 class ResourceAdmin:
@@ -164,10 +167,10 @@ class ResourceAdmin:
             return
 
         if fields_type == 'input':
-            get_fields = get_input_widgets
+            get_widgets = get_input_widgets
         else:
-            get_fields = get_field_widgets
-        widgets = get_fields(self._registry, schema_node)
+            get_widgets = get_field_widgets
+        widgets = get_widgets(self._registry, schema_node)
         fields = self._widgets_to_fields(view_settings, widgets)
         return view_model_class(fields=fields)
 
@@ -196,13 +199,15 @@ class ResourceAdmin:
                     widgets = only_widgets(widgets, names)
                 elif isinstance(fields, Exclude):
                     widgets = exclude_widgets(widgets, names)
+        if view_settings.widgets:
+            replace_widgets(widgets, view_settings.widgets)
         return [
             widget.to_model(name)
             for name, widget in widgets.items()
         ]
 
 
-def unflat(names: Sequence[str]) -> Dict[str, dict]:
+def unflat(names: Iterable[str]) -> Dict[str, dict]:
     """Convert a sequence of doted names into a dictionary.
 
     >>> unflat(['name', 'child.name', 'child.age', 'child', 'parent.work.name'])
@@ -241,3 +246,18 @@ def exclude_widgets(widgets: Dict[str, Widget], names: Dict[str, dict]) -> Dict[
         else:
             widgets.pop(name, None)
     return widgets
+
+
+def replace_widgets(widgets: Dict[str, Widget], replaces: WidgetReplaces):
+    """Replace widgets inplace."""
+    for name, value in replaces.items():
+        if name not in widgets:
+            continue
+        if value is None:
+            del widgets[name]
+        elif isinstance(value, Widget):
+            widgets[name] = value
+        elif isinstance(value, dict):
+            current_widget = widgets[name]
+            if hasattr(current_widget, 'fields'):
+                replace_widgets(current_widget.fields, value)

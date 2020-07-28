@@ -5,10 +5,13 @@
 """
 import dataclasses
 
+from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.registry import Registry
 from pyramid.request import Request
-from restfw.hal import HalResource, HalResourceWithEmbedded, list_to_embedded_resources
+from pyramid.security import Allow, Everyone
+from restfw.hal import HalResource, HalResourceWithEmbedded, SimpleContainer, list_to_embedded_resources
 from restfw.interfaces import MethodOptions
+from restfw.root import Root
 
 from . import schemas
 from .interfaces import IAdminChoices, IResourceAdminFabric
@@ -17,6 +20,12 @@ from .resource_admin import ResourceAdmin
 
 
 class ApiInfo(HalResource):
+
+    __acl__ = [
+        (Allow, Everyone, 'rest_admin.api_info.'),
+    ]
+
+    options_for_get = MethodOptions(None, None, permission='rest_admin.api_info.get')
 
     def as_dict(self, request):
         root_url = request.resource_url(request.root).rstrip('/')
@@ -29,11 +38,15 @@ class ApiInfo(HalResource):
 
     def get_resources_info(self, request: Request):
         registry: Registry = request.registry
-        resources = {}
+        resources = []
         for name, fabric in registry.getUtilitiesFor(IResourceAdminFabric):
             resource_admin: ResourceAdmin = fabric(request, name)
-            resources[name] = resource_admin.get_resource_info()
-        return resources
+            info = resource_admin.get_resource_info()
+            resources.append((info.index, name, info))
+        return {
+            name: info
+            for _, name, info in sorted(resources)
+        }
 
 
 class AdminChoices(HalResourceWithEmbedded):
@@ -86,3 +99,26 @@ class AdminChoices(HalResourceWithEmbedded):
                     'id': value,
                     'name': title
                 }
+
+
+class Admin(SimpleContainer):
+
+    def __init__(self):
+        super().__init__()
+        self['choices'] = AdminChoices()
+        self['api_info.json'] = ApiInfo()
+
+    def http_get(self, request, params):
+        url = request.route_url('admin_ui_ts')
+        return HTTPMovedPermanently(location=url)
+
+
+def get_admin(root: Root) -> Admin:
+    registry = root.get_registry()
+    prefix = registry.settings['restfw_admin.prefix']
+    return root[prefix]
+
+
+def get_admin_choices(root: Root) -> AdminChoices:
+    admin = get_admin(root)
+    return admin['choices']

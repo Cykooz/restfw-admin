@@ -6,7 +6,7 @@
 from typing import Literal, Optional
 
 import pendulum
-from pyramid.security import Allow, Everyone
+from pyramid.security import Allow, Authenticated, DENY_ALL
 from restfw.hal import HalResource, HalResourceWithEmbedded, list_to_embedded_resources
 from restfw.interfaces import MethodOptions
 from restfw.schemas import GetEmbeddedSchema
@@ -51,7 +51,8 @@ class User(HalResource):
 class Users(HalResourceWithEmbedded):
 
     __acl__ = [
-        (Allow, Everyone, 'users.'),
+        (Allow, Authenticated, 'users.'),
+        DENY_ALL,
     ]
 
     def __init__(self):

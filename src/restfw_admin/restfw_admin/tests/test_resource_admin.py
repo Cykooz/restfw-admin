@@ -12,7 +12,10 @@ from restfw.schemas import GetEmbeddedSchema
 
 from .. import widgets as all_widgets
 from ..models import FieldModel, ValidatorModel
-from ..resource_admin import Exclude, Only, ResourceAdmin, ViewSettings, exclude_widgets, only_widgets, unflat
+from ..resource_admin import (
+    Exclude, Only, ResourceAdmin, ViewSettings, exclude_widgets, only_widgets, replace_widgets,
+    unflat
+)
 
 
 # Users
@@ -23,11 +26,17 @@ class Child(schemas.MappingSchema):
     age = schemas.UnsignedIntegerNode(title='Age', nullable=True)
 
 
+def description_validator(node, value):
+    if value == 'Bad Guy':
+        raise colander.Invalid('Go to home, Bad Guy')
+
+
 class UserSchema(schemas.HalResourceSchema):
     id = schemas.UnsignedIntegerNode(title='ID')
     name = schemas.StringNode(title='User name')
     age = schemas.UnsignedIntegerNode(title='Age', nullable=True)
     sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
+    description = schemas.EmptyStringNode(title='Description')
     created = schemas.DateTimeNode(title='Created')
     children = schemas.SequenceNode(
         Child(title='Child'),
@@ -57,6 +66,7 @@ class CreateUserSchema(schemas.MappingSchema):
         title='Age', nullable=True, missing=colander.drop,
     )
     sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
+    description = schemas.EmptyStringNode(title='Description', validator=description_validator)
     children = schemas.SequenceNode(
         Child(title='Child', missing=colander.drop),
     )
@@ -159,7 +169,7 @@ def widgets_fixture():
         }),
         'parent': all_widgets.ArrayField(fields={
             'name': all_widgets.TextField(),
-            'age': all_widgets.TextField(),
+            'age': all_widgets.NumberField(),
             'work': all_widgets.ArrayField(fields={
                 'name': all_widgets.TextField(),
                 'phone': all_widgets.TextField(),
@@ -205,6 +215,39 @@ def test_exclude_widgets(widgets):
     assert list(res.keys()) == ['name', 'child', 'parent']
 
 
+def test_replace_widgets(widgets):
+    replaces = {
+        'name': all_widgets.TextField(label='New name'),
+        'child': {
+            'name': None,
+            'age': all_widgets.TextField(),
+            'not_a_field': all_widgets.TextField(),
+        },
+        'parent': {
+            'work': {
+                'name': all_widgets.SelectField(choices=[('w1', 'W1'), ('w2', 'W2')])
+            }
+        },
+        'phone': None,
+    }
+    replace_widgets(widgets, replaces)
+    assert widgets == {
+        'name': all_widgets.TextField(label='New name'),
+        'child': all_widgets.ArrayField(fields={
+            'sex': all_widgets.TextField(),
+            'age': all_widgets.TextField(),
+        }),
+        'parent': all_widgets.ArrayField(fields={
+            'name': all_widgets.TextField(),
+            'age': all_widgets.NumberField(),
+            'work': all_widgets.ArrayField(fields={
+                'name': all_widgets.SelectField(choices=[('w1', 'W1'), ('w2', 'W2')]),
+                'phone': all_widgets.TextField(),
+            }),
+        }),
+    }
+
+
 def test_get_user_list_view(pyramid_request):
     resource_admin = UsersAdmin(pyramid_request, 'items')
     view = resource_admin.get_list_view()
@@ -212,6 +255,7 @@ def test_get_user_list_view(pyramid_request):
     assert fields == [
         FieldModel(type='NumberField', source='age', params={'label': 'Age'}),
         FieldModel(type='DateField', source='created', params={'label': 'Created', 'showTime': True}),
+        FieldModel(type='TextField', source='description', params={'label': 'Description'}),
         FieldModel(type='NumberField', source='id', params={'label': 'ID'}),
         FieldModel(type='TextField', source='name', params={'label': 'User name'}),
         FieldModel(
@@ -230,13 +274,13 @@ def test_get_user_list_view(pyramid_request):
     resource_admin.fields = Exclude('name', 'age')
     view = resource_admin.get_list_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'sex'}
+    assert fields == {'id', 'created', 'sex', 'description'}
 
     # Exclude fields for view
     resource_admin.list_view.fields = Exclude('sex')
     view = resource_admin.get_list_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'children'}
+    assert fields == {'id', 'created', 'children', 'description'}
 
     # Only fields for view
     resource_admin.list_view.fields = Only('id')
@@ -269,6 +313,7 @@ def test_get_user_show_view(pyramid_request):
                 ]
             }),
         FieldModel(type='DateField', source='created', params={'label': 'Created', 'showTime': True}),
+        FieldModel(type='TextField', source='description', params={'label': 'Description'}),
         FieldModel(type='NumberField', source='id', params={'label': 'ID'}),
         FieldModel(type='TextField', source='name', params={'label': 'User name'}),
         FieldModel(
@@ -284,13 +329,13 @@ def test_get_user_show_view(pyramid_request):
     resource_admin.fields = Exclude('name', 'age')
     view = resource_admin.get_show_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'sex', 'children'}
+    assert fields == {'id', 'created', 'sex', 'description', 'children'}
 
     # Exclude fields for view
     resource_admin.show_view.fields = Exclude('sex')
     view = resource_admin.get_show_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'children'}
+    assert fields == {'id', 'created', 'children', 'description'}
 
     # Only fields for view
     resource_admin.show_view.fields = Only('id')
@@ -306,9 +351,12 @@ def test_get_user_create_view(pyramid_request):
 
     assert fields == [
         FieldModel(
-            type='NumberInput', source='age',
-            params={'label': 'Age', 'min': 0},
-            validators=[ValidatorModel(name='minValue', args=(0,))]
+            type='TextInput', source='age',
+            params={'label': 'Age'},
+            validators=[
+                ValidatorModel(name='minValue', args=(0,)),
+                ValidatorModel(name='number'),
+            ]
         ),
         FieldModel(
             type='ArrayInput', source='children',
@@ -330,13 +378,22 @@ def test_get_user_create_view(pyramid_request):
                                     ValidatorModel(name='minLength', args=(1,))]
                     ),
                     FieldModel(
-                        type='NumberInput', source='age',
-                        params={'label': 'Age', 'min': 0},
-                        validators=[ValidatorModel(name='minValue', args=(0,))]
+                        type='TextInput', source='age',
+                        params={'label': 'Age'},
+                        validators=[
+                            ValidatorModel(name='minValue', args=(0,)),
+                            ValidatorModel(name='number'),
+                        ]
                     )
                 ]
             },
             validators=[ValidatorModel(name='required', args=())]
+        ),
+        FieldModel(
+            type='TextInput',
+            source='description',
+            params={'label': 'Description'},
+            validators=[ValidatorModel(name='required')]
         ),
         FieldModel(
             type='TextInput', source='name',
@@ -361,13 +418,13 @@ def test_get_user_create_view(pyramid_request):
     resource_admin.fields = Exclude('age')
     view = resource_admin.get_create_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'name', 'sex', 'children'}
+    assert fields == {'name', 'sex', 'description', 'children'}
 
     # Exclude fields for view
     resource_admin.create_view.fields = Exclude('sex')
     view = resource_admin.get_create_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'name', 'children'}
+    assert fields == {'name', 'children', 'description'}
 
     # Only fields for view
     resource_admin.create_view.fields = Only('sex')
@@ -382,9 +439,12 @@ def test_get_user_edit_view(pyramid_request):
     fields = sorted(view.fields, key=lambda f: f.source)
     assert fields == [
         FieldModel(
-            type='NumberInput', source='age',
-            params={'label': 'Age', 'min': 0},
-            validators=[ValidatorModel(name='minValue', args=(0,))]
+            type='TextInput', source='age',
+            params={'label': 'Age'},
+            validators=[
+                ValidatorModel(name='minValue', args=(0,)),
+                ValidatorModel(name='number'),
+            ]
         ),
         FieldModel(
             type='ArrayInput', source='children',
@@ -405,9 +465,12 @@ def test_get_user_edit_view(pyramid_request):
                                     ValidatorModel(name='minLength', args=(1,))]
                     ),
                     FieldModel(
-                        type='NumberInput', source='age',
-                        params={'label': 'Age', 'min': 0},
-                        validators=[ValidatorModel(name='minValue', args=(0,))]
+                        type='TextInput', source='age',
+                        params={'label': 'Age'},
+                        validators=[
+                            ValidatorModel(name='minValue', args=(0,)),
+                            ValidatorModel(name='number'),
+                        ]
                     )
                 ]
             },

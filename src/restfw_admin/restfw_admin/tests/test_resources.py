@@ -4,7 +4,7 @@
 :Date: 05.02.2020
 """
 from ..config import admin_choices_config
-from ..resources import AdminChoices
+from ..resources import get_admin_choices
 
 
 @admin_choices_config('product_types')
@@ -17,8 +17,7 @@ def get_product_types(request):
 
 
 def test_admin_choices(web_app, pyramid_request, app_config):
-    admin_choices: AdminChoices = pyramid_request.root['admin_choices']
-
+    admin_choices = get_admin_choices(pyramid_request.root)
     choices = list(admin_choices.get_choices(pyramid_request.registry))
     assert choices == []
 

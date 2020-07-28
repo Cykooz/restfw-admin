@@ -10,7 +10,7 @@ def includeme(config):
     :type config: pyramid.config.Configurator
     """
     from pyramid.authentication import BasicAuthAuthenticationPolicy
-    from example_app.users.resources import check_credentials
+    from .resources import check_credentials
 
     authn_policy = BasicAuthAuthenticationPolicy(check_credentials)
     config.set_authentication_policy(authn_policy)
@@ -29,8 +29,13 @@ def includeme(config):
     from restfw.interfaces import IRootCreated
     config.add_subscriber(add_to_root, IRootCreated)
 
-    from .admin import UsersAdmin
-    config.add_resource_admin('users', UsersAdmin)
+    from pathlib import Path
+    from restfw_admin.config import add_restfw_admin_auth_provider, add_restfw_admin_http_client
+    static_dir = Path(__file__).parent / 'static'
+    auth_provider = static_dir / 'auth_provider.js'
+    add_restfw_admin_auth_provider(config, 'getBasicAuthProvider', auth_provider.read_text('utf-8'))
+    http_client = static_dir / 'http_client.js'
+    add_restfw_admin_http_client(config, 'getHttpClient', http_client.read_text('utf-8'))
 
     from restfw.utils import scan_ignore
     config.scan(ignore=scan_ignore(config.registry))

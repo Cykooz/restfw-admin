@@ -20,4 +20,4 @@ Next release
 Features
 --------
 
-- First version.
+- Initial release.

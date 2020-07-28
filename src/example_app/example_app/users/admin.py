@@ -3,10 +3,12 @@
 :Authors: cykooz
 :Date: 09.02.2020
 """
+from restfw_admin.config import resource_admin_config
 from restfw_admin.resource_admin import Exclude, ResourceAdmin, ViewSettings
 from .resources import User, Users
 
 
+@resource_admin_config('users')
 class UsersAdmin(ResourceAdmin):
     container = Users
     child = User

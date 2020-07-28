@@ -48,15 +48,9 @@ def number_view(registry: Registry, node: ColanderNode):
 def number_input(registry: Registry, node: ColanderNode):
     validators = get_validators(registry, node)
     validators.append(Number())
-    params = {}
-    if min_validator := get_validators_by_type(validators, MinValue):
-        params['min'] = min_validator[0].min
-    if max_validator := get_validators_by_type(validators, MaxValue):
-        params['max'] = max_validator[0].max
-    widget = widgets.NumberInput(
+    widget = widgets.TextInput(
         label=node.title,
         validators=validators,
-        **params,
     )
     return widget
 
