@@ -114,50 +114,6 @@ class UsersAdmin(ResourceAdmin):
     )
 
 
-# Docs
-
-class DocSchema(schemas.HalResourceSchema):
-    id = schemas.UnsignedIntegerNode(title='ID')
-    user_id = schemas.IntegerNode(title='User ID')
-    data = schemas.EmptyStringNode(title='Document data')
-
-
-class DocsSchema(schemas.HalResourceWithEmbeddedSchema):
-    _embedded = schemas.EmbeddedNode(
-        schemas.SequenceNode(
-            DocSchema(title='Document'),
-            name='docs', title='List of embedded documents'
-        ),
-        missing=colander.drop,
-    )
-
-
-class CreateDocSchema(schemas.MappingSchema):
-    user_id = schemas.IntegerNode(title='User ID')
-    data = schemas.EmptyStringNode(title='Document data')
-
-
-class Doc(HalResource):
-    options_for_get = MethodOptions(None, DocSchema, permission='docs.get')
-    options_for_delete = MethodOptions(None, None, permission='docs.edit')
-
-
-class Docs(HalResourceWithEmbedded):
-    options_for_get = MethodOptions(GetEmbeddedSchema, DocsSchema, permission='docs.get')
-    options_for_post = MethodOptions(CreateDocSchema, DocSchema, permission='docs.edit')
-
-
-class DocsAdmin(ResourceAdmin):
-    container = Docs
-    child = Doc
-    title = 'Documents'
-    location = '/docs'
-    index = 1
-    list_view = ViewSettings(
-        fields=Exclude('data')
-    )
-
-
 @pytest.fixture(name='widgets')
 def widgets_fixture():
     return {

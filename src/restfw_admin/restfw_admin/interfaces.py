@@ -7,10 +7,11 @@ from typing import List, Optional
 
 from pyramid.registry import Registry
 from pyramid.request import Request
-from zope.interface import Attribute, Interface
+from zope.interface import Interface
 
-from .models import FieldModel, ValidatorModel
+from .models import ValidatorModel
 from .typing import ColanderNode, ColanderValidator
+from .widgets import FieldWidget, InputWidget
 
 
 class IAdminChoices(Interface):
@@ -30,16 +31,15 @@ class IResourceAdminFabric(Interface):
         pass
 
 
-class IViewFieldConverter(Interface):
-    type = Attribute('Class of colander schema type')
+class ISchemaNodeToFieldWidget(Interface):
 
-    def __call__(registry: Registry, node: ColanderNode) -> Optional[FieldModel]:
+    def __call__(registry: Registry, node: ColanderNode) -> Optional[FieldWidget]:
         pass
 
 
-class IInputFieldConverter(Interface):
+class ISchemaNodeToInputWidget(Interface):
 
-    def __call__(registry: Registry, node: ColanderNode) -> Optional[FieldModel]:
+    def __call__(registry: Registry, node: ColanderNode) -> Optional[InputWidget]:
         pass
 
 

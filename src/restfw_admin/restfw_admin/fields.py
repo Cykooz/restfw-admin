@@ -47,11 +47,11 @@ def get_field_widget(
         node_type: Optional[colander.SchemaType] = None,
 ) -> Optional[FieldWidget]:
     node_type = node_type or node.typ
-    converter: Optional[FieldConverter] = registry.queryAdapter(node_type, interfaces.IViewFieldConverter)
+    converter: Optional[FieldConverter] = registry.queryAdapter(node_type, interfaces.ISchemaNodeToFieldWidget)
     if converter:
         widget = converter(registry, node)
         if widget:
-            widget = _try_convert_to_select_view(registry, widget, node)
+            widget = _try_convert_to_select_field(registry, widget, node)
         return widget
 
 
@@ -61,7 +61,7 @@ def get_input_widget(
         node_type: Optional[colander.SchemaType] = None,
 ) -> Optional[InputWidget]:
     node_type = node_type or node.typ
-    converter: Optional[InputConverter] = registry.queryAdapter(node_type, interfaces.IInputFieldConverter)
+    converter: Optional[InputConverter] = registry.queryAdapter(node_type, interfaces.ISchemaNodeToInputWidget)
     if converter:
         widget = converter(registry, node)
         if widget:
@@ -69,7 +69,7 @@ def get_input_widget(
         return widget
 
 
-def _try_convert_to_select_view(registry: Registry, widget: FieldWidget, node: ColanderNode) -> FieldWidget:
+def _try_convert_to_select_field(registry: Registry, widget: FieldWidget, node: ColanderNode) -> FieldWidget:
     if isinstance(FieldWidget, SelectField):
         return widget
 
@@ -121,10 +121,10 @@ def add_field_converter(
 
     if is_input:
         field_type = 'input'
-        provided = interfaces.IInputFieldConverter
+        provided = interfaces.ISchemaNodeToInputWidget
     else:
         field_type = 'view'
-        provided = interfaces.IViewFieldConverter
+        provided = interfaces.ISchemaNodeToFieldWidget
 
     discriminator = f'restfw_{field_type}_field:{id(node_type)}'
     intr = config.introspectable(

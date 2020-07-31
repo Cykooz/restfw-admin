@@ -12,6 +12,7 @@ import {
     NumberField,
     NumberInput,
     ReferenceField,
+    ReferenceInput,
     ReferenceManyField,
     SelectField,
     SelectInput,
@@ -106,19 +107,32 @@ function array_input_fabric(key: string, field: IField) {
 
 // Reference field and input
 
-function referenceViewFabric(key: string, field: IField) {
-    let {fields, ...params} = field.params;
+function referenceFieldFabric(key: string, field: IField) {
+    let {child, ...params} = field.params;
     return (
         <ReferenceField
             key={key}
             source={field.source}
             {...params}
         >
-            {getFieldComponent('1', fields)}
+            {getFieldComponent('1', child)}
         </ReferenceField>
     );
 }
 
+
+function referenceInputFabric(key: string, field: IField) {
+    let {child, ...params} = field.params;
+    return (
+        <ReferenceInput
+            key={key}
+            source={field.source}
+            {...params}
+        >
+            {getFieldComponent('1', child)}
+        </ReferenceInput>
+    );
+}
 
 export const COMPONENTS: Record<string, IFabric> = {
     'TextField': view_fabric(TextField),
@@ -133,7 +147,7 @@ export const COMPONENTS: Record<string, IFabric> = {
     'BooleanField': view_fabric(BooleanField),
     'FunctionField': view_fabric(FunctionField),
     'ReferenceManyField': view_fabric(ReferenceManyField),
-    'ReferenceField': referenceViewFabric,
+    'ReferenceField': referenceFieldFabric,
     'SelectField': view_fabric(SelectField),
     'ArrayField': array_view_fabric,
     // Inputs
@@ -145,6 +159,7 @@ export const COMPONENTS: Record<string, IFabric> = {
     'NumberInput': input_fabric(NumberInput),
     'SelectInput': input_fabric(SelectInput),
     'ArrayInput': array_input_fabric,
+    'ReferenceInput': referenceInputFabric,
     // 'JsonInput': {
     //   component: JsonInput,
     //   props: {defaultValue: {}},

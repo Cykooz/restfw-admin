@@ -51,6 +51,8 @@ def includeme(config: Configurator):
 
     from .config import add_resource_admin
     config.add_directive('add_resource_admin', add_resource_admin)
+    from .fields import add_field_converter
+    config.add_directive('add_field_converter', add_field_converter)
 
     from restfw.utils import scan_ignore
     config.scan(ignore=scan_ignore(config.registry))

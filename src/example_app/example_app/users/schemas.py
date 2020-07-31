@@ -83,3 +83,16 @@ class UsersSchema(schemas.HalResourceWithEmbeddedSchema):
         ),
         missing=colander.drop,
     )
+
+
+@colander.deferred
+def user_id_validator(_, kw):
+    users = kw['request'].root['users']
+
+    def validator(node, value: int):
+        try:
+            users[str(value)]
+        except KeyError:
+            raise colander.Invalid(node, msg='User has not found')
+
+    return validator

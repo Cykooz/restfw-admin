@@ -45,6 +45,7 @@ setup(
         'restfw_admin',
         'wsgicors',
         'pendulum',
+        'pyramid_debugtoolbar',
     ],
     entry_points={
         'console_scripts': [

@@ -12,7 +12,9 @@ from pyramid.config import Configurator
 
 def main():
     with Configurator() as config:
+        config.include('pyramid_debugtoolbar')
         config.include('example_app.users')
+        config.include('example_app.documents')
 
         wsgi_app = config.make_wsgi_app()
         wsgi_app = CORS(

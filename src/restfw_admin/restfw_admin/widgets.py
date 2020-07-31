@@ -31,7 +31,7 @@ class Widget:
     # used inside <SimpleForm> or <TabbedForm>.
     form_css_class: Optional[str] = ra_field('formClassName')
 
-    def to_model(self, field_name: str) -> FieldModel:
+    def to_model(self, field_name: Optional[str]) -> FieldModel:
         params = {}
         for f in fields(self):
             value = getattr(self, f.name)
@@ -39,7 +39,7 @@ class Widget:
                 continue
             name = f.metadata.get('ra_name', f.name)
             params[name] = value
-        if 'label' not in params:
+        if 'label' not in params and field_name:
             params['label'] = slug_to_title(field_name)
         return FieldModel(type=self.type, source=field_name, params=params)
 
@@ -181,28 +181,39 @@ class ChipField(FieldWidget):
 
 
 @dataclass()
-class SelectField(FieldWidget):
-    type = 'SelectField'
+class ChoicesWidget(Widget):
     choices: List[Tuple[SimpleJsonValue, str]] = None
 
-    def __post_init__(self):
-        if self.choices is None:
-            raise TypeError("__init__() missing 1 required argument: 'choices'")
-
-    def to_model(self, field_name: str) -> FieldModel:
+    def to_model(self, field_name: Optional[str]) -> FieldModel:
         field_model = super().to_model(field_name)
-        field_model.params['choices'] = [
-            {'id': _id, 'name': name}
-            for _id, name in self.choices
-        ]
+        if self.choices is not None:
+            field_model.params['choices'] = [
+                {'id': _id, 'name': name}
+                for _id, name in self.choices
+            ]
         return field_model
 
 
+class ChoicesFieldWidget(ChoicesWidget, FieldWidget):
+    pass
+
+
 @dataclass()
-class SelectInput(InputWidget):
+class SelectField(ChoicesFieldWidget):
+    type = 'SelectField'
+    # Name of the field to use to display the matching choice,
+    # or function returning that field name, or a React element
+    # to render for that choice.
+    option_text: Optional[str] = ra_field('optionText')
+
+
+class ChoicesInputWidget(ChoicesWidget, InputWidget):
+    pass
+
+
+@dataclass()
+class SelectInput(ChoicesInputWidget):
     type = 'SelectInput'
-    choices: List[Tuple[SimpleJsonValue, str]] = None
-    # If True, the first option is an empty one.
     allow_empty: Optional[bool] = ra_field('allowEmpty')
     # Overwrite value of "empty value".
     empty_value: Optional[SimpleJsonValue] = ra_field('emptyValue')
@@ -210,19 +221,9 @@ class SelectInput(InputWidget):
     empty_text: Optional[str] = ra_field('emptyText')
     # Props to pass to the underlying <SelectInput> element
     options: Optional[Dict[str, SimpleJsonValue]] = None
+    # Field name of record to display in the suggestion item.
+    option_text: Optional[str] = ra_field('optionText')
     resettable: Optional[bool] = None
-
-    def __post_init__(self):
-        if self.choices is None:
-            raise TypeError("__init__() missing 1 required argument: 'choices'")
-
-    def to_model(self, field_name: str) -> FieldModel:
-        field_model = super().to_model(field_name)
-        field_model.params['choices'] = [
-            {'id': _id, 'name': name}
-            for _id, name in self.choices
-        ]
-        return field_model
 
 
 class SelectArrayInput(SelectInput):
@@ -269,3 +270,49 @@ class ArrayInput(InputWidget):
             for name, widget in self.fields.items()
         ]
         return field_model
+
+
+@dataclass()
+class ReferenceFieldBase:
+    reference: str
+    reference_field: str
+
+
+@dataclass()
+class ReferenceField(FieldWidget, ReferenceFieldBase):
+    type = 'ReferenceField'
+    widget: FieldWidget = field(default_factory=TextField)
+    link: Literal['edit', 'show'] = 'edit'
+
+    def to_model(self, field_name: str) -> FieldModel:
+        model = super().to_model(field_name)
+        del model.params['reference_field']
+        del model.params['widget']
+        model.params['child'] = self.widget.to_model(self.reference_field)
+        return model
+
+
+@dataclass()
+class ReferenceInputBase:
+    reference: str
+
+
+@dataclass()
+class ReferenceInput(InputWidget, ReferenceInputBase):
+    type = 'ReferenceInput'
+    # Default is SelectInput
+    widget: Optional[ChoicesInputWidget] = None
+    # If True, add an empty item to the list of choices to allow for empty value
+    allow_empty: Optional[bool] = ra_field('allowEmpty')
+    per_page: Optional[int] = ra_field('perPage')
+    # Field name of record to display in the default SelectInput widget.
+    option_text: Optional[str] = ra_field('optionText')
+
+    def to_model(self, field_name: str) -> FieldModel:
+        model = super().to_model(field_name)
+        widget = model.params.pop('widget', None)
+        option_text = model.params.pop('optionText', None)
+        if not widget:
+            widget = SelectInput(option_text=option_text)
+        model.params['child'] = widget.to_model(field_name=None)
+        return model

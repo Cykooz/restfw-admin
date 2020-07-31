@@ -144,16 +144,17 @@ class ResourceAdmin:
         )
 
     def get_edit_view(self) -> Optional[models.EditViewModel]:
-        return self._get_view(
-            self._get_schema_node(
-                self.child,
-                method=self.update_method,
-                schema_type='input',
-            ),
-            self.edit_view,
-            models.EditViewModel,
-            fields_type='input',
-        )
+        if self.update_method:
+            return self._get_view(
+                self._get_schema_node(
+                    self.child,
+                    method=self.update_method,
+                    schema_type='input',
+                ),
+                self.edit_view,
+                models.EditViewModel,
+                fields_type='input',
+            )
 
     def _get_view(
             self,

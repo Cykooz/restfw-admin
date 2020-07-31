@@ -12,14 +12,14 @@ from restfw import schemas
 from . import widgets
 from .fields import get_field_widget, get_input_widget, input_field_converter, view_field_converter
 from .typing import ColanderNode
-from .validators import MaxValue, MinLength, MinValue, Number, Required
-from .validators_converters import get_validators, get_validators_by_type
+from .validators import MinLength, Number, Required
+from .validators_converters import get_validators
 
 
 # Boolean
 
 @view_field_converter(colander.Boolean)
-def boolean_view(registry: Registry, node: ColanderNode):
+def boolean_field(registry: Registry, node: ColanderNode):
     return widgets.BooleanField(
         label=node.title,
     )
@@ -37,7 +37,7 @@ def boolean_input(registry: Registry, node: ColanderNode):
 
 @view_field_converter(colander.Integer)
 @view_field_converter(colander.Float)
-def number_view(registry: Registry, node: ColanderNode):
+def number_field(registry: Registry, node: ColanderNode):
     return widgets.NumberField(
         label=node.title,
     )
@@ -58,7 +58,7 @@ def number_input(registry: Registry, node: ColanderNode):
 # String
 
 @view_field_converter(colander.String)
-def string_view(registry: Registry, node: ColanderNode):
+def string_field(registry: Registry, node: ColanderNode):
     return widgets.TextField(
         label=node.title,
     )
@@ -78,7 +78,7 @@ def string_input(registry: Registry, node: ColanderNode):
 # Date
 
 @view_field_converter(colander.Date)
-def date_view(registry: Registry, node: ColanderNode):
+def date_field(registry: Registry, node: ColanderNode):
     return widgets.DateField(
         label=node.title,
     )
@@ -95,7 +95,7 @@ def date_input(registry: Registry, node: ColanderNode):
 # DateTime
 
 @view_field_converter(colander.DateTime)
-def datetime_view(registry: Registry, node: ColanderNode):
+def datetime_field(registry: Registry, node: ColanderNode):
     return widgets.DateField(
         label=node.title,
         show_time=True,
@@ -113,7 +113,7 @@ def datetime_input(registry: Registry, node: ColanderNode):
 # Nullable
 
 @view_field_converter(schemas.Nullable)
-def nullable_view(registry: Registry, node: ColanderNode):
+def nullable_field(registry: Registry, node: ColanderNode):
     return get_field_widget(registry, node, node.typ.typ)
 
 
@@ -131,7 +131,7 @@ def nullable_input(registry: Registry, node: ColanderNode):
 # Sequence
 
 @view_field_converter(colander.Sequence)
-def sequence_view(registry: Registry, node: ColanderNode):
+def sequence_field(registry: Registry, node: ColanderNode):
     fields: Dict[str, widgets.FieldWidget] = {}
     for sub_node in node.children[0].children:
         if widget := get_field_widget(registry, sub_node):
@@ -149,7 +149,7 @@ def sequence_input(registry: Registry, node: ColanderNode):
         if widget := get_input_widget(registry, sub_node):
             fields[sub_node.name] = widget
     return widgets.ArrayInput(
-        label=node.title,
         fields=fields,
+        label=node.title,
         validators=get_validators(registry, node),
     )

@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, TypeVar
+from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
 from .typing import Json
 
@@ -20,8 +20,8 @@ class ValidatorModel:
 @dataclass()
 class FieldModel:
     type: str
-    source: str
-    params: Dict[str, Json] = field(default_factory=dict)
+    source: Optional[str]
+    params: Dict[str, Union[Json, 'FieldModel']] = field(default_factory=dict)
     validators: List[ValidatorModel] = field(default_factory=list)
 
 
