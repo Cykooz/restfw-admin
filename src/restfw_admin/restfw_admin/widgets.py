@@ -227,7 +227,7 @@ class SelectInput(ChoicesInputWidget):
     type = 'SelectInput'
     allow_empty: Optional[bool] = ra_field('allowEmpty')
     # Overwrite value of "empty value".
-    empty_value: Optional[SimpleJsonValue] = ra_field('emptyValue')
+    empty_value: Optional[SimpleJsonValue] = ra_field('emptyValue', default='')
     # The text to display for the empty option.
     empty_text: Optional[str] = ra_field('emptyText')
     # Props to pass to the underlying <SelectInput> element
@@ -235,6 +235,14 @@ class SelectInput(ChoicesInputWidget):
     # Field name of record to display in the suggestion item.
     option_text: Optional[str] = ra_field('optionText')
     resettable: Optional[bool] = None
+
+    def to_model(self, field_name: Optional[str]) -> FieldModel:
+        field_model = super().to_model(field_name)
+        if 'emptyValue' not in field_model.params:
+            field_model.params['emptyValue'] = None
+        elif field_model.params['emptyValue'] == '':
+            del field_model.params['emptyValue']
+        return field_model
 
 
 class SelectArrayInput(SelectInput):

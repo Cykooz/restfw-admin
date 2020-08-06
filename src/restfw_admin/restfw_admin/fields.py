@@ -19,8 +19,8 @@ from .validators_converters import get_validators, get_validators_by_type
 from .widgets import FieldWidget, InputWidget, SelectField, SelectInput
 
 
-FieldConverter = Callable[[Registry, ColanderNode], Optional[FieldWidget]]
-InputConverter = Callable[[Registry, ColanderNode], Optional[InputWidget]]
+FieldConverter = Callable[[Registry, ColanderNode, colander.SchemaType], Optional[FieldWidget]]
+InputConverter = Callable[[Registry, ColanderNode, colander.SchemaType], Optional[InputWidget]]
 
 
 def get_field_widgets(registry: Registry, schema: ColanderNode):
@@ -49,7 +49,7 @@ def get_field_widget(
     node_type = node_type or node.typ
     converter: Optional[FieldConverter] = registry.queryAdapter(node_type, interfaces.ISchemaNodeToFieldWidget)
     if converter:
-        widget = converter(registry, node)
+        widget = converter(registry, node, node_type)
         if widget:
             widget = _try_convert_to_select_field(registry, widget, node)
         return widget
@@ -63,14 +63,14 @@ def get_input_widget(
     node_type = node_type or node.typ
     converter: Optional[InputConverter] = registry.queryAdapter(node_type, interfaces.ISchemaNodeToInputWidget)
     if converter:
-        widget = converter(registry, node)
+        widget = converter(registry, node, node_type)
         if widget:
             widget = _try_convert_to_select_input(registry, widget, node)
         return widget
 
 
 def _try_convert_to_select_field(registry: Registry, widget: FieldWidget, node: ColanderNode) -> FieldWidget:
-    if isinstance(FieldWidget, SelectField):
+    if isinstance(widget, SelectField):
         return widget
 
     validators = get_validators(registry, node)
@@ -89,7 +89,7 @@ def _try_convert_to_select_field(registry: Registry, widget: FieldWidget, node: 
 
 
 def _try_convert_to_select_input(registry: Registry, widget: InputWidget, node: ColanderNode) -> InputWidget:
-    if isinstance(FieldWidget, SelectInput):
+    if isinstance(widget, SelectInput):
         return widget
 
     validators = get_validators(registry, node)

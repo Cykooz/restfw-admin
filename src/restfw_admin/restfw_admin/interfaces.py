@@ -5,6 +5,7 @@
 """
 from typing import List, Optional
 
+import colander
 from pyramid.registry import Registry
 from pyramid.request import Request
 from zope.interface import Interface
@@ -33,13 +34,15 @@ class IResourceAdminFabric(Interface):
 
 class ISchemaNodeToFieldWidget(Interface):
 
-    def __call__(registry: Registry, node: ColanderNode) -> Optional[FieldWidget]:
+    def __call__(registry: Registry, node: ColanderNode,
+                 node_type: colander.SchemaType) -> Optional[FieldWidget]:
         pass
 
 
 class ISchemaNodeToInputWidget(Interface):
 
-    def __call__(registry: Registry, node: ColanderNode) -> Optional[InputWidget]:
+    def __call__(registry: Registry, node: ColanderNode,
+                 node_type: colander.SchemaType) -> Optional[InputWidget]:
         pass
 
 

@@ -65,7 +65,7 @@ class CreateUserSchema(schemas.MappingSchema):
     age = schemas.UnsignedIntegerNode(
         title='Age', nullable=True, missing=colander.drop,
     )
-    sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
+    sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']), nullable=True)
     description = schemas.EmptyStringNode(title='Description', validator=description_validator)
     children = schemas.SequenceNode(
         Child(title='Child', missing=colander.drop),
@@ -364,7 +364,10 @@ def test_get_user_create_view(pyramid_request):
             type='SelectInput', source='sex',
             params={
                 'label': 'Sex',
-                'choices': [{'id': 'm', 'name': 'M'}, {'id': 'f', 'name': 'F'}]
+                'choices': [{'id': 'm', 'name': 'M'}, {'id': 'f', 'name': 'F'}],
+                'allowEmpty': True,
+                'emptyText': '<none>',
+                'emptyValue': None,
             },
             validators=[ValidatorModel(name='required', args=())]
         ),

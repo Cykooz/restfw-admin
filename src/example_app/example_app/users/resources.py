@@ -29,7 +29,7 @@ class UserModel:
     first_name: str
     last_name: str
     age: int
-    sex: Literal['m', 'f']
+    sex: Optional[Literal['m', 'f']]
     children: List[ChildModel]
 
 
@@ -105,7 +105,7 @@ class Users(HalResourceWithEmbedded):
     def get_user_by_model(self, model: UserModel):
         return User(model, parent=self)
 
-    def create_user(self, first_name, last_name, age: Optional[int] = None, sex: Literal['m', 'f'] = 'm'):
+    def create_user(self, first_name, last_name, age: Optional[int] = None, sex: Optional[Literal['m', 'f']] = 'm'):
         user_id = self._next_id
         model = UserModel(
             id=user_id,

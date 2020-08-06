@@ -11,5 +11,5 @@ import colander
 ColanderNode = colander._SchemaNode
 ColanderValidator = Callable[[ColanderNode, Any], None]
 JsonNumber = Union[int, float]
-SimpleJsonValue = Union[str, JsonNumber, bool]
+SimpleJsonValue = Union[str, JsonNumber, bool, None]
 Json = Union[SimpleJsonValue, List['Json'], Tuple['Json', ...], Dict[str, 'Json']]

@@ -41,7 +41,7 @@ class CreateUserSchema(schemas.MappingSchema):
     age = schemas.UnsignedIntegerNode(
         title='Age', nullable=True, missing=colander.drop,
     )
-    sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
+    sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']), nullable=True)
     children = schemas.SequenceNode(
         Child(title='Child', missing=colander.drop),
     )
@@ -67,7 +67,7 @@ class PatchUserSchema(schemas.MappingSchema):
     )
     sex = schemas.StringNode(
         title='Sex', missing=colander.drop,
-        validator=colander.OneOf(['m', 'f'])
+        validator=colander.OneOf(['m', 'f']), nullable=True
     )
     children = schemas.SequenceNode(
         Child(title='Child', missing=colander.drop),
