@@ -9,8 +9,13 @@ cd "${CUR_DIR}"
 BIN_DIR="${CUR_DIR}/bin"
 PYTHON="${CUR_DIR}/bin/python_twine"
 TWINE="${CUR_DIR}/bin/twine"
+NODEJS="${BIN_DIR}/node"
 
-cd src/restfw_admin
+echo "Build Admin UI"
+cd src/admin_ui
+${NODEJS} "${CUR_DIR}/parts/nodejs/lib/node_modules/yarn/bin/yarn.js" run build
+
+cd "${CUR_DIR}/src/restfw_admin"
 
 echo "Check MANIFEST"
 ${BIN_DIR}/check-manifest -p "${PYTHON}"

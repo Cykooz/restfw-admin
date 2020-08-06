@@ -27,11 +27,14 @@ class ApiInfo(HalResource):
 
     options_for_get = MethodOptions(None, None, permission='rest_admin.api_info.get')
 
-    def as_dict(self, request):
-        root_url = request.resource_url(request.root).rstrip('/')
+    def as_dict(self, request: Request):
+        title = request.registry.settings.get('restfw_admin.title', 'Admin UI')
+        root_url = request.registry.settings.get('restfw_admin.root_url', '')
+        if not root_url:
+            root_url = request.resource_url(request.root)
         model = ApiInfoModel(
-            root_url=root_url,
-            title='Admin for Example App',
+            root_url=root_url.rstrip('/'),
+            title=title,
             resources=self.get_resources_info(request),
         )
         return dataclasses.asdict(model)
@@ -102,6 +105,10 @@ class AdminChoices(HalResourceWithEmbedded):
 
 
 class Admin(SimpleContainer):
+
+    __acl__ = [
+        (Allow, Everyone, 'get'),
+    ]
 
     def __init__(self):
         super().__init__()
