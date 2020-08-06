@@ -14,8 +14,8 @@
 CHANGELOG
 *********
 
-Next release
-============
+0.2.2 (2020-08-06)
+==================
 
 - Fixed errors with nullable schema nodes.
 
