@@ -113,6 +113,17 @@ class TextInput(InputWidget):
 
 
 @dataclass()
+class RichTextField(FieldWidget):
+    type = 'RichTextField'
+    # If true, remove all HTML tags and render text only
+    strip_tags: Optional[bool] = ra_field('stripTags')
+
+
+class RichTextInput(FieldWidget):
+    type = 'RichTextInput'
+
+
+@dataclass()
 class NumberField(FieldWidget):
     type = 'NumberField'
     # Override the browser locale in the date formatting.

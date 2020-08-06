@@ -14,12 +14,14 @@ import {
     ReferenceField,
     ReferenceInput,
     ReferenceManyField,
+    RichTextField,
     SelectField,
     SelectInput,
     SimpleFormIterator,
     TextField,
     TextInput,
 } from 'react-admin';
+import RichTextInput from 'ra-input-rich-text';
 import {IField} from "./apiInfo";
 import React, {ComponentType} from "react";
 import {getFieldValidators} from "./validators";
@@ -136,11 +138,7 @@ function referenceInputFabric(key: string, field: IField) {
 
 export const COMPONENTS: Record<string, IFabric> = {
     'TextField': view_fabric(TextField),
-    // 'JsonField': {
-    //   component: JsonField,
-    //   props: {sortable: false},
-    //   style: {},
-    // },
+    'RichTextField': view_fabric(RichTextField),
     'DateField': view_fabric(DateField),
     'DateTimeField': view_fabric(DateField, {showTime: true}),
     'NumberField': view_fabric(NumberField),
@@ -152,6 +150,7 @@ export const COMPONENTS: Record<string, IFabric> = {
     'ArrayField': array_view_fabric,
     // Inputs
     'TextInput': input_fabric(TextInput),
+    'RichTextInput': view_fabric(RichTextInput),
     'DateInput': input_fabric(DateInput),
     'DateTimeInput': input_fabric(DateTimeInput),
     'NullableBooleanInput': input_fabric(NullableBooleanInput),
@@ -160,11 +159,6 @@ export const COMPONENTS: Record<string, IFabric> = {
     'SelectInput': input_fabric(SelectInput),
     'ArrayInput': array_input_fabric,
     'ReferenceInput': referenceInputFabric,
-    // 'JsonInput': {
-    //   component: JsonInput,
-    //   props: {defaultValue: {}},
-    //   style: {},
-    // },
 };
 
 

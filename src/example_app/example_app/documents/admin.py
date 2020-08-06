@@ -6,7 +6,7 @@
 from restfw_admin.config import resource_admin_config
 from restfw_admin.resource_admin import Exclude, ResourceAdmin, ViewSettings
 from restfw_admin.validators import Required
-from restfw_admin.widgets import ReferenceField, ReferenceInput
+from restfw_admin import widgets as all_widgets
 from .resources import Doc, Docs
 
 
@@ -20,7 +20,7 @@ class DocsAdmin(ResourceAdmin):
     list_view = ViewSettings(
         fields=Exclude('data'),
         widgets={
-            'user_id': ReferenceField(
+            'user_id': all_widgets.ReferenceField(
                 reference='users',
                 reference_field='first_name',
                 label='User',
@@ -28,13 +28,30 @@ class DocsAdmin(ResourceAdmin):
             )
         }
     )
+    show_view = ViewSettings(
+        widgets={
+            'user_id': all_widgets.ReferenceField(
+                reference='users',
+                reference_field='first_name',
+                label='User',
+                link='show',
+            ),
+            'data': all_widgets.RichTextField(),
+        }
+    )
     create_view = ViewSettings(
         widgets={
-            'user_id': ReferenceInput(
+            'user_id': all_widgets.ReferenceInput(
                 reference='users',
                 option_text='first_name',
                 label='User',
                 validators=[Required()]
-            )
+            ),
+            'data': all_widgets.RichTextInput(),
+        }
+    )
+    edit_view = ViewSettings(
+        widgets={
+            'data': all_widgets.RichTextInput(),
         }
     )

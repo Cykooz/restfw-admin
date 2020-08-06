@@ -28,3 +28,10 @@ class DocsSchema(schemas.HalResourceWithEmbeddedSchema):
 class CreateDocSchema(schemas.MappingSchema):
     user_id = schemas.IntegerNode(title='User ID', validator=user_id_validator)
     data = schemas.EmptyStringNode(title='Document data')
+
+
+PatchDocSchema = schemas.clone_schema_class(
+    'PatchDocSchema', CreateDocSchema,
+    excludes=['user_id'],
+    nodes_missing=colander.drop,
+)

@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Added ``RichTextField`` and ``RichTextInput`` widgets.
+
 0.1.2 (2020-08-06)
 ==================
 

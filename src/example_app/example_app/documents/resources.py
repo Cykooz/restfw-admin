@@ -34,6 +34,16 @@ class Doc(HalResource):
     def as_dict(self, request):
         return asdict(self.model)
 
+    options_for_patch = MethodOptions(schemas.PatchDocSchema, schemas.DocSchema,
+                                      permission='docs.edit')
+
+    def http_patch(self, request, params):
+        for key, value in params.items():
+            if hasattr(self.model, key):
+                setattr(self.model, key, value)
+        created = False
+        return self, created
+
     options_for_delete = MethodOptions(None, None, permission='docs.edit')
 
     def http_delete(self, request, params):
