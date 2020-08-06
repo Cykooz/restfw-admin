@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Fixed error with getting of ``Admin`` resource with non default ``prefix``.
+
 0.1 (2020-08-06)
 ================
 

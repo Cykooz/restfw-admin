@@ -6,7 +6,8 @@
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPOk
 from pyramid.request import Request
 
-from restfw_admin.config import get_admin_ui_settings
+from .config import get_admin_ui_settings
+from .resources import get_admin
 
 
 TEMPLATE = '''<script>
@@ -17,7 +18,8 @@ window.__RESTFW_ADMIN_PARAMS__ = {admin_params};
 
 
 def admin_ui(request: Request):
-    api_info_url = request.resource_url(request.root['admin']['api_info.json']).rstrip('/')
+    admin_resource = get_admin(request.root)
+    api_info_url = request.resource_url(admin_resource['api_info.json']).rstrip('/')
     admin_params = [f'"apiInfoUrl": "{api_info_url}"']
 
     auth_provider = http_client = ''
