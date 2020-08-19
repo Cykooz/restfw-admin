@@ -158,3 +158,29 @@ def sequence_input(registry: Registry, node: ColanderNode, node_type: SchemaType
         label=node.title,
         validators=get_validators(registry, node),
     )
+
+
+# Mapping
+
+@view_field_converter(colander.Mapping)
+def mapping_field(registry: Registry, node: ColanderNode, node_type: colander.Mapping):
+    fields: Dict[str, widgets.FieldWidget] = {}
+    for sub_node in node.children:
+        if widget := get_field_widget(registry, sub_node):
+            fields[sub_node.name] = widget
+    return widgets.MappingField(
+        fields=fields,
+        label=node.title,
+    )
+
+
+@input_field_converter(colander.Mapping)
+def mapping_input(registry: Registry, node: ColanderNode, node_type: colander.Mapping):
+    fields: Dict[str, widgets.InputWidget] = {}
+    for sub_node in node.children:
+        if widget := get_input_widget(registry, sub_node):
+            fields[sub_node.name] = widget
+    return widgets.MappingInput(
+        fields=fields,
+        label=node.title,
+    )

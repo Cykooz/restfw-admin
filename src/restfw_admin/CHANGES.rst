@@ -14,8 +14,19 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Added basic implementation of ``MappingField`` and ``MappingInput``.
+
 0.2.2 (2020-08-06)
 ==================
+
+Bug Fixes
+---------
 
 - Fixed errors with nullable schema nodes.
 

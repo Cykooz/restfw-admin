@@ -335,3 +335,41 @@ class ReferenceInput(InputWidget, ReferenceInputBase):
             widget = SelectInput(option_text=option_text)
         model.params['child'] = widget.to_model(field_name=None)
         return model
+
+
+# Mapping
+
+@dataclass()
+class MappingField(Widget):
+    type = 'MappingField'
+    fields: Dict[str, FieldWidget] = None
+
+    def __post_init__(self):
+        if self.fields is None:
+            raise TypeError("__init__() missing 1 required argument: 'fields'")
+
+    def to_model(self, field_name: str) -> FieldModel:
+        field_model = super().to_model(field_name)
+        field_model.params['fields'] = [
+            widget.to_model(name)
+            for name, widget in self.fields.items()
+        ]
+        return field_model
+
+
+@dataclass()
+class MappingInput(Widget):
+    type = 'MappingInput'
+    fields: Dict[str, InputWidget] = None
+
+    def __post_init__(self):
+        if self.fields is None:
+            raise TypeError("__init__() missing 1 required argument: 'fields'")
+
+    def to_model(self, field_name: str) -> FieldModel:
+        field_model = super().to_model(field_name)
+        field_model.params['fields'] = [
+            widget.to_model(name)
+            for name, widget in self.fields.items()
+        ]
+        return field_model

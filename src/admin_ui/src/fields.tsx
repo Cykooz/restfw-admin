@@ -25,6 +25,8 @@ import RichTextInput from 'ra-input-rich-text';
 import {IField} from "./apiInfo";
 import React, {ComponentType} from "react";
 import {getFieldValidators} from "./validators";
+import MappingInput from "./MappingInput";
+import MappingField from "./MappingField";
 
 
 export const defaultFieldStyle = {
@@ -136,6 +138,34 @@ function referenceInputFabric(key: string, field: IField) {
     );
 }
 
+// Mapping
+
+function mapping_field_fabric(key: string, field: IField) {
+    let {fields, ...params} = field.params;
+    return (
+        <MappingField
+            key={key}
+            source={field.source}
+            {...params}
+        >
+            {getFields(fields)}
+        </MappingField>
+    );
+}
+
+function mapping_input_fabric(key: string, field: IField) {
+    let {fields, ...params} = field.params;
+    return (
+        <MappingInput
+            key={key}
+            source={field.source}
+            {...params}
+        >
+            {getInputs(fields)}
+        </MappingInput>
+    );
+}
+
 export const COMPONENTS: Record<string, IFabric> = {
     'TextField': view_fabric(TextField),
     'RichTextField': view_fabric(RichTextField),
@@ -148,6 +178,7 @@ export const COMPONENTS: Record<string, IFabric> = {
     'ReferenceField': referenceFieldFabric,
     'SelectField': view_fabric(SelectField),
     'ArrayField': array_view_fabric,
+    'MappingField': mapping_field_fabric,
     // Inputs
     'TextInput': input_fabric(TextInput),
     'RichTextInput': view_fabric(RichTextInput),
@@ -159,6 +190,7 @@ export const COMPONENTS: Record<string, IFabric> = {
     'SelectInput': input_fabric(SelectInput),
     'ArrayInput': array_input_fabric,
     'ReferenceInput': referenceInputFabric,
+    'MappingInput': mapping_input_fabric,
 };
 
 

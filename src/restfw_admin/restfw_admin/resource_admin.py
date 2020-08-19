@@ -52,6 +52,10 @@ class ResourceAdmin:
     embedded_name: str = ''
     update_method: str = ''
     index: int = 0
+    default_fields: Optional[Union[Only, Exclude]] = Exclude(
+        '_links',
+        '_embedded',
+    )
     fields: Optional[Union[Only, Exclude]] = None
     list_view = ViewSettings()
     show_view = ViewSettings()
@@ -193,7 +197,7 @@ class ResourceAdmin:
             return schema_class()
 
     def _widgets_to_fields(self, view_settings: ViewSettings, widgets: Dict[str, Widget]) -> List[FieldModel]:
-        for fields in (self.fields, view_settings.fields):
+        for fields in (self.default_fields, self.fields, view_settings.fields):
             if fields:
                 names = unflat(fields.names)
                 if isinstance(fields, Only):

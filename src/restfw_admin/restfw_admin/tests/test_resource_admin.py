@@ -26,6 +26,11 @@ class Child(schemas.MappingSchema):
     age = schemas.UnsignedIntegerNode(title='Age', nullable=True)
 
 
+class Work(schemas.MappingSchema):
+    title = schemas.StringNode(title='Title')
+    address = schemas.StringNode(title='Address')
+
+
 def description_validator(node, value):
     if value == 'Bad Guy':
         raise colander.Invalid('Go to home, Bad Guy')
@@ -41,6 +46,7 @@ class UserSchema(schemas.HalResourceSchema):
     children = schemas.SequenceNode(
         Child(title='Child'),
     )
+    current_work = Work(title='Current work')
 
 
 class UsersSchema(schemas.HalResourceWithEmbeddedSchema):
@@ -70,6 +76,7 @@ class CreateUserSchema(schemas.MappingSchema):
     children = schemas.SequenceNode(
         Child(title='Child', missing=colander.drop),
     )
+    current_work = Work(title='Current work')
 
 
 class PatchItemSchema(schemas.MappingSchema):
@@ -91,6 +98,7 @@ class PatchItemSchema(schemas.MappingSchema):
         Child(title='Child', missing=colander.drop),
         missing=colander.drop,
     )
+    current_work = Work(title='Current work', missing=colander.drop)
 
 
 class User(HalResource):
@@ -110,7 +118,7 @@ class UsersAdmin(ResourceAdmin):
     location = '/users'
     index = 0
     list_view = ViewSettings(
-        fields=Exclude('children')
+        fields=Exclude('children', 'current_work')
     )
 
 
@@ -236,7 +244,7 @@ def test_get_user_list_view(pyramid_request):
     resource_admin.list_view.fields = Exclude('sex')
     view = resource_admin.get_list_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'children', 'description'}
+    assert fields == {'id', 'created', 'children', 'description', 'current_work'}
 
     # Only fields for view
     resource_admin.list_view.fields = Only('id')
@@ -269,6 +277,21 @@ def test_get_user_show_view(pyramid_request):
                 ]
             }),
         FieldModel(type='DateField', source='created', params={'label': 'Created', 'showTime': True}),
+        FieldModel(
+            type='MappingField',
+            source='current_work',
+            params={
+                'label': 'Current work',
+                'fields': [
+                    FieldModel(
+                        type='TextField', source='title', params={'label': 'Title'},
+                    ),
+                    FieldModel(
+                        type='TextField', source='address', params={'label': 'Address'},
+                    )
+                ]
+            },
+        ),
         FieldModel(type='TextField', source='description', params={'label': 'Description'}),
         FieldModel(type='NumberField', source='id', params={'label': 'ID'}),
         FieldModel(type='TextField', source='name', params={'label': 'User name'}),
@@ -285,13 +308,13 @@ def test_get_user_show_view(pyramid_request):
     resource_admin.fields = Exclude('name', 'age')
     view = resource_admin.get_show_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'sex', 'description', 'children'}
+    assert fields == {'id', 'created', 'sex', 'description', 'children', 'current_work'}
 
     # Exclude fields for view
     resource_admin.show_view.fields = Exclude('sex')
     view = resource_admin.get_show_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'children', 'description'}
+    assert fields == {'id', 'created', 'children', 'description', 'current_work'}
 
     # Only fields for view
     resource_admin.show_view.fields = Only('id')
@@ -346,6 +369,29 @@ def test_get_user_create_view(pyramid_request):
             validators=[ValidatorModel(name='required', args=())]
         ),
         FieldModel(
+            type='MappingInput',
+            source='current_work',
+            params={
+                'label': 'Current work',
+                'fields': [
+                    FieldModel(
+                        type='TextInput', source='title', params={'label': 'Title'},
+                        validators=[
+                            ValidatorModel(name='required', args=()),
+                            ValidatorModel(name='minLength', args=(1,))
+                        ]
+                    ),
+                    FieldModel(
+                        type='TextInput', source='address', params={'label': 'Address'},
+                        validators=[
+                            ValidatorModel(name='required', args=()),
+                            ValidatorModel(name='minLength', args=(1,))
+                        ]
+                    )
+                ]
+            },
+        ),
+        FieldModel(
             type='TextInput',
             source='description',
             params={'label': 'Description'},
@@ -377,13 +423,13 @@ def test_get_user_create_view(pyramid_request):
     resource_admin.fields = Exclude('age')
     view = resource_admin.get_create_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'name', 'sex', 'description', 'children'}
+    assert fields == {'name', 'sex', 'description', 'children', 'current_work'}
 
     # Exclude fields for view
     resource_admin.create_view.fields = Exclude('sex')
     view = resource_admin.get_create_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'name', 'children', 'description'}
+    assert fields == {'name', 'children', 'description', 'current_work'}
 
     # Only fields for view
     resource_admin.create_view.fields = Only('sex')
@@ -435,6 +481,29 @@ def test_get_user_edit_view(pyramid_request):
             },
         ),
         FieldModel(
+            type='MappingInput',
+            source='current_work',
+            params={
+                'label': 'Current work',
+                'fields': [
+                    FieldModel(
+                        type='TextInput', source='title', params={'label': 'Title'},
+                        validators=[
+                            ValidatorModel(name='required', args=()),
+                            ValidatorModel(name='minLength', args=(1,))
+                        ]
+                    ),
+                    FieldModel(
+                        type='TextInput', source='address', params={'label': 'Address'},
+                        validators=[
+                            ValidatorModel(name='required', args=()),
+                            ValidatorModel(name='minLength', args=(1,))
+                        ]
+                    )
+                ]
+            },
+        ),
+        FieldModel(
             type='TextInput', source='name',
             params={'label': 'User name'},
             validators=[
@@ -456,13 +525,13 @@ def test_get_user_edit_view(pyramid_request):
     resource_admin.fields = Exclude('age')
     view = resource_admin.get_edit_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'name', 'sex', 'children'}
+    assert fields == {'name', 'sex', 'children', 'current_work'}
 
     # Exclude fields for view
     resource_admin.edit_view.fields = Exclude('sex')
     view = resource_admin.get_edit_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'name', 'children'}
+    assert fields == {'name', 'children', 'current_work'}
 
     # Only fields for view
     resource_admin.edit_view.fields = Only('sex')

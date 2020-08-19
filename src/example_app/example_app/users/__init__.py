@@ -22,7 +22,7 @@ def includeme(config):
 
     def add_to_root(event):
         users = Users()
-        users.create_user('Admin', 'Root', age=39)
+        users.create_user('Admin', 'Root', age=39, current_work={'title': 'Administrator', 'address': 'Yellow st.'})
         users.create_user('Ivan', 'Petrov', age=25)
         event.root['users'] = users
 

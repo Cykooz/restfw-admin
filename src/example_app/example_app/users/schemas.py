@@ -13,6 +13,11 @@ class Child(schemas.MappingSchema):
     age = schemas.UnsignedIntegerNode(title='Age', nullable=True)
 
 
+class Work(schemas.MappingSchema):
+    title = schemas.StringNode(title="Title")
+    address = schemas.StringNode(title="Address")
+
+
 class UserSchema(schemas.HalResourceSchema):
     id = schemas.UnsignedIntegerNode(title='ID')
     created = schemas.DateTimeNode(title='Created')
@@ -21,6 +26,7 @@ class UserSchema(schemas.HalResourceSchema):
     age = schemas.UnsignedIntegerNode(title='Age', nullable=True)
     sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
     children = schemas.SequenceNode(Child(title='Child'))
+    current_work = Work(title='Current work')
 
 
 class CreateUserSchema(schemas.MappingSchema):
@@ -45,6 +51,7 @@ class CreateUserSchema(schemas.MappingSchema):
     children = schemas.SequenceNode(
         Child(title='Child', missing=colander.drop),
     )
+    current_work = Work(title='Current work', missing=colander.drop)
 
 
 class PatchUserSchema(schemas.MappingSchema):
@@ -73,6 +80,7 @@ class PatchUserSchema(schemas.MappingSchema):
         Child(title='Child', missing=colander.drop),
         missing=colander.drop,
     )
+    current_work = Work(title='Current work', missing=colander.drop)
 
 
 class UsersSchema(schemas.HalResourceWithEmbeddedSchema):
