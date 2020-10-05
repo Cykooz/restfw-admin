@@ -28,7 +28,6 @@ import {getFieldValidators} from "./validators";
 import MappingInput from "./MappingInput";
 import MappingField from "./MappingField";
 
-
 export const defaultFieldStyle = {
     // maxWidth: '18em',
     // overflow: 'hidden',

@@ -5,6 +5,7 @@
 """
 from restfw_admin.config import resource_admin_config
 from restfw_admin.resource_admin import Exclude, ResourceAdmin, ViewSettings
+from restfw_admin import widgets as all_widgets
 from .resources import User, Users
 
 
@@ -16,5 +17,10 @@ class UsersAdmin(ResourceAdmin):
     location = '/users'
     index = 0
     list_view = ViewSettings(
-        fields=Exclude('last_name', 'children')
+        fields=Exclude('last_name', 'children', 'current_work')
+    )
+    edit_view = ViewSettings(
+        widgets={
+            'current_work': all_widgets.JsonInput(),
+        }
     )
