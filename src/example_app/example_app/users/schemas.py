@@ -50,6 +50,7 @@ class CreateUserSchema(schemas.MappingSchema):
     sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']), nullable=True)
     children = schemas.SequenceNode(
         Child(title='Child', missing=colander.drop),
+        missing=[],
     )
     current_work = Work(title='Current work', missing=colander.drop)
 

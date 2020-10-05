@@ -1,9 +1,8 @@
 import * as React from 'react';
-import {Children, cloneElement, FunctionComponent, isValidElement, ReactElement} from 'react';
-import {Record} from 'ra-core';
+import {Children, cloneElement, FC, isValidElement, ReactElement} from 'react';
+import {InputProps, Record} from 'ra-core';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
-import {FormInput} from 'react-admin';
 import {makeStyles} from '@material-ui/core/styles';
 import {Theme} from '@material-ui/core/styles/createMuiTheme';
 
@@ -20,27 +19,27 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 
-export interface MappingInputProps {
-    source: string;
-    children: ReactElement | [ReactElement];
+export interface MappingInputProps extends InputProps {
+    children: ReactElement | ReactElement[];
     label?: string | ReactElement;
     basePath?: string;
-    record?: Record;
-    resource?: string;
-    variant?: string;
-    margin?: "none" | "dense" | "normal";
+    record: Record;
+    resource: string;
+    // variant?: string;
+    // margin?: "none" | "dense" | "normal";
 }
 
-export const MappingInput: FunctionComponent<MappingInputProps> =
+
+export const MappingInput: FC<MappingInputProps> =
     ({
          label,
          children,
          record,
          resource,
          source,
-         variant,
+         // variant,
          basePath,
-         margin = 'dense',
+         // margin = 'dense',
      }) => {
         const classes = useStyles();
         return (
@@ -60,21 +59,29 @@ export const MappingInput: FunctionComponent<MappingInputProps> =
                             if (input.props.source) {
                                 input_index = undefined;
                             }
-                            return (
-                                <FormInput
-                                    basePath={
-                                        input.props.basePath || basePath
-                                    }
-                                    input={cloneElement(input, {
-                                        source: input_source,
-                                        index: input_index,
-                                    })}
-                                    record={record}
-                                    resource={resource}
-                                    variant={input.props.variant || variant}
-                                    margin={input.props.margin || margin}
-                                />
-                            );
+                            return cloneElement(input, {
+                                source: input_source,
+                                index: input_index,
+                                record: record,
+                                resource: resource,
+                                basePath: input.props.basePath || basePath,
+                            });
+
+                            // return (
+                            //     <FormInput
+                            //         basePath={
+                            //             input.props.basePath || basePath
+                            //         }
+                            //         input={cloneElement(input, {
+                            //             source: input_source,
+                            //             index: input_index,
+                            //         })}
+                            //         record={record}
+                            //         resource={resource}
+                            //         // variant={input.props.variant || variant}
+                            //         // margin={input.props.margin || margin}
+                            //     />
+                            // );
                         }
                     )
                 }

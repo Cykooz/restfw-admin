@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 export interface MappingFieldProps {
     source: string;
-    children: ReactElement | [ReactElement];
+    children: ReactElement | ReactElement[];
     label?: string | ReactElement;
     basePath?: string;
     record?: Record;

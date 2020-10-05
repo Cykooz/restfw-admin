@@ -58,7 +58,7 @@ export interface IApiInfo {
 
     resourceUpdateMethod(name: string): string;
 
-    getEmbeddedResources(name: string, data: any): Record[];
+    getEmbeddedResources<RecordType extends Record = Record>(name: string, data: any): RecordType[];
 
     mapResources<T>(callback: MapCallback<T>): T[];
 }
@@ -114,7 +114,7 @@ export class ApiInfo implements IApiInfo {
         return this.resources[name].update_method;
     }
 
-    getEmbeddedResources(name: string, data: any): Record[] {
+    getEmbeddedResources<RecordType extends Record = Record>(name: string, data: any): RecordType[] {
         if (!(name in this.resources)) {
             console.warn(`ApiInfo: Unknown resource with a name "${name}".`);
             return [];
@@ -143,7 +143,7 @@ export class ApiInfo implements IApiInfo {
         const embedded_resources: any[] = embedded_data[embedded_name];
 
         return embedded_resources.map(
-            resource_data => ({
+            resource_data => ( {
                 ...resource_data,
                 id: this.resourceId(embedded_name, resource_data)
             })

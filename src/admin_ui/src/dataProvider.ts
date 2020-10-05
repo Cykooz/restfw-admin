@@ -1,5 +1,5 @@
 import {stringify} from 'query-string';
-import {fetchUtils, DataProvider, Sort} from 'ra-core';
+import {fetchUtils, DataProvider, SortPayload} from 'ra-core';
 import {IApiInfo} from "./apiInfo";
 import {IHttpClient} from "./types";
 
@@ -170,7 +170,7 @@ export default (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJso
 });
 
 
-function sort2orderBy(sort: Sort) {
+function sort2orderBy(sort: SortPayload) {
     const {field, order} = sort;
     if (field) {
         const sign = order === 'ASC' ? '' : '-';

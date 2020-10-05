@@ -23,7 +23,7 @@ import {
 } from 'react-admin';
 import RichTextInput from 'ra-input-rich-text';
 import {IField} from "./apiInfo";
-import React, {ComponentType} from "react";
+import React, {FunctionComponent} from "react";
 import {getFieldValidators} from "./validators";
 import MappingInput from "./MappingInput";
 import MappingField from "./MappingField";
@@ -41,7 +41,7 @@ interface IFabric {
 }
 
 
-function view_fabric(Component: ComponentType, default_props?: any) {
+function view_fabric<P>(Component: FunctionComponent<P>, default_props?: any) {
     return function(key: string, field: IField) {
         return (
             <Component
@@ -56,7 +56,7 @@ function view_fabric(Component: ComponentType, default_props?: any) {
 }
 
 
-function input_fabric(Component: ComponentType) {
+function input_fabric<P>(Component: FunctionComponent<P>) {
     return function(key: string, field: IField) {
         let validators = getFieldValidators(field);
         return (

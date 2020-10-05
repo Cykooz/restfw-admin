@@ -21,6 +21,7 @@ Changes
 -------
 
 - Added some CSS-styles for ``MappingField`` and ``MappingInput``.
+- Updated dependencies.
 
 0.3 (2020-08-19)
 ================

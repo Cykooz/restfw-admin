@@ -21,7 +21,6 @@ export function getResources(apiInfo: IApiInfo) {
     return (
         apiInfo.mapResources((resourceInfo) => (
             <Resource
-                key={resourceInfo.name}
                 name={resourceInfo.name}
                 {...getResourceViews(resourceInfo)}
             />
@@ -31,12 +30,22 @@ export function getResources(apiInfo: IApiInfo) {
 
 
 function getResourceViews(resourceInfo: IResourceInfo) {
-    return {
-        list: getListView(resourceInfo),
-        show: getShowView(resourceInfo),
-        create: getCreateView(resourceInfo),
-        edit: getEditView(resourceInfo),
-    };
+    const list = getListView(resourceInfo);
+    const show = getShowView(resourceInfo);
+    const create = getCreateView(resourceInfo);
+    const edit = getEditView(resourceInfo);
+    return Object.assign({},
+      list === null ? null : {list},
+        show === null ? null : {show},
+        create === null ? null : {create},
+        edit === null ? null : {edit},
+    );
+    // return {
+    //     list: getListView(resourceInfo),
+    //     show: getShowView(resourceInfo),
+    //     create: getCreateView(resourceInfo),
+    //     edit: getEditView(resourceInfo),
+    // };
 }
 
 

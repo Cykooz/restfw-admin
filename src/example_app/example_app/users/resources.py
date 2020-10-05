@@ -113,8 +113,13 @@ class Users(HalResourceWithEmbedded):
         return User(model, parent=self)
 
     def create_user(self, first_name, last_name, age: Optional[int] = None, sex: Optional[Literal['m', 'f']] = 'm',
-                    current_work: Union[None, dict, WorkModel] = None):
+                    children=None, current_work: Union[None, dict, WorkModel] = None):
         user_id = self._next_id
+        children = children or []
+        children = [
+            child if isinstance(child, ChildModel) else ChildModel(**child)
+            for child in children
+        ]
         if not current_work:
             current_work = WorkModel(title='', address='')
         if isinstance(current_work, dict):
@@ -126,7 +131,7 @@ class Users(HalResourceWithEmbedded):
             last_name=last_name,
             age=age,
             sex=sex,
-            children=[],
+            children=children,
             current_work=current_work,
         )
         self._next_id += 1
