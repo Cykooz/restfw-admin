@@ -11,16 +11,21 @@ PYTHON="${CUR_DIR}/bin/python_twine"
 TWINE="${CUR_DIR}/bin/twine"
 NODEJS="${BIN_DIR}/node"
 
-echo "Build Admin UI"
-cd src/admin_ui
-${NODEJS} "${CUR_DIR}/parts/nodejs/lib/node_modules/yarn/bin/yarn.js" run build
-
-cd "${CUR_DIR}/src/restfw_admin"
+echo "Remove admin UI build"
+rm -rf "${CUR_DIR}/src/restfw_admin/restfw_admin/admin_ui"
 
 echo "Check MANIFEST"
+cd "${CUR_DIR}/src/restfw_admin"
 ${BIN_DIR}/check-manifest -p "${PYTHON}"
 echo
+
+echo "Build Admin UI"
+cd "${CUR_DIR}/src/admin_ui"
+${NODEJS} "${CUR_DIR}/parts/nodejs/lib/node_modules/yarn/bin/yarn.js" run build
+echo
+
 echo "Build SDIST and WHEEL"
+cd "${CUR_DIR}/src/restfw_admin"
 ${PYTHON} setup.py -q sdist bdist_wheel
 echo
 echo "Check dists by Twine"
