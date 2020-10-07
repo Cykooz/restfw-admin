@@ -23,6 +23,11 @@ Changes
 - Added some CSS-styles for ``MappingField`` and ``MappingInput``.
 - Updated dependencies.
 
+Bug Fixes
+---------
+
+- Fixed converters for ``SequenceNode``.
+
 0.3 (2020-08-19)
 ================
 

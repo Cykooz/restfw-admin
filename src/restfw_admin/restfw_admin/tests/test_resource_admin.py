@@ -24,6 +24,10 @@ class Child(schemas.MappingSchema):
     sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
     name = schemas.StringNode(title='Name')
     age = schemas.UnsignedIntegerNode(title='Age', nullable=True)
+    toys = schemas.SequenceNode(
+        schemas.StringNode(title='Toy name'),
+        title='Toys',
+    )
 
 
 class Work(schemas.MappingSchema):
@@ -273,7 +277,17 @@ def test_get_user_show_view(pyramid_request):
                         }
                     ),
                     FieldModel(type='TextField', source='name', params={'label': 'Name'}),
-                    FieldModel(type='NumberField', source='age', params={'label': 'Age'})
+                    FieldModel(type='NumberField', source='age', params={'label': 'Age'}),
+                    FieldModel(
+                        type='ArrayField',
+                        source='toys',
+                        params={
+                            'label': 'Toys',
+                            'fields': [
+                                FieldModel(type='TextField', source='', params={'label': 'Toy name'}),
+                            ]
+                        },
+                    ),
                 ]
             }),
         FieldModel(type='DateField', source='created', params={'label': 'Created', 'showTime': True}),
@@ -363,7 +377,26 @@ def test_get_user_create_view(pyramid_request):
                             ValidatorModel(name='minValue', args=(0,)),
                             ValidatorModel(name='number'),
                         ]
-                    )
+                    ),
+                    FieldModel(
+                        type='ArrayInput',
+                        source='toys',
+                        params={
+                            'label': 'Toys',
+                            'fields': [
+                                FieldModel(
+                                    type='TextInput',
+                                    source='',
+                                    params={'label': 'Toy name'},
+                                    validators=[
+                                        ValidatorModel(name='required', args=()),
+                                        ValidatorModel(name='minLength', args=(1,)),
+                                    ]
+                                )
+                            ]
+                        },
+                        validators=[ValidatorModel(name='required', args=())]
+                    ),
                 ]
             },
             validators=[ValidatorModel(name='required', args=())]
@@ -476,7 +509,26 @@ def test_get_user_edit_view(pyramid_request):
                             ValidatorModel(name='minValue', args=(0,)),
                             ValidatorModel(name='number'),
                         ]
-                    )
+                    ),
+                    FieldModel(
+                        type='ArrayInput',
+                        source='toys',
+                        params={
+                            'label': 'Toys',
+                            'fields': [
+                                FieldModel(
+                                    type='TextInput',
+                                    source='',
+                                    params={'label': 'Toy name'},
+                                    validators=[
+                                        ValidatorModel(name='required', args=()),
+                                        ValidatorModel(name='minLength', args=(1,)),
+                                    ]
+                                )
+                            ]
+                        },
+                        validators=[ValidatorModel(name='required', args=())]
+                    ),
                 ]
             },
         ),

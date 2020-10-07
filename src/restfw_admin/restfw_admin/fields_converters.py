@@ -138,9 +138,11 @@ def nullable_input(registry: Registry, node: ColanderNode, node_type: schemas.Nu
 @view_field_converter(colander.Sequence)
 def sequence_field(registry: Registry, node: ColanderNode, node_type: SchemaType):
     fields: Dict[str, widgets.FieldWidget] = {}
-    for sub_node in node.children[0].children:
-        if widget := get_field_widget(registry, sub_node):
-            fields[sub_node.name] = widget
+    widget = get_field_widget(registry, node.children[0])
+    if isinstance(widget, widgets.MappingField):
+        fields = widget.fields
+    else:
+        fields[''] = widget
     return widgets.ArrayField(
         label=node.title,
         fields=fields,
@@ -150,9 +152,11 @@ def sequence_field(registry: Registry, node: ColanderNode, node_type: SchemaType
 @input_field_converter(colander.Sequence)
 def sequence_input(registry: Registry, node: ColanderNode, node_type: SchemaType):
     fields: Dict[str, widgets.InputWidget] = {}
-    for sub_node in node.children[0].children:
-        if widget := get_input_widget(registry, sub_node):
-            fields[sub_node.name] = widget
+    widget = get_input_widget(registry, node.children[0])
+    if isinstance(widget, widgets.MappingInput):
+        fields = widget.fields
+    else:
+        fields[''] = widget
     return widgets.ArrayInput(
         fields=fields,
         label=node.title,

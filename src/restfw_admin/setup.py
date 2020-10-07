@@ -97,13 +97,12 @@ setup(
             'WebTest',
             'sphinx',
             'jinja2',
-            'pathlib2;python_version<"3.4"',
         ]
     },
     install_requires=[
         'setuptools',
         'six',
-        'restfw>=4.1.4',
+        'restfw>=4.2',
     ],
     entry_points={
         'console_scripts':
