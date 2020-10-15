@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Fixed converting of ``LaconicNoneOf`` validator.
+
 0.4 (2020-10-07)
 ================
 

@@ -31,7 +31,7 @@ class Child(schemas.MappingSchema):
 
 
 class Work(schemas.MappingSchema):
-    title = schemas.StringNode(title='Title')
+    title = schemas.StringNode(title='Title', validator=schemas.LaconicNoneOf(['God', 'Duck']))
     address = schemas.StringNode(title='Address')
 
 

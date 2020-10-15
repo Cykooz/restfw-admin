@@ -68,7 +68,9 @@ def convert_validators(
         name=adapter_name,
     )
     if converter:
-        yield from converter(registry, validator)
+        for v in converter(registry, validator):
+            if v is not None:
+                yield v
 
 
 def add_validator_converter(
@@ -184,3 +186,8 @@ def all_validator(registry: Registry, validator: colander.All):
 @validator_converter(colander.OneOf)
 def one_of_validator(registry: Registry, validator: colander.OneOf):
     yield Choices(validator.choices)
+
+
+@validator_converter(schemas.LaconicNoneOf)
+def none_of_validator(registry: Registry, validator: schemas.LaconicNoneOf):
+    yield None
