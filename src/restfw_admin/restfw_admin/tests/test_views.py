@@ -5,7 +5,7 @@
 """
 import pytest
 
-from restfw_admin.views import admin_ui
+from ..views import admin_ui
 
 
 @pytest.fixture(name='pyramid_settings', scope='session')

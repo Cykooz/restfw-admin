@@ -3,44 +3,22 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
-import dataclasses
-
-from pyramid.httpexceptions import HTTPMovedPermanently
-from pyramid.registry import Registry
-from pyramid.request import Request
 from pyramid.security import Allow, Everyone
-from restfw.hal import HalResource, HalResourceWithEmbedded, SimpleContainer, list_to_embedded_resources
-from restfw.interfaces import MethodOptions
+from restfw.hal import HalResource, SimpleContainer
 from restfw.root import Root
+from restfw.typing import PyramidRequest
 
-from . import schemas
 from .interfaces import IAdminChoices, IResourceAdminFabric
-from .models import ApiInfoModel
 from .resource_admin import ResourceAdmin
 
 
 class ApiInfo(HalResource):
-
     __acl__ = [
         (Allow, Everyone, 'rest_admin.api_info.'),
     ]
 
-    options_for_get = MethodOptions(None, None, permission='rest_admin.api_info.get')
-
-    def as_dict(self, request: Request):
-        title = request.registry.settings.get('restfw_admin.title', 'Admin UI')
-        root_url = request.registry.settings.get('restfw_admin.root_url', '')
-        if not root_url:
-            root_url = request.resource_url(request.root)
-        model = ApiInfoModel(
-            root_url=root_url.rstrip('/'),
-            title=title,
-            resources=self.get_resources_info(request),
-        )
-        return dataclasses.asdict(model)
-
-    def get_resources_info(self, request: Request):
-        registry: Registry = request.registry
+    def get_resources_info(self, request: PyramidRequest):
+        registry = request.registry
         resources = []
         for name, fabric in registry.getUtilitiesFor(IResourceAdminFabric):
             resource_admin: ResourceAdmin = fabric(request, name)
@@ -52,7 +30,7 @@ class ApiInfo(HalResource):
         }
 
 
-class AdminChoices(HalResourceWithEmbedded):
+class AdminChoices(HalResource):
 
     def __getitem__(self, key):
         group = key.split(':', 1)
@@ -62,20 +40,6 @@ class AdminChoices(HalResourceWithEmbedded):
                 if choice['uniq_id'] == key:
                     return choice
         return super(AdminChoices, self).__getitem__(key)
-
-    options_for_get = MethodOptions(schemas.GetAdminChoicesSchema,
-                                    schemas.AdminChoicesSchema,
-                                    permission='admin_choices.get')
-
-    def get_embedded(self, request, params):
-        group = params.get('group')
-        choice_ids = params.get('id')
-        choices = list(self.get_choices(request.registry, group, choice_ids))
-        return list_to_embedded_resources(
-            request, params, choices,
-            parent=self,
-            embedded_name='choices',
-        )
 
     @staticmethod
     def get_choices(registry, group=None, choice_ids=None):
@@ -105,7 +69,6 @@ class AdminChoices(HalResourceWithEmbedded):
 
 
 class Admin(SimpleContainer):
-
     __acl__ = [
         (Allow, Everyone, 'get'),
     ]
@@ -114,10 +77,6 @@ class Admin(SimpleContainer):
         super().__init__()
         self['choices'] = AdminChoices()
         self['api_info.json'] = ApiInfo()
-
-    def http_get(self, request, params):
-        url = request.route_url('admin_ui_ts')
-        return HTTPMovedPermanently(location=url)
 
 
 def get_admin(root: Root) -> Admin:

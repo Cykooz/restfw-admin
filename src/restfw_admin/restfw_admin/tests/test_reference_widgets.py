@@ -4,8 +4,8 @@
 :Date: 31.07.2020
 """
 import colander
-from restfw import schemas
-from restfw.hal import HalResource, HalResourceWithEmbedded
+from restfw import schemas, views
+from restfw.hal import HalResource
 from restfw.interfaces import MethodOptions
 from restfw.schemas import GetEmbeddedSchema
 
@@ -38,19 +38,29 @@ class CreateDocSchema(schemas.MappingSchema):
 
 
 class Doc(HalResource):
+    pass
+
+
+@views.resource_view_config(Doc)
+class DocView(views.HalResourceView):
     options_for_get = MethodOptions(None, DocSchema, permission='docs.get')
     options_for_delete = MethodOptions(None, None, permission='docs.edit')
 
 
-class Docs(HalResourceWithEmbedded):
+class Docs(HalResource):
+    pass
+
+
+@views.resource_view_config(Docs)
+class DocsView(views.HalResourceWithEmbeddedView):
     options_for_get = MethodOptions(GetEmbeddedSchema, DocsSchema, permission='docs.get')
     options_for_post = MethodOptions(CreateDocSchema, DocSchema, permission='docs.edit')
 
 
 class DocsAdmin(ResourceAdmin):
-    container = Docs
-    child = Doc
     title = 'Documents'
+    container_view_class = DocsView
+    child_view_class = DocView
     location = '/docs'
     index = 1
     list_view = ViewSettings(
@@ -75,7 +85,9 @@ class DocsAdmin(ResourceAdmin):
     )
 
 
-def test_reference_field_and_input(pyramid_request):
+def test_reference_field_and_input(pyramid_request, app_config):
+    app_config.scan('restfw_admin.tests.test_reference_widgets')
+    app_config.commit()
     resource_admin = DocsAdmin(pyramid_request, 'docs')
     view = resource_admin.get_list_view()
     fields = sorted(view.fields, key=lambda f: f.source)

@@ -5,8 +5,8 @@
 """
 import colander
 import pytest
-from restfw import schemas
-from restfw.hal import HalResource, HalResourceWithEmbedded
+from restfw import schemas, views
+from restfw.hal import HalResource
 from restfw.interfaces import MethodOptions
 from restfw.schemas import GetEmbeddedSchema
 
@@ -106,24 +106,40 @@ class PatchItemSchema(schemas.MappingSchema):
 
 
 class User(HalResource):
+    pass
+
+
+@views.resource_view_config(User)
+class UserView(views.HalResourceView):
     options_for_get = MethodOptions(None, UserSchema, permission='users.get')
     options_for_patch = MethodOptions(PatchItemSchema, UserSchema, permission='users.edit')
 
 
-class Users(HalResourceWithEmbedded):
+class Users(HalResource):
+    pass
+
+
+@views.resource_view_config(Users)
+class UsersView(views.HalResourceWithEmbeddedView):
     options_for_get = MethodOptions(GetEmbeddedSchema, UsersSchema, permission='users.get')
     options_for_post = MethodOptions(CreateUserSchema, UserSchema, permission='users.edit')
 
 
 class UsersAdmin(ResourceAdmin):
-    container = Users
-    child = User
     title = 'Users'
+    container_view_class = UsersView
+    child_view_class = UserView
     location = '/users'
     index = 0
     list_view = ViewSettings(
         fields=Exclude('children', 'current_work')
     )
+
+
+@pytest.fixture(autouse=True)
+def scan(app_config):
+    app_config.scan('restfw_admin.tests.test_resource_admin')
+    app_config.commit()
 
 
 @pytest.fixture(name='widgets')

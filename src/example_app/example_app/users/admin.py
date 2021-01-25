@@ -5,14 +5,14 @@
 """
 from restfw_admin.config import resource_admin_config
 from restfw_admin.resource_admin import Exclude, ResourceAdmin, ViewSettings
-from .resources import User, Users
+from .views import UserView, UsersView
 
 
 @resource_admin_config('users')
 class UsersAdmin(ResourceAdmin):
-    container = Users
-    child = User
     title = 'User'
+    container_view_class = UsersView
+    child_view_class = UserView
     location = '/users'
     index = 0
     list_view = ViewSettings(

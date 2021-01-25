@@ -7,9 +7,8 @@ from dataclasses import dataclass, field
 from typing import Dict, Iterable, List, Literal, Optional, Tuple, Type, Union
 
 import colander
-from pyramid.registry import Registry
-from pyramid.request import Request
-from restfw.hal import HalResource
+from restfw.typing import PyramidRequest
+from restfw.views import HalResourceView
 
 from . import models
 from .fields import get_field_widgets, get_input_widgets
@@ -44,9 +43,9 @@ class ViewSettings:
 
 
 class ResourceAdmin:
-    container: Type[HalResource]
-    child: Optional[Type[HalResource]] = None
-    title: str = ''
+    title: str
+    container_view_class: Type[HalResourceView]
+    child_view_class: Optional[Type[HalResourceView]] = None
     location: str = ''
     id_field: str = 'id'
     embedded_name: str = ''
@@ -62,17 +61,15 @@ class ResourceAdmin:
     create_view = ViewSettings()
     edit_view = ViewSettings()
 
-    def __init__(self, request: Request, name: str):
+    def __init__(self, request: PyramidRequest, name: str):
         self._request = request
-        self._registry: Registry = request.registry
+        self._registry = request.registry
         self._name = name
-        if not self.title:
-            self.title = self.container.__name__
         if not self.location:
             self.location = f'/{name}'  # TODO: url-encode
 
         if not self.embedded_name:
-            schema: ColanderNode = self.container.options_for_get.output_schema()
+            schema: ColanderNode = self.container_view_class.options_for_get.output_schema()
             for node in schema.children:
                 if node.name == '_embedded' and node.children:
                     self.embedded_name = node.children[0].name
@@ -80,10 +77,10 @@ class ResourceAdmin:
             else:
                 self.embedded_name = name
 
-        if not self.update_method and self.child:
-            if self.child.options_for_patch:
+        if not self.update_method and self.child_view_class:
+            if self.child_view_class.options_for_patch:
                 self.update_method = 'patch'
-            elif self.child.options_for_put:
+            elif self.child_view_class.options_for_put:
                 self.update_method = 'put'
 
     def get_resource_info(self) -> models.ResourceInfoModel:
@@ -93,7 +90,7 @@ class ResourceAdmin:
             create=self.get_create_view(),
             edit=self.get_edit_view(),
         )
-        deletable = self.child.options_for_delete is not None
+        deletable = self.child_view_class.options_for_delete is not None
         return models.ResourceInfoModel(
             index=self.index,
             name=self._name,
@@ -107,7 +104,7 @@ class ResourceAdmin:
         )
 
     def get_list_view(self) -> Optional[models.ListViewModel]:
-        options_for_get = self.container.options_for_get
+        options_for_get = self.container_view_class.options_for_get
         if options_for_get and options_for_get.output_schema:
             schema: ColanderNode = options_for_get.output_schema()
             embedded_node: Optional[ColanderNode] = schema.get('_embedded')
@@ -126,7 +123,7 @@ class ResourceAdmin:
     def get_show_view(self) -> Optional[models.ShowViewModel]:
         return self._get_view(
             self._get_schema_node(
-                self.child,
+                self.child_view_class,
                 method='get',
                 schema_type='output',
             ),
@@ -138,7 +135,7 @@ class ResourceAdmin:
     def get_create_view(self) -> Optional[models.CreateViewModel]:
         return self._get_view(
             self._get_schema_node(
-                self.container,
+                self.container_view_class,
                 method='post',
                 schema_type='input',
             ),
@@ -151,7 +148,7 @@ class ResourceAdmin:
         if self.update_method:
             return self._get_view(
                 self._get_schema_node(
-                    self.child,
+                    self.child_view_class,
                     method=self.update_method,
                     schema_type='input',
                 ),
@@ -181,12 +178,12 @@ class ResourceAdmin:
 
     def _get_schema_node(
             self,
-            resource_class: Type[HalResource],
+            view_class: Type[HalResourceView],
             *,
             method: str,
             schema_type: Literal['input', 'output'],
     ) -> Optional[ColanderNode]:
-        method_options = getattr(resource_class, f'options_for_{method}')
+        method_options = getattr(view_class, f'options_for_{method}')
         if not method_options:
             return
         schema_class: Type[ColanderNode] = getattr(

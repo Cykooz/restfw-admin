@@ -14,6 +14,19 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Migrated to version 6 of ``restfw``.
+
+Changes
+-------
+
+- Updated dependencies.
+
 0.4.2 (2020-10-15)
 ==================
 

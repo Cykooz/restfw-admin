@@ -49,6 +49,7 @@ function App(appParams: AppParams) {
             title={apiInfo.getTitle()}
             dataProvider={dataProvider}
             authProvider={authProvider}
+            disableTelemetry={true}
         >
             {getResources(apiInfo)}
         </Admin>

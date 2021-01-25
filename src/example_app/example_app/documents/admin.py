@@ -3,18 +3,18 @@
 :Authors: cykooz
 :Date: 31.07.2020
 """
+from restfw_admin import widgets as all_widgets
 from restfw_admin.config import resource_admin_config
 from restfw_admin.resource_admin import Exclude, ResourceAdmin, ViewSettings
 from restfw_admin.validators import Required
-from restfw_admin import widgets as all_widgets
-from .resources import Doc, Docs
+from .views import DocView, DocsView
 
 
 @resource_admin_config('docs')
 class DocsAdmin(ResourceAdmin):
-    container = Docs
-    child = Doc
     title = 'Documents'
+    container_view_class = DocsView
+    child_view_class = DocView
     location = '/docs'
     index = 1
     list_view = ViewSettings(
