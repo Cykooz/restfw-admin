@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Disabled sorting in ``ListView`` and ``ReferenceInput``.
+
 0.5 (2021-01-25)
 ================
 

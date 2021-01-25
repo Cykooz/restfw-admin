@@ -130,6 +130,7 @@ function referenceInputFabric(key: string, field: IField) {
         <ReferenceInput
             key={key}
             source={field.source}
+            sort={false}
             {...params}
         >
             {getFieldComponent('1', child)}

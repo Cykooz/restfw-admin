@@ -66,7 +66,7 @@ function getListView(resourceInfo: IResourceInfo) {
             props['bulkActionButtons'] = false;
         const classes = useGridStyles();
         return (
-            <List {...props}>
+            <List sort={false} {...props}>
                 <Datagrid rowClick={show ? 'show' : ''} classes={classes}>
                     {getFields(list.fields)}
                     {edit ? <EditButton/> : null}
