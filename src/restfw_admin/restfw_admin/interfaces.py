@@ -3,25 +3,16 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
+from typing import List, Optional
+
+import colander
+from pyramid.registry import Registry
+from pyramid.request import Request
 from zope.interface import Interface
 
-
-class IAdminResourceFabric(Interface):
-
-    def __call__(request):
-        """Returns JS code which registers resources in the ``ng-admin``."""
-
-
-class IAdminReactResourceFabric(Interface):
-
-    def __call__(request):
-        """Returns JS code which registers resources in the ``react-admin``."""
-
-
-class IAdminReactResources(Interface):
-
-    def sorted():
-        """Returns the sorted list of tuples (name, fabric) in topologically sorted order."""
+from .models import ValidatorModel
+from .typing import ColanderNode, ColanderValidator
+from .widgets import FieldWidget, InputWidget
 
 
 class IAdminChoices(Interface):
@@ -29,7 +20,39 @@ class IAdminChoices(Interface):
     with choices for some filed in admin UI.
     """
 
-    def __call__(request):
+    def __call__(registry):
         """Returns list of tuples (id, name).
-        :type request: pyramid.request.Request
+        :type registry: pyramid.registry.Registry
         """
+
+
+class IResourceAdminFabric(Interface):
+
+    def __call__(request: Request, name: str):
+        pass
+
+
+class ISchemaNodeToFieldWidget(Interface):
+
+    def __call__(registry: Registry, node: ColanderNode,
+                 node_type: colander.SchemaType) -> Optional[FieldWidget]:
+        pass
+
+
+class ISchemaNodeToInputWidget(Interface):
+
+    def __call__(registry: Registry, node: ColanderNode,
+                 node_type: colander.SchemaType) -> Optional[InputWidget]:
+        pass
+
+
+class IValidatorConverter(Interface):
+
+    def __call__(registry: Registry, validator: ColanderValidator) -> List[ValidatorModel]:
+        pass
+
+
+class IColanderValidator(Interface):
+
+    def __call__(node, value):
+        pass

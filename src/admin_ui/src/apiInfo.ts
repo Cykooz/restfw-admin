@@ -1,11 +1,17 @@
 import {Identifier, Record} from "ra-core";
 
 
-export interface IField {
-    type: string;
+export interface IValidator {
     name: string;
+    args: any[];
 }
 
+export interface IField {
+    type: string;
+    source: string;
+    params: any;
+    validators: IValidator[];
+}
 
 export interface IListView {
     fields: IField[];
@@ -31,6 +37,7 @@ export interface IResourceInfo {
     id_field: string;
     embedded_name: string;
     update_method: string;
+    deletable: boolean;
     views: {
         list: IListView | null,
         show: IShowView | null,
@@ -38,7 +45,6 @@ export interface IResourceInfo {
         edit: IEditView | null,
     }
 }
-
 
 type MapCallback<T> = (resource: IResourceInfo) => T;
 
@@ -52,21 +58,21 @@ export interface IApiInfo {
 
     resourceUpdateMethod(name: string): string;
 
-    getEmbeddedResources(name: string, data: any): Record[];
+    getEmbeddedResources<RecordType extends Record = Record>(name: string, data: any): RecordType[];
 
     mapResources<T>(callback: MapCallback<T>): T[];
 }
 
 
 export class ApiInfo implements IApiInfo {
-    private readonly rootUrl: string;
+    private readonly root_url: string;
     private readonly title: string;
     private readonly resources: {
         [name: string]: IResourceInfo
     };
 
     constructor(public raw_info: any) {
-        this.rootUrl = raw_info.rootUrl;
+        this.root_url = raw_info.root_url;
         this.title = raw_info.title;
         this.resources = raw_info.resources;
     }
@@ -76,13 +82,13 @@ export class ApiInfo implements IApiInfo {
     }
 
     resourceUrl(name: string) {
-        return this.rootUrl + this.resources[name].location;
+        return this.root_url + this.resources[name].location;
     }
 
     resourceId(name: string, data: any, def: Identifier | null = null): Identifier {
         if (name in this.resources) {
             const info = this.resources[name];
-            if (info.id_field || data.hasOwnProperty(info.id_field))
+            if (info.id_field && data.hasOwnProperty(info.id_field))
                 return data[info.id_field];
         }
 
@@ -101,16 +107,16 @@ export class ApiInfo implements IApiInfo {
 
     resourceUpdateMethod(name: string): string {
         if (!(name in this.resources)) {
-            console.warn(`ApiInfo: Unknown resource with name "${name}".`);
+            console.warn(`ApiInfo: Unknown resource with a name "${name}".`);
             return 'PUT';
         }
 
         return this.resources[name].update_method;
     }
 
-    getEmbeddedResources(name: string, data: any): Record[] {
+    getEmbeddedResources<RecordType extends Record = Record>(name: string, data: any): RecordType[] {
         if (!(name in this.resources)) {
-            console.warn(`ApiInfo: Unknown resource with name "${name}".`);
+            console.warn(`ApiInfo: Unknown resource with a name "${name}".`);
             return [];
         }
 
@@ -128,7 +134,7 @@ export class ApiInfo implements IApiInfo {
         const embedded_data = data._embedded;
         if (!embedded_data.hasOwnProperty(embedded_name)) {
             console.warn(
-                `ApiInfo: Embedded resources with name "${embedded_name}" ` +
+                `ApiInfo: Embedded resources with a name "${embedded_name}" ` +
                 `has not found inside of "_embedded" field of "${name}" resource.`
             );
             return [];
@@ -137,7 +143,7 @@ export class ApiInfo implements IApiInfo {
         const embedded_resources: any[] = embedded_data[embedded_name];
 
         return embedded_resources.map(
-            resource_data => ({
+            resource_data => ( {
                 ...resource_data,
                 id: this.resourceId(embedded_name, resource_data)
             })

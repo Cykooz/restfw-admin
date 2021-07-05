@@ -1,15 +1,28 @@
 import React from "react";
-import {Create, Datagrid, Edit, EditButton, List, Resource, Show, SimpleForm, SimpleShowLayout} from "react-admin";
+import {
+    Create,
+    Datagrid,
+    Edit,
+    EditButton,
+    List,
+    Resource,
+    SaveButton,
+    Show,
+    SimpleForm,
+    SimpleShowLayout,
+    Toolbar
+} from "react-admin";
 import {IApiInfo, IResourceInfo} from "./apiInfo";
 import {getFields, getInputs} from "./fields";
+import {makeStyles} from '@material-ui/core';
 
 
 export function getResources(apiInfo: IApiInfo) {
     return (
         apiInfo.mapResources((resourceInfo) => (
             <Resource
-                key={resourceInfo.index}
                 name={resourceInfo.name}
+                options={{label: resourceInfo.title}}
                 {...getResourceViews(resourceInfo)}
             />
         ))
@@ -18,13 +31,30 @@ export function getResources(apiInfo: IApiInfo) {
 
 
 function getResourceViews(resourceInfo: IResourceInfo) {
-    return {
-        list: getListView(resourceInfo),
-        show: getShowView(resourceInfo),
-        create: getCreateView(resourceInfo),
-        edit: getEditView(resourceInfo),
-    };
+    const list = getListView(resourceInfo);
+    const show = getShowView(resourceInfo);
+    const create = getCreateView(resourceInfo);
+    const edit = getEditView(resourceInfo);
+    return Object.assign({},
+      list === null ? null : {list},
+        show === null ? null : {show},
+        create === null ? null : {create},
+        edit === null ? null : {edit},
+    );
+    // return {
+    //     list: getListView(resourceInfo),
+    //     show: getShowView(resourceInfo),
+    //     create: getCreateView(resourceInfo),
+    //     edit: getEditView(resourceInfo),
+    // };
 }
+
+
+const useGridStyles = makeStyles({
+    headerCell: {
+        backgroundColor: '#e0e0e0',
+    },
+});
 
 
 function getListView(resourceInfo: IResourceInfo) {
@@ -32,11 +62,13 @@ function getListView(resourceInfo: IResourceInfo) {
     if (!list) {
         return null;
     }
-
     return (props: any) => {
+        if (!resourceInfo.deletable)
+            props['bulkActionButtons'] = false;
+        const classes = useGridStyles();
         return (
-            <List {...props}>
-                <Datagrid rowClick={show ? 'show' : ''}>
+            <List sort={false} {...props}>
+                <Datagrid rowClick={show ? 'show' : ''} classes={classes}>
                     {getFields(list.fields)}
                     {edit ? <EditButton/> : null}
                 </Datagrid>
@@ -81,16 +113,27 @@ function getCreateView(resourceInfo: IResourceInfo) {
 }
 
 
+const EditWithoutDeleteToolbar = props => (
+    <Toolbar {...props} >
+        <SaveButton/>
+    </Toolbar>
+);
+
+
 function getEditView(resourceInfo: IResourceInfo) {
     const {edit} = resourceInfo.views;
     if (!edit) {
         return null;
     }
+    let form_props = {};
+    if (!resourceInfo.deletable) {
+        form_props['toolbar'] = <EditWithoutDeleteToolbar/>;
+    }
 
     return (props: any) => {
         return (
             <Edit {...props}>
-                <SimpleForm>
+                <SimpleForm {...form_props}>
                     {getInputs(edit.fields)}
                 </SimpleForm>
             </Edit>

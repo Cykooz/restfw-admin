@@ -10,24 +10,32 @@ def includeme(config):
     :type config: pyramid.config.Configurator
     """
     from pyramid.authentication import BasicAuthAuthenticationPolicy
-    from example_app.users.resources import check_credentials
+    from .resources import check_credentials
 
     authn_policy = BasicAuthAuthenticationPolicy(check_credentials)
     config.set_authentication_policy(authn_policy)
 
     config.include('restfw')
-    # config.include('restfw_admin')
+    config.include('restfw_admin')
 
-    from restfw.interfaces import IRootCreated
-    from restfw.utils import scan_ignore
     from .resources import Users
 
     def add_to_root(event):
         users = Users()
-        users.create_user('admin')
-        users.create_user('user1')
+        users.create_user('Admin', 'Root', age=39, current_work={'title': 'Administrator', 'address': 'Yellow st.'})
+        users.create_user('Ivan', 'Petrov', age=25)
         event.root['users'] = users
 
+    from restfw.interfaces import IRootCreated
     config.add_subscriber(add_to_root, IRootCreated)
 
+    from pathlib import Path
+    from restfw_admin.config import add_restfw_admin_auth_provider, add_restfw_admin_http_client
+    static_dir = Path(__file__).parent / 'static'
+    auth_provider = static_dir / 'auth_provider.js'
+    add_restfw_admin_auth_provider(config, 'getBasicAuthProvider', auth_provider.read_text('utf-8'))
+    http_client = static_dir / 'http_client.js'
+    add_restfw_admin_http_client(config, 'getHttpClient', http_client.read_text('utf-8'))
+
+    from restfw.utils import scan_ignore
     config.scan(ignore=scan_ignore(config.registry))

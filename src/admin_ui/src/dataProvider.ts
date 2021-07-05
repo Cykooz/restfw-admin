@@ -1,6 +1,7 @@
 import {stringify} from 'query-string';
-import {fetchUtils, DataProvider, Sort} from 'ra-core';
+import {fetchUtils, DataProvider, SortPayload} from 'ra-core';
 import {IApiInfo} from "./apiInfo";
+import {IHttpClient} from "./types";
 
 /**
  * Maps react-admin queries to a HAL REST API
@@ -32,7 +33,7 @@ import {IApiInfo} from "./apiInfo";
  *
  * export default App;
  */
-export default (apiInfo: IApiInfo, httpClient = fetchUtils.fetchJson): DataProvider => ({
+export default (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJson): DataProvider => ({
     getList: async (resource, params) => {
         const {page, perPage} = params.pagination;
         const orderBy = sort2orderBy(params.sort);
@@ -169,7 +170,7 @@ export default (apiInfo: IApiInfo, httpClient = fetchUtils.fetchJson): DataProvi
 });
 
 
-function sort2orderBy(sort: Sort) {
+function sort2orderBy(sort: SortPayload) {
     const {field, order} = sort;
     if (field) {
         const sign = order === 'ASC' ? '' : '-';

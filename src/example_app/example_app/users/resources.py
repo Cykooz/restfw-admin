@@ -3,92 +3,119 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
+from dataclasses import dataclass
+from typing import Dict, List, Literal, Optional, Union
+
 import pendulum
 from pyramid.security import Allow, Everyone
-from restfw.hal import HalResource, HalResourceWithEmbedded, list_to_embedded_resources
-from restfw.interfaces import MethodOptions
-from restfw.schemas import GetEmbeddedSchema
+from restfw.hal import HalResource
 
-from . import schemas
+
+@dataclass()
+class ChildModel:
+    sex: Literal['m', 'f']
+    name: str
+    age: Optional[int] = None
+
+
+@dataclass()
+class WorkModel:
+    title: str
+    address: str
+
+
+@dataclass()
+class UserModel:
+    id: int
+    created: pendulum.DateTime
+    first_name: str
+    last_name: str
+    age: int
+    sex: Optional[Literal['m', 'f']]
+    children: List[ChildModel]
+    current_work: WorkModel
 
 
 class User(HalResource):
     url_placeholder = '<user_id>'
 
-    def __init__(self, model, parent):
-        """
-        :type model: dict
-        :type parent: Users
-        """
+    def __init__(self, model: UserModel, parent: 'Users'):
         self.model = model
         self.__parent__ = parent
-        self.__name__ = str(model['id'])
+        self.__name__ = str(model.id)
 
-    options_for_get = MethodOptions(None, schemas.UserSchema, permission='users.get')
+    def http_patch(self, request, params: dict):
+        for key, value in params.items():
+            setattr(self.model, key, value)
+        created = False
+        return created
 
-    def as_dict(self, request):
-        res = self.model.copy()
-        res['created'] = res['created'].isoformat()
-        return res
+    def http_delete(self, request, params):
+        self.__parent__.delete_user(self.model.id)
 
 
-class Users(HalResourceWithEmbedded):
-
+class Users(HalResource):
     __acl__ = [
+        # (Allow, Authenticated, 'users.'),
+        # DENY_ALL,
         (Allow, Everyone, 'users.'),
     ]
 
     def __init__(self):
-        self._users_list = []
-        self._users_dict = {}
+        self.models: Dict[str, UserModel] = {}
         self._next_id = 1
 
     def __getitem__(self, key):
-        user = self._users_dict.get(key)
-        if user:
-            return user
-        return super(Users, self).__getitem__(key)
-
-    options_for_get = MethodOptions(GetEmbeddedSchema, schemas.UsersSchema,
-                                    permission='users.get')
-
-    def get_embedded(self, request, params):
-        return list_to_embedded_resources(
-            request, params,
-            resources=self._users_list,
-            parent=self,
-            embedded_name='users',
-        )
-
-    options_for_post = MethodOptions(schemas.CreateUserSchema, schemas.UserSchema,
-                                     permission='users.edit')
+        model = self.models.get(key)
+        if model:
+            return self.get_user_by_model(model)
+        return super().__getitem__(key)
 
     def http_post(self, request, params):
         created = True
-        resource = self.create_user(params['name'])
+        resource = self.create_user(**params)
         return resource, created
 
-    def create_user(self, name):
-        user_id = self._next_id
-        model = {
-            'id': user_id,
-            'name': name,
-            'created': pendulum.now(pendulum.UTC),
-        }
-        self._next_id += 1
-        user = User(model, parent=self)
-        self._users_list.append(user)
-        self._users_dict[str(user_id)] = user
-        return user
+    def get_user_by_model(self, model: UserModel):
+        return User(model, parent=self)
 
-    def get_user_by_name(self, name):
-        for user in self._users_list:
-            if user.model['name'] == name:
-                return user
+    def create_user(self, first_name, last_name, age: Optional[int] = None, sex: Optional[Literal['m', 'f']] = 'm',
+                    children=None, current_work: Union[None, dict, WorkModel] = None):
+        user_id = self._next_id
+        children = children or []
+        children = [
+            child if isinstance(child, ChildModel) else ChildModel(**child)
+            for child in children
+        ]
+        if not current_work:
+            current_work = WorkModel(title='', address='')
+        if isinstance(current_work, dict):
+            current_work = WorkModel(**current_work)
+        model = UserModel(
+            id=user_id,
+            created=pendulum.now(pendulum.UTC),
+            first_name=first_name,
+            last_name=last_name,
+            age=age,
+            sex=sex,
+            children=children,
+            current_work=current_work,
+        )
+        self._next_id += 1
+        self.models[str(user_id)] = model
+        return self.get_user_by_model(model)
+
+    def get_user_by_name(self, first_name):
+        for model in self.models.values():
+            if model.first_name == first_name:
+                return self.get_user_by_model(model)
+
+    def delete_user(self, user_id: int):
+        self._users_dict.pop(str(user_id))
 
 
 def check_credentials(username, password, request):
-    users = request.root['users']  # type: Users
+    users: Users = request.root['users']
     user = users.get_user_by_name(username)
     if user:
-        return [user.model['id']]
+        return [user.model.id]

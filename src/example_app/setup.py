@@ -30,7 +30,7 @@ setup(
     zip_safe=False,
     extras_require={
         'test': [
-            'pytest<5.0',
+            'pytest',
             'mock',
             'asset',
             'WebTest',
@@ -39,12 +39,13 @@ setup(
         ],
     },
     install_requires=[
-        'setuptools<45.0',
+        'setuptools',
         'six',
-        'restfw',
+        'restfw>=4.0',
         'restfw_admin',
         'wsgicors',
         'pendulum',
+        'pyramid_debugtoolbar',
     ],
     entry_points={
         'console_scripts': [
