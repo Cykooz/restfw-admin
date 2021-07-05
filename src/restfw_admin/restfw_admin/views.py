@@ -6,7 +6,6 @@
 import dataclasses
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPOk
-from pyramid.request import Request
 from restfw import views
 from restfw.interfaces import MethodOptions
 from restfw.typing import PyramidRequest
@@ -24,7 +23,7 @@ window.__RESTFW_ADMIN_PARAMS__ = {admin_params};
 </script>'''
 
 
-def admin_ui(request: Request):
+def admin_ui(request: PyramidRequest):
     admin_resource = get_admin(request.root)
     api_info_url = request.resource_url(admin_resource['api_info.json']).rstrip('/')
     admin_params = [f'"apiInfoUrl": "{api_info_url}"']
@@ -51,14 +50,14 @@ def admin_ui(request: Request):
     return response
 
 
-def redirect_to_admin_ui(request: Request):
+def redirect_to_admin_ui(request: PyramidRequest):
     url = request.route_url('admin_ui_ts')
     return HTTPMovedPermanently(location=url)
 
 
 # ApiInfo
 
-@views.resource_view_config(ApiInfo)
+@views.resource_view_config()
 class ApiInfoView(views.HalResourceView):
     resource: ApiInfo
     options_for_get = MethodOptions(None, None, permission='rest_admin.api_info.get')
@@ -79,7 +78,7 @@ class ApiInfoView(views.HalResourceView):
 
 # AdminChoices
 
-@views.resource_view_config(AdminChoices)
+@views.resource_view_config()
 class AdminChoicesView(views.HalResourceWithEmbeddedView):
     resource: AdminChoices
     options_for_get = MethodOptions(
@@ -100,8 +99,9 @@ class AdminChoicesView(views.HalResourceWithEmbeddedView):
 
 # Admin
 
-@views.resource_view_config(Admin)
+@views.resource_view_config()
 class AdminView(views.HalResourceView):
+    resource: Admin
 
     def http_get(self):
         url = self.request.route_url('admin_ui_ts')

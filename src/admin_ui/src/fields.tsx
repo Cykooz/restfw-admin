@@ -27,6 +27,8 @@ import React, {FunctionComponent} from "react";
 import {getFieldValidators} from "./validators";
 import MappingInput from "./MappingInput";
 import MappingField from "./MappingField";
+import { JsonField, JsonInput } from "react-admin-json-view";
+
 
 export const defaultFieldStyle = {
     // maxWidth: '18em',
@@ -179,6 +181,7 @@ export const COMPONENTS: Record<string, IFabric> = {
     'SelectField': view_fabric(SelectField),
     'ArrayField': array_view_fabric,
     'MappingField': mapping_field_fabric,
+    'JsonField': view_fabric(JsonField),
     // Inputs
     'TextInput': input_fabric(TextInput),
     'RichTextInput': view_fabric(RichTextInput),
@@ -191,6 +194,7 @@ export const COMPONENTS: Record<string, IFabric> = {
     'ArrayInput': array_input_fabric,
     'ReferenceInput': referenceInputFabric,
     'MappingInput': mapping_input_fabric,
+    'JsonInput': input_fabric(JsonInput),
 };
 
 

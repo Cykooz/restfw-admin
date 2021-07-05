@@ -3,7 +3,7 @@
 :Authors: cykooz
 :Date: 31.07.2020
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict
 
 from pyramid.security import Allow, Everyone
@@ -15,6 +15,7 @@ class DocModel:
     id: int
     user_id: int
     data: str = ''
+    meta: dict = field(default_factory=dict)
 
 
 class Doc(HalResource):

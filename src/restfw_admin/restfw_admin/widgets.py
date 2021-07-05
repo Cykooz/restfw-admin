@@ -4,7 +4,7 @@
 :Date: 04.07.2020
 """
 from dataclasses import dataclass, field, fields
-from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple, Union
 
 from .models import FieldModel
 from .typing import JsonNumber, SimpleJsonValue
@@ -15,7 +15,8 @@ from .validators import Validator
 def ra_field(name, **kwargs):
     """Helper function to create a field of widget with information
     about a real name of property of widget from ReactAdmin."""
-    kwargs.setdefault('default', None)
+    if 'default_factory' not in kwargs:
+        kwargs.setdefault('default', None)
     return field(metadata={'ra_name': name}, **kwargs)
 
 
@@ -373,3 +374,49 @@ class MappingInput(Widget):
             for name, widget in self.fields.items()
         ]
         return field_model
+
+
+# Json
+
+@dataclass()
+class JsonOptions:
+    # Name of your root node. Use null or false for no name.
+    name: Optional[str] = None
+    # The indent-width for nested objects, default: 4
+    indent_width: Optional[int] = ra_field('indentWidth')
+    # When set to True, all nodes will be collapsed by default.
+    # Use an integer value to collapse at a particular depth.
+    collapsed: Union[int, bool] = False
+    # When an integer value is assigned, strings will be cut off
+    # at that length. Collapsed strings are followed by an ellipsis.
+    # String content can be expanded and collapsed by clicking on the string value.
+    collapse_strings_after_length: Optional[int] = ra_field('collapseStringsAfterLength')
+    # When set to True, objects and arrays are labeled with size
+    display_object_size: bool = ra_field('displayObjectSize', default=True)
+    # When set to True, data type labels prefix values
+    display_data_types: bool = ra_field('displayDataTypes', default=False)
+
+
+@dataclass()
+class JsonField(FieldWidget):
+    type = 'JsonField'
+    add_label: Optional[bool] = ra_field('addLabel', default=True)
+    # Set to True if the value is a string, default: False
+    json_string: Optional[bool] = ra_field('jsonString')
+    # Props passed to react-json-view
+    react_json_options: JsonOptions = ra_field(
+        'reactJsonOptions',
+        default_factory=JsonOptions
+    )
+
+
+@dataclass()
+class JsonInput(InputWidget):
+    type = 'JsonInput'
+    # Set to True if the value is a string, default: False
+    json_string: Optional[bool] = ra_field('jsonString')
+    # Props passed to react-json-view
+    react_json_options: JsonOptions = ra_field(
+        'reactJsonOptions',
+        default_factory=JsonOptions
+    )

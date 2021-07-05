@@ -22,6 +22,7 @@ export function getResources(apiInfo: IApiInfo) {
         apiInfo.mapResources((resourceInfo) => (
             <Resource
                 name={resourceInfo.name}
+                options={{label: resourceInfo.title}}
                 {...getResourceViews(resourceInfo)}
             />
         ))

@@ -14,6 +14,19 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Added basic version of ``JsonField`` and ``JsonInput``.
+
+Changes
+-------
+
+- Migrated to version 7 of ``restfw``.
+
 0.5.2 (2021-01-25)
 ==================
 
