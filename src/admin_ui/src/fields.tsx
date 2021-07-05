@@ -58,7 +58,8 @@ function view_fabric<P>(Component: FunctionComponent<P>, default_props?: any) {
 }
 
 
-function input_fabric<P>(Component: FunctionComponent<P>) {
+// function input_fabric<P>(Component: FunctionComponent<P>) {
+function input_fabric(Component: any) {
     return function(key: string, field: IField) {
         let validators = getFieldValidators(field);
         return (

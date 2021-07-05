@@ -25,7 +25,7 @@ Features
 Changes
 -------
 
-- Migrated to version 7 of ``restfw``.
+- Updated dependencies.
 
 0.5.2 (2021-01-25)
 ==================

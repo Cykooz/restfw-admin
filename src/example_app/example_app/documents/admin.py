@@ -21,7 +21,6 @@ class DocsAdmin(ResourceAdmin):
         '_embedded'
     )
     fields = Only(
-        '_links.self.href',
         'id',
         'user_id',
         'data',
