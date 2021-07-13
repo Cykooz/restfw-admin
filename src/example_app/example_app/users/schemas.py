@@ -7,13 +7,13 @@ import colander
 from restfw import schemas
 
 
-class Child(schemas.MappingSchema):
+class Child(schemas.MappingNode):
     sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
     name = schemas.StringNode(title='Name')
     age = schemas.UnsignedIntegerNode(title='Age', nullable=True)
 
 
-class Work(schemas.MappingSchema):
+class Work(schemas.MappingNode):
     title = schemas.StringNode(title="Title")
     address = schemas.StringNode(title="Address")
 
@@ -29,7 +29,7 @@ class UserSchema(schemas.HalResourceSchema):
     current_work = Work(title='Current work')
 
 
-class CreateUserSchema(schemas.MappingSchema):
+class CreateUserSchema(schemas.MappingNode):
     first_name = schemas.StringNode(
         title='First Name',
         validator=colander.All(
@@ -55,7 +55,7 @@ class CreateUserSchema(schemas.MappingSchema):
     current_work = Work(title='Current work', missing=colander.drop)
 
 
-class PatchUserSchema(schemas.MappingSchema):
+class PatchUserSchema(schemas.MappingNode):
     first_name = schemas.StringNode(
         title='First Name', missing=colander.drop,
         validator=colander.All(

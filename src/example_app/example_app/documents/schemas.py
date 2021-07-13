@@ -26,7 +26,7 @@ class DocsSchema(schemas.HalResourceWithEmbeddedSchema):
     )
 
 
-class CreateDocSchema(schemas.MappingSchema):
+class CreateDocSchema(schemas.MappingNode):
     user_id = schemas.IntegerNode(title='User ID', validator=user_id_validator)
     data = schemas.EmptyStringNode(title='Document data')
     meta = schemas.MappingNode(title='Meta', unknown='preserve')

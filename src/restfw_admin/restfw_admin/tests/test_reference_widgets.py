@@ -32,7 +32,7 @@ class DocsSchema(schemas.HalResourceWithEmbeddedSchema):
     )
 
 
-class CreateDocSchema(schemas.MappingSchema):
+class CreateDocSchema(schemas.MappingNode):
     user_id = schemas.IntegerNode(title='User ID')
     data = schemas.EmptyStringNode(title='Document data')
 

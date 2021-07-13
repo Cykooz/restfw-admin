@@ -14,6 +14,15 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Changes
+-------
+
+- Replaced using of deprecated ``restfw.schemas.MappingSchema`` on
+  ``restfw.schemas.MappingNode``.
+
 0.6.2 (2021-07-13)
 ==================
 

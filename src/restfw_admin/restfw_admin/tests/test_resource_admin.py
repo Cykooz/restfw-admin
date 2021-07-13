@@ -20,7 +20,7 @@ from ..resource_admin import (
 
 # Users
 
-class Child(schemas.MappingSchema):
+class Child(schemas.MappingNode):
     sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
     name = schemas.StringNode(title='Name')
     age = schemas.UnsignedIntegerNode(title='Age', nullable=True)
@@ -30,7 +30,7 @@ class Child(schemas.MappingSchema):
     )
 
 
-class Work(schemas.MappingSchema):
+class Work(schemas.MappingNode):
     title = schemas.StringNode(title='Title', validator=schemas.LaconicNoneOf(['God', 'Duck']))
     address = schemas.StringNode(title='Address')
 
@@ -63,7 +63,7 @@ class UsersSchema(schemas.HalResourceWithEmbeddedSchema):
     )
 
 
-class CreateUserSchema(schemas.MappingSchema):
+class CreateUserSchema(schemas.MappingNode):
     name = schemas.StringNode(
         title='User name',
         validator=colander.All(
@@ -83,7 +83,7 @@ class CreateUserSchema(schemas.MappingSchema):
     current_work = Work(title='Current work')
 
 
-class PatchItemSchema(schemas.MappingSchema):
+class PatchItemSchema(schemas.MappingNode):
     name = schemas.StringNode(
         title='User name', missing=colander.drop,
         validator=colander.All(
