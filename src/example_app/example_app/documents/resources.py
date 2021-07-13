@@ -6,7 +6,7 @@
 from dataclasses import dataclass, field
 from typing import Dict
 
-from pyramid.security import Allow, Everyone
+from pyramid.authorization import Allow, Everyone
 from restfw.hal import HalResource
 
 

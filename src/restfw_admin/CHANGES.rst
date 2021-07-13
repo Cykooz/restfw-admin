@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Changes
+-------
+
+- Added support of ``pyramid 2+``.
+
 0.6 (2021-07-05)
 ================
 

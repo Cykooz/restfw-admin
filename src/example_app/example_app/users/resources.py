@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Literal, Optional, Union
 
 import pendulum
-from pyramid.security import Allow, Everyone
+from pyramid.authorization import Allow, Everyone
 from restfw.hal import HalResource
 
 
