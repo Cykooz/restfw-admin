@@ -56,7 +56,7 @@ class admin_choices_config(object):
     def __init__(self, name=None, **kwargs):
         self.name = name
         self.depth = kwargs.pop('_depth', 0)
-        self.category = kwargs.pop('_category', 'provisioner_admin')
+        self.category = kwargs.pop('_category', 'pyramid')
 
     def register(self, scanner, name, wrapped):
         config = scanner.config
@@ -145,7 +145,7 @@ class resource_admin_config(object):
     """
     venusian = venusian  # for testing injection
 
-    def __init__(self, name, _depth=0, _category='restfw-admin'):
+    def __init__(self, name, _depth=0, _category='pyramid'):
         self.name = name
         self.depth = _depth
         self.category = _category

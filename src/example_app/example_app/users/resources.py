@@ -118,4 +118,4 @@ def check_credentials(username, password, request):
     users: Users = request.root['users']
     user = users.get_user_by_name(username)
     if user:
-        return [user.model.id]
+        return user.model.id

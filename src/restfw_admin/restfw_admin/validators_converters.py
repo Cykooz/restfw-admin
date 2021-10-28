@@ -119,7 +119,7 @@ class validator_converter:
     def __init__(self, validator_type: Type[ColanderValidator], **kwargs):
         self.validator_type = validator_type
         self.depth = kwargs.pop('_depth', 0)
-        self.category = kwargs.pop('_category', 'restfw_admin')
+        self.category = kwargs.pop('_category', 'pyramid')
 
     def register(self, scanner, name, wrapped):
         add_validator_converter(

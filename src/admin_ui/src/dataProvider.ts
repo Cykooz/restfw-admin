@@ -33,7 +33,7 @@ import {IHttpClient} from "./types";
  *
  * export default App;
  */
-export default (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJson): DataProvider => ({
+const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJson): DataProvider => ({
     getList: async (resource, params) => {
         const {page, perPage} = params.pagination;
         const orderBy = sort2orderBy(params.sort);
@@ -197,3 +197,5 @@ function getTotalCount(headers: Headers): number {
 
     return parseInt(total, 10);
 }
+
+export default Provider;

@@ -14,6 +14,15 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Changes
+-------
+
+- Updated minimal supported version of restfw to 8.0b.
+- Updated python's and Node.js dependencies.
+
 0.6.4 (2021-07-13)
 ==================
 

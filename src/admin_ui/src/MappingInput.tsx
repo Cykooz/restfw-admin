@@ -4,18 +4,17 @@ import {InputProps, Record} from 'ra-core';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
 import {makeStyles} from '@material-ui/core/styles';
-import {Theme} from '@material-ui/core/styles/createMuiTheme';
-
+import {Theme} from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) => ({
-  fieldset: {
-      padding: '5px 12px',
-      border: `1px solid ${theme.palette.grey[500]}`,
-  },
-  legend: {
-      paddingLeft: '5px',
-      paddingRight: '5px',
-  },
+    fieldset: {
+        padding: '5px 12px',
+        border: `1px solid ${theme.palette.grey[500]}`,
+    },
+    legend: {
+        paddingLeft: '5px',
+        paddingRight: '5px',
+    },
 }));
 
 

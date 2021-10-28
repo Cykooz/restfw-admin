@@ -161,7 +161,7 @@ def _field_converter(is_input: bool, node_type: Type[colander.SchemaType], **kwa
         )
 
     depth = kwargs.pop('_depth', 0)
-    category = kwargs.pop('_category', 'restfw_admin')
+    category = kwargs.pop('_category', 'pyramid')
 
     def wrapper(wrapped):
         venusian.attach(
