@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Literal, Optional, Union
 
 import pendulum
-from pyramid.security import Allow, Everyone
+from pyramid.authorization import Allow, Everyone
 from restfw.hal import HalResource
 
 
@@ -118,4 +118,4 @@ def check_credentials(username, password, request):
     users: Users = request.root['users']
     user = users.get_user_by_name(username)
     if user:
-        return [user.model.id]
+        return user.model.id

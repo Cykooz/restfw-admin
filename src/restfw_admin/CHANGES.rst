@@ -17,6 +17,32 @@ CHANGELOG
 Next release
 ============
 
+Changes
+-------
+
+- Updated minimal supported version of restfw to 8.0b.
+- Updated python's and Node.js dependencies.
+
+0.6.4 (2021-07-13)
+==================
+
+Changes
+-------
+
+- Replaced using of deprecated ``restfw.schemas.MappingSchema`` on
+  ``restfw.schemas.MappingNode``.
+
+0.6.2 (2021-07-13)
+==================
+
+Changes
+-------
+
+- Added support of ``pyramid 2+``.
+
+0.6 (2021-07-05)
+================
+
 Features
 --------
 

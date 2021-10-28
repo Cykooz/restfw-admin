@@ -43,7 +43,8 @@ interface IFabric {
 }
 
 
-function view_fabric<P>(Component: FunctionComponent<P>, default_props?: any) {
+// function view_fabric<P>(Component: FunctionComponent<P>, default_props?: any) {
+function view_fabric(Component: any, default_props?: any) {
     return function(key: string, field: IField) {
         return (
             <Component

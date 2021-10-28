@@ -3,7 +3,7 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
-from pyramid.security import Allow, Everyone
+from pyramid.authorization import Allow, Everyone
 from restfw.hal import HalResource, SimpleContainer
 from restfw.root import Root
 from restfw.typing import PyramidRequest

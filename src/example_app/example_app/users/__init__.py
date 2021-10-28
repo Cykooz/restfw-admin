@@ -9,11 +9,10 @@ def includeme(config):
     """
     :type config: pyramid.config.Configurator
     """
-    from pyramid.authentication import BasicAuthAuthenticationPolicy
     from .resources import check_credentials
 
-    authn_policy = BasicAuthAuthenticationPolicy(check_credentials)
-    config.set_authentication_policy(authn_policy)
+    from .policy import ExampleSecurityPolicy
+    config.set_security_policy(ExampleSecurityPolicy())
 
     config.include('restfw')
     config.include('restfw_admin')
