@@ -23,6 +23,14 @@ Changes
 - Updated minimal supported version of restfw to 8.0b.
 - Updated python's and Node.js dependencies.
 
+0.6.6 (2021-10-28)
+==================
+
+Changes
+-------
+
+- Migrated private PyPi from http://pypi.mountbit.com to https://nx.cloudike.com.
+
 0.6.4 (2021-07-13)
 ==================
 
