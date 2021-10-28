@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Changes
+-------
+
+- Migrated private PyPi from http://pypi.mountbit.com to https://nx.cloudike.com.
+
 0.6.4 (2021-07-13)
 ==================
 
