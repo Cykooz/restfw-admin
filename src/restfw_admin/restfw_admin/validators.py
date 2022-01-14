@@ -6,8 +6,9 @@
 from dataclasses import dataclass, fields
 from typing import ClassVar, List
 
+from restfw.typing import JsonNumber, SimpleJsonValue
+
 from .models import ValidatorModel
-from .typing import JsonNumber, SimpleJsonValue
 
 
 @dataclass()

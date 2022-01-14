@@ -91,10 +91,10 @@ def add_validator_converter(
 
     discriminator = f'restfw_admin_validator:{id(validator_type)}'
     intr = config.introspectable(
-        category_name='restfw_admin_validator_converter',
+        category_name='restfw-admin validator converters',
         discriminator=discriminator,
         title=config.object_description(converter),
-        type_name='restfw_admin_validator_converter',
+        type_name='validator converter',
     )
     intr['validator_type'] = validator_type
     intr['converter'] = converter

@@ -66,12 +66,14 @@ class ApiInfoView(views.HalResourceView):
         registry = self.request.registry
         title = registry.settings.get('restfw_admin.title', 'Admin UI')
         root_url = registry.settings.get('restfw_admin.root_url', '')
+        extra = registry.get('restfw_admin.extra', {})
         if not root_url:
             root_url = self.request.resource_url(self.request.root)
         model = ApiInfoModel(
             root_url=root_url.rstrip('/'),
             title=title,
             resources=self.resource.get_resources_info(self.request),
+            extra=extra,
         )
         return dataclasses.asdict(model)
 

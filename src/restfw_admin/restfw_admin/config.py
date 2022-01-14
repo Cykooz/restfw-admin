@@ -4,11 +4,12 @@
 :Date: 05.02.2020
 """
 from dataclasses import dataclass
-from typing import Optional, Type, Union
+from typing import Dict, Optional, Type, Union
 
 import venusian
 from pyramid.config import Configurator
 from pyramid.registry import Registry
+from restfw.typing import SimpleJsonValue
 
 from . import interfaces
 from .interfaces import IAdminChoices
@@ -185,3 +186,7 @@ def add_restfw_admin_auth_provider(config: Configurator, js_name: str, js_code: 
 def add_restfw_admin_http_client(config: Configurator, js_name: str, js_code: str):
     ui_settings = get_admin_ui_settings(config.registry)
     ui_settings.http_client = JsFunction(js_name, js_code)
+
+
+def set_restfw_admin_extra_params(registry: Registry, extra: Dict[str, SimpleJsonValue]):
+    registry['restfw_admin.extra'] = extra

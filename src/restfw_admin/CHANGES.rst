@@ -14,6 +14,21 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Added function ``set_restfw_admin_extra_params`` to add some extra
+  parameters into ApiInfo object in JS part of Admin UI.
+
+Changes
+-------
+
+- Updated minimal supported version of restfw to 8.0.2.
+- Updated python's and Node.js dependencies.
+
 0.7 (2021-10-28)
 ================
 

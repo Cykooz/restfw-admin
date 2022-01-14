@@ -102,7 +102,7 @@ setup(
     install_requires=[
         'setuptools',
         'six',
-        'restfw>=8.0b0',
+        'restfw>=8.0.2',
     ],
     entry_points={
         'console_scripts':

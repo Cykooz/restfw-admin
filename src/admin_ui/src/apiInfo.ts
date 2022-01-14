@@ -52,6 +52,8 @@ type MapCallback<T> = (resource: IResourceInfo) => T;
 export interface IApiInfo {
     getTitle(): string;
 
+    rootUrl(): string;
+
     resourceUrl(name: string): string;
 
     resourceId(name: string, data: any, def?: Identifier | null): Identifier;
@@ -70,15 +72,23 @@ export class ApiInfo implements IApiInfo {
     private readonly resources: {
         [name: string]: IResourceInfo
     };
+    private readonly extra: {
+        [name: string]: any
+    };
 
     constructor(public raw_info: any) {
         this.root_url = raw_info.root_url;
         this.title = raw_info.title;
         this.resources = raw_info.resources;
+        this.extra = raw_info.extra;
     }
 
     getTitle() {
         return this.title;
+    }
+
+    rootUrl(): string {
+        return this.root_url;
     }
 
     resourceUrl(name: string) {
@@ -157,6 +167,10 @@ export class ApiInfo implements IApiInfo {
             result.push(callback(resourceInfo));
         }
         return result;
+    }
+
+    getExtra(): {[name: string]: any} {
+        return this.extra;
     }
 }
 

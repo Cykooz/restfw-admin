@@ -6,8 +6,9 @@
 from dataclasses import dataclass, field, fields
 from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple, Union
 
+from restfw.typing import JsonNumber, SimpleJsonValue
+
 from .models import FieldModel
-from .typing import JsonNumber, SimpleJsonValue
 from .utils import slug_to_title
 from .validators import Validator
 

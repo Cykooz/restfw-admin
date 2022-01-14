@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple, TypeVar, Union
 
-from .typing import Json
+from restfw.typing import Json, SimpleJsonValue
 
 
 @dataclass()
@@ -75,3 +75,4 @@ class ApiInfoModel:
     root_url: str
     title: str
     resources: Dict[str, ResourceInfoModel]
+    extra: Dict[str, SimpleJsonValue]

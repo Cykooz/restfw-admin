@@ -128,10 +128,10 @@ def add_field_converter(
 
     discriminator = f'restfw_{field_type}_field:{id(node_type)}'
     intr = config.introspectable(
-        category_name='restfw_admin_field_converter',
+        category_name='restfw-admin field converters',
         discriminator=discriminator,
         title=config.object_description(converter),
-        type_name=f'restfw_admin_{field_type}_field_converter',
+        type_name=f'{field_type} field converter',
     )
     intr['node_type'] = node_type
     intr['converter'] = converter
