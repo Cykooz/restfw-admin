@@ -3,7 +3,7 @@
 :Authors: cykooz
 :Date: 25.04.2020
 """
-from dataclasses import dataclass, field
+import dataclasses
 from typing import Dict, Iterable, List, Literal, Optional, Tuple, Type, Union
 
 import colander
@@ -17,7 +17,7 @@ from .typing import ColanderNode
 from .widgets import Widget
 
 
-@dataclass()
+@dataclasses.dataclass()
 class Only:
     names: Tuple[str, ...]
 
@@ -25,7 +25,7 @@ class Only:
         self.names = args
 
 
-@dataclass()
+@dataclasses.dataclass()
 class Exclude:
     names: Tuple[str, ...]
 
@@ -36,10 +36,10 @@ class Exclude:
 WidgetReplaces = Dict[str, Union[None, Widget, 'WidgetReplaces']]
 
 
-@dataclass()
+@dataclasses.dataclass()
 class ViewSettings:
     fields: Optional[Union[Only, Exclude]] = None
-    widgets: WidgetReplaces = field(default_factory=dict)
+    widgets: WidgetReplaces = dataclasses.field(default_factory=dict)
 
 
 class ResourceAdmin:
@@ -194,15 +194,33 @@ class ResourceAdmin:
             return schema_class()
 
     def _widgets_to_fields(self, view_settings: ViewSettings, widgets: Dict[str, Widget]) -> List[FieldModel]:
+        only_field_names: list[str] = []
         for fields in (self.default_fields, self.fields, view_settings.fields):
             if fields:
                 names = unflat(fields.names)
                 if isinstance(fields, Only):
                     widgets = only_widgets(widgets, names)
+                    only_field_names.extend(fields.names)
                 elif isinstance(fields, Exclude):
                     widgets = exclude_widgets(widgets, names)
         if view_settings.widgets:
             replace_widgets(widgets, view_settings.widgets)
+        if only_field_names:
+            filtered_widgets = {}
+            for name in only_field_names:
+                widget = None
+                cur_widgets = widgets
+                for sub_name in name.split('.'):
+                    if cur_widgets is None:
+                        break
+                    widget = cur_widgets.get(sub_name, None)
+                    if widget is None:
+                        break
+                    cur_widgets = getattr(widget, 'fields', None)
+                else:
+                    if widget is not None:
+                        filtered_widgets[name] = widget
+            widgets = filtered_widgets
         return [
             widget.to_model(name)
             for name, widget in widgets.items()

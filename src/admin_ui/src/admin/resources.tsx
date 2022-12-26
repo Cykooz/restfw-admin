@@ -1,4 +1,4 @@
-import React from "react";
+import React, {ReactElement} from "react";
 import {
     Create,
     Datagrid,
@@ -14,7 +14,6 @@ import {
 } from "react-admin";
 import {IApiInfo, IResourceInfo} from "./apiInfo";
 import {getFields, getInputs} from "./fields";
-import {makeStyles} from '@material-ui/core';
 
 
 export function getResources(apiInfo: IApiInfo) {
@@ -36,7 +35,7 @@ function getResourceViews(resourceInfo: IResourceInfo) {
     const create = getCreateView(resourceInfo);
     const edit = getEditView(resourceInfo);
     return Object.assign({},
-      list === null ? null : {list},
+        list === null ? null : {list},
         show === null ? null : {show},
         create === null ? null : {create},
         edit === null ? null : {edit},
@@ -49,26 +48,30 @@ function getResourceViews(resourceInfo: IResourceInfo) {
     // };
 }
 
-
-const useGridStyles = makeStyles({
-    headerCell: {
-        backgroundColor: '#e0e0e0',
-    },
-});
-
+class GridProps {
+    bulkActionButtons?: ReactElement | false;
+}
 
 function getListView(resourceInfo: IResourceInfo) {
     const {list, show, edit} = resourceInfo.views;
     if (!list) {
         return null;
     }
-    return (props: any) => {
+    return () => {
+        let grid_props = new GridProps();
         if (!resourceInfo.deletable)
-            props['bulkActionButtons'] = false;
-        const classes = useGridStyles();
+            grid_props.bulkActionButtons = false;
         return (
-            <List sort={false} {...props}>
-                <Datagrid rowClick={show ? 'show' : ''} classes={classes}>
+            <List>
+                <Datagrid
+                    rowClick={show ? 'show' : ''}
+                    sx={{
+                        '& .RaDatagrid-headerCell': {
+                            backgroundColor: '#e0e0e0',
+                        },
+                    }}
+                    {...grid_props}
+                >
                     {getFields(list.fields)}
                     {edit ? <EditButton/> : null}
                 </Datagrid>
@@ -82,10 +85,9 @@ function getShowView(resourceInfo: IResourceInfo) {
     if (!show) {
         return null;
     }
-
-    return (props: any) => {
+    return () => {
         return (
-            <Show {...props}>
+            <Show>
                 <SimpleShowLayout>
                     {getFields(show.fields)}
                 </SimpleShowLayout>
@@ -101,9 +103,9 @@ function getCreateView(resourceInfo: IResourceInfo) {
         return null;
     }
 
-    return (props: any) => {
+    return () => {
         return (
-            <Create {...props}>
+            <Create>
                 <SimpleForm>
                     {getInputs(create.fields)}
                 </SimpleForm>
@@ -113,26 +115,30 @@ function getCreateView(resourceInfo: IResourceInfo) {
 }
 
 
-const EditWithoutDeleteToolbar = props => (
-    <Toolbar {...props} >
+const EditWithoutDeleteToolbar = () => (
+    <Toolbar>
         <SaveButton/>
     </Toolbar>
 );
 
+
+class FormProps {
+    toolbar?: ReactElement | false;
+}
 
 function getEditView(resourceInfo: IResourceInfo) {
     const {edit} = resourceInfo.views;
     if (!edit) {
         return null;
     }
-    let form_props = {};
+    let form_props = new FormProps();
     if (!resourceInfo.deletable) {
-        form_props['toolbar'] = <EditWithoutDeleteToolbar/>;
+        form_props.toolbar = <EditWithoutDeleteToolbar/>;
     }
 
-    return (props: any) => {
+    return () => {
         return (
-            <Edit {...props}>
+            <Edit>
                 <SimpleForm {...form_props}>
                     {getInputs(edit.fields)}
                 </SimpleForm>

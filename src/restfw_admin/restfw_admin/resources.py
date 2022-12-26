@@ -23,10 +23,10 @@ class ApiInfo(HalResource):
         for name, fabric in registry.getUtilitiesFor(IResourceAdminFabric):
             resource_admin: ResourceAdmin = fabric(request, name)
             info = resource_admin.get_resource_info()
-            resources.append((info.index, name, info))
+            resources.append(info)
         return {
-            name: info
-            for _, name, info in sorted(resources)
+            info.name: info
+            for info in sorted(resources, key=lambda x: x.title)
         }
 
 

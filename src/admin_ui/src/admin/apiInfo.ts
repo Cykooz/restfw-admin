@@ -1,4 +1,4 @@
-import {Identifier, Record} from "ra-core";
+import {Identifier, RaRecord} from "ra-core";
 
 
 export interface IValidator {
@@ -60,7 +60,7 @@ export interface IApiInfo {
 
     resourceUpdateMethod(name: string): string;
 
-    getEmbeddedResources<RecordType extends Record = Record>(name: string, data: any): RecordType[];
+    getEmbeddedResources<RecordType extends RaRecord = RaRecord>(name: string, data: any): RecordType[];
 
     mapResources<T>(callback: MapCallback<T>): T[];
 }
@@ -124,7 +124,7 @@ export class ApiInfo implements IApiInfo {
         return this.resources[name].update_method;
     }
 
-    getEmbeddedResources<RecordType extends Record = Record>(name: string, data: any): RecordType[] {
+    getEmbeddedResources<RecordType extends RaRecord = RaRecord>(name: string, data: any): RecordType[] {
         if (!(name in this.resources)) {
             console.warn(`ApiInfo: Unknown resource with a name "${name}".`);
             return [];
@@ -153,7 +153,7 @@ export class ApiInfo implements IApiInfo {
         const embedded_resources: any[] = embedded_data[embedded_name];
 
         return embedded_resources.map(
-            resource_data => ( {
+            resource_data => ({
                 ...resource_data,
                 id: this.resourceId(embedded_name, resource_data)
             })
@@ -169,7 +169,7 @@ export class ApiInfo implements IApiInfo {
         return result;
     }
 
-    getExtra(): {[name: string]: any} {
+    getExtra(): { [name: string]: any } {
         return this.extra;
     }
 }

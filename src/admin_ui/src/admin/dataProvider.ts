@@ -155,7 +155,8 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
         return {data: json};
     },
 
-    // json-server doesn't handle filters on DELETE route, so we make a fallback to calling DELETE n times instead
+    // restfw doesn't handle filters on DELETE route,
+    // so we make a fallback to calling DELETE n times instead
     deleteMany: async (resource, params) => {
         const url = `${apiInfo.resourceUrl(resource)}`;
 

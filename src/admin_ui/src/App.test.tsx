@@ -1,9 +1,9 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import App from './App';
 
 test('renders loader container', () => {
-  const { getByText } = render(<App apiInfoUrl="" />);
-  const loadingElement = getByText(/Loading/i);
-  expect(loadingElement).toBeInTheDocument();
+  render(<App apiInfoUrl="" />);
+  const linkElement = screen.getByText(/Loading/i);
+  expect(linkElement).toBeInTheDocument();
 });

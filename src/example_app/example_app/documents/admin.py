@@ -61,7 +61,7 @@ class DocsAdmin(ResourceAdmin):
                 validators=[Required()]
             ),
             'data': all_widgets.RichTextInput(),
-            'meta': all_widgets.JsonInput(),
+            'meta': all_widgets.JsonInput(initial_value={}),
         }
     )
     edit_view = ViewSettings(

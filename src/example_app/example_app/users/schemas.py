@@ -37,51 +37,42 @@ class CreateUserSchema(schemas.MappingNode):
             colander.Regex(r'^[a-zA-z0-9]+$')
         ),
     )
-    last_name = schemas.StringNode(
+    last_name = schemas.EmptyStringNode(
         title='Last Name',
-        validator=colander.All(
-            colander.Length(max=50),
-            colander.Regex(r'^[a-zA-z0-9]+$')
+        validator=schemas.NullableValidator(
+            colander.All(
+                colander.Length(max=50),
+                colander.Regex(r'^[a-zA-z0-9]*$')
+            )
         ),
+        nullable=True,
     )
     age = schemas.UnsignedIntegerNode(
-        title='Age', nullable=True, missing=colander.drop,
+        title='Age', nullable=True, missing=None,
     )
-    sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']), nullable=True)
+    sex = schemas.StringNode(
+        title='Sex',
+        validator=colander.OneOf(['m', 'f']),
+        nullable=True,
+        missing=None,
+    )
     children = schemas.SequenceNode(
         Child(title='Child', missing=colander.drop),
         missing=[],
     )
-    current_work = Work(title='Current work', missing=colander.drop)
+    current_work = Work(title='Current work')
+    join_work_time = schemas.DateTimeNode(
+        title='Join Work Time',
+        nullable=True,
+        # missing=None,
+    )
 
 
-class PatchUserSchema(schemas.MappingNode):
-    first_name = schemas.StringNode(
-        title='First Name', missing=colander.drop,
-        validator=colander.All(
-            colander.Length(max=50),
-            colander.Regex(r'^[a-zA-z0-9]+$')
-        ),
-    )
-    last_name = schemas.StringNode(
-        title='Last Name', missing=colander.drop,
-        validator=colander.All(
-            colander.Length(max=50),
-            colander.Regex(r'^[a-zA-z0-9]+$')
-        ),
-    )
-    age = schemas.UnsignedIntegerNode(
-        title='Age', nullable=True, missing=colander.drop,
-    )
-    sex = schemas.StringNode(
-        title='Sex', missing=colander.drop,
-        validator=colander.OneOf(['m', 'f']), nullable=True
-    )
-    children = schemas.SequenceNode(
-        Child(title='Child', missing=colander.drop),
-        missing=colander.drop,
-    )
-    current_work = Work(title='Current work', missing=colander.drop)
+PatchUserSchema = schemas.clone_schema_class(
+    'PatchUserSchema',
+    CreateUserSchema,
+    nodes_missing=colander.drop,
+)
 
 
 class UsersSchema(schemas.HalResourceWithEmbeddedSchema):

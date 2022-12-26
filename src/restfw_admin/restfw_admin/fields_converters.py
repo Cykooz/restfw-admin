@@ -124,12 +124,16 @@ def nullable_input(registry: Registry, node: ColanderNode, node_type: schemas.Nu
     if widget:
         if isinstance(widget, widgets.BooleanInput):
             widget = widgets.NullableBooleanInput(**widget.get_fields())
-        elif isinstance(widget, widgets.SelectInput):
-            widget.allow_empty = True
-            widget.empty_text = '<none>'
-            widget.empty_value = None
         else:
-            widget.validators = [v for v in widget.validators if not isinstance(v, Required)]
+            if isinstance(widget, widgets.SelectInput):
+                widget.empty_text = '<none>'
+                widget.empty_value = None
+            if widget.validators:
+                widget.validators = [
+                    v
+                    for v in widget.validators
+                    if not isinstance(v, Required)
+                ]
         return widget
 
 

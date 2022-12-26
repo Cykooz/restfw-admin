@@ -14,6 +14,22 @@
 CHANGELOG
 *********
 
+0.8 (2022-12-27)
+================
+
+Features
+--------
+
+- Updated ``react-admin`` to version 4.
+- Implemented simple and comfortable version of ``JsonField`` and
+  ``JsonInput``.
+
+Changes
+-------
+
+- Updated all dependencies.
+- Changed sorting of resources in left menu.
+
 0.8 (2022-01-14)
 ================
 

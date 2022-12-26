@@ -3,8 +3,9 @@
 :Authors: cykooz
 :Date: 09.02.2020
 """
+from restfw_admin import  widgets
 from restfw_admin.config import resource_admin_config
-from restfw_admin.resource_admin import Exclude, ResourceAdmin, ViewSettings
+from restfw_admin.resource_admin import Only, ResourceAdmin, ViewSettings
 from .views import UserView, UsersView
 
 
@@ -16,5 +17,17 @@ class UsersAdmin(ResourceAdmin):
     location = '/users'
     index = 0
     list_view = ViewSettings(
-        fields=Exclude('last_name', 'children', 'current_work')
+        fields=Only(
+            'id',
+            'created',
+            'first_name',
+            'age',
+            'sex',
+            'current_work.title',
+        ),
+        widgets={
+            'current_work': {
+                'title': widgets.TextField(label='Current work title')
+            }
+        }
     )

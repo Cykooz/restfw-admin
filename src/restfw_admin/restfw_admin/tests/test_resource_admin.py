@@ -5,17 +5,19 @@
 """
 import colander
 import pytest
+from cykooz.testing import D
 from restfw import schemas, views
 from restfw.hal import HalResource
 from restfw.interfaces import MethodOptions
 from restfw.schemas import GetEmbeddedSchema
 
-from .. import widgets as all_widgets
+from .. import widgets as all_widgets, widgets
 from ..models import FieldModel, ValidatorModel
 from ..resource_admin import (
     Exclude, Only, ResourceAdmin, ViewSettings, exclude_widgets, only_widgets, replace_widgets,
     unflat
 )
+from ..resources import get_admin
 
 
 # Users
@@ -51,6 +53,7 @@ class UserSchema(schemas.HalResourceSchema):
         Child(title='Child'),
     )
     current_work = Work(title='Current work')
+    previews_work = Work(title='Previews work', nullable=True, missing=None)
 
 
 class UsersSchema(schemas.HalResourceWithEmbeddedSchema):
@@ -81,6 +84,7 @@ class CreateUserSchema(schemas.MappingNode):
         Child(title='Child', missing=colander.drop),
     )
     current_work = Work(title='Current work')
+    previews_work = Work(title='Previews work', nullable=True, missing=None)
 
 
 class PatchItemSchema(schemas.MappingNode):
@@ -132,7 +136,23 @@ class UsersAdmin(ResourceAdmin):
     location = '/users'
     index = 0
     list_view = ViewSettings(
-        fields=Exclude('children', 'current_work')
+        fields=Only(
+            'id',
+            'created',
+            'name',
+            'age',
+            'sex',
+            'current_work.title',
+            'previews_work.title',
+        ),
+        widgets={
+            'current_work': {
+                'title': widgets.TextField(label='Current work title')
+            },
+            'previews_work': {
+                'title': widgets.TextField(label='Previews work title')
+            }
+        }
     )
 
 
@@ -239,9 +259,10 @@ def test_get_user_list_view(pyramid_request):
     assert fields == [
         FieldModel(type='NumberField', source='age', params={'label': 'Age'}),
         FieldModel(type='DateField', source='created', params={'label': 'Created', 'showTime': True}),
-        FieldModel(type='TextField', source='description', params={'label': 'Description'}),
+        FieldModel(type='TextField', source='current_work.title', params={'label': 'Current work title'}),
         FieldModel(type='NumberField', source='id', params={'label': 'ID'}),
         FieldModel(type='TextField', source='name', params={'label': 'User name'}),
+        FieldModel(type='TextField', source='previews_work.title', params={'label': 'Previews work title'}),
         FieldModel(
             type='SelectField', source='sex',
             params={
@@ -258,13 +279,13 @@ def test_get_user_list_view(pyramid_request):
     resource_admin.fields = Exclude('name', 'age')
     view = resource_admin.get_list_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'sex', 'description'}
+    assert fields == {'id', 'created', 'sex', 'current_work.title', 'previews_work.title'}
 
     # Exclude fields for view
     resource_admin.list_view.fields = Exclude('sex')
     view = resource_admin.get_list_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'children', 'description', 'current_work'}
+    assert fields == {'created', 'current_work', 'description', 'children', 'previews_work', 'id'}
 
     # Only fields for view
     resource_admin.list_view.fields = Only('id')
@@ -326,6 +347,21 @@ def test_get_user_show_view(pyramid_request):
         FieldModel(type='NumberField', source='id', params={'label': 'ID'}),
         FieldModel(type='TextField', source='name', params={'label': 'User name'}),
         FieldModel(
+            type='MappingField',
+            source='previews_work',
+            params={
+                'label': 'Previews work',
+                'fields': [
+                    FieldModel(
+                        type='TextField', source='title', params={'label': 'Title'},
+                    ),
+                    FieldModel(
+                        type='TextField', source='address', params={'label': 'Address'},
+                    )
+                ]
+            },
+        ),
+        FieldModel(
             type='SelectField', source='sex',
             params={
                 'label': 'Sex',
@@ -338,13 +374,13 @@ def test_get_user_show_view(pyramid_request):
     resource_admin.fields = Exclude('name', 'age')
     view = resource_admin.get_show_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'sex', 'description', 'children', 'current_work'}
+    assert fields == {'id', 'created', 'sex', 'description', 'children', 'current_work', 'previews_work'}
 
     # Exclude fields for view
     resource_admin.show_view.fields = Exclude('sex')
     view = resource_admin.get_show_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'children', 'description', 'current_work'}
+    assert fields == {'id', 'created', 'children', 'description', 'current_work', 'previews_work'}
 
     # Only fields for view
     resource_admin.show_view.fields = Only('id')
@@ -456,15 +492,37 @@ def test_get_user_create_view(pyramid_request):
             ]
         ),
         FieldModel(
+            type='MappingInput',
+            source='previews_work',
+            params={
+                'label': 'Previews work',
+                'fields': [
+                    FieldModel(
+                        type='TextInput', source='title', params={'label': 'Title'},
+                        validators=[
+                            ValidatorModel(name='required', args=()),
+                            ValidatorModel(name='minLength', args=(1,))
+                        ]
+                    ),
+                    FieldModel(
+                        type='TextInput', source='address', params={'label': 'Address'},
+                        validators=[
+                            ValidatorModel(name='required', args=()),
+                            ValidatorModel(name='minLength', args=(1,))
+                        ]
+                    )
+                ]
+            },
+        ),
+        FieldModel(
             type='SelectInput', source='sex',
             params={
                 'label': 'Sex',
                 'choices': [{'id': 'm', 'name': 'M'}, {'id': 'f', 'name': 'F'}],
-                'allowEmpty': True,
                 'emptyText': '<none>',
                 'emptyValue': None,
             },
-            validators=[ValidatorModel(name='required', args=())]
+            validators=[]
         ),
     ]
 
@@ -472,13 +530,13 @@ def test_get_user_create_view(pyramid_request):
     resource_admin.fields = Exclude('age')
     view = resource_admin.get_create_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'name', 'sex', 'description', 'children', 'current_work'}
+    assert fields == {'name', 'sex', 'description', 'children', 'current_work', 'previews_work'}
 
     # Exclude fields for view
     resource_admin.create_view.fields = Exclude('sex')
     view = resource_admin.get_create_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'name', 'children', 'description', 'current_work'}
+    assert fields == {'name', 'children', 'description', 'current_work', 'previews_work'}
 
     # Only fields for view
     resource_admin.create_view.fields = Only('sex')
@@ -606,3 +664,19 @@ def test_get_user_edit_view(pyramid_request):
     view = resource_admin.get_edit_view()
     fields = {f.source for f in view.fields}
     assert fields == {'sex'}
+
+
+def test_api_info(web_app, pyramid_request, app_config):
+    app_config.add_resource_admin(UsersAdmin, name='users')
+    app_config.commit()
+
+    api_info = get_admin(pyramid_request.root)['api_info.json']
+    url = pyramid_request.resource_url(api_info)
+    res = web_app.get(url)
+    assert res.json == {
+        '_links': {'self': {'href': url}},
+        'title': 'Admin UI',
+        'root_url': 'http://localhost',
+        'resources': D(),
+        'extra': {},
+    }

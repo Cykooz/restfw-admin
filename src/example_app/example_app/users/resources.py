@@ -6,6 +6,7 @@
 from dataclasses import dataclass
 from typing import Dict, List, Literal, Optional, Union
 
+import datetime
 import pendulum
 from pyramid.authorization import Allow, Everyone
 from restfw.hal import HalResource
@@ -34,6 +35,7 @@ class UserModel:
     sex: Optional[Literal['m', 'f']]
     children: List[ChildModel]
     current_work: WorkModel
+    join_work_time: Optional[datetime.datetime]
 
 
 class User(HalResource):
@@ -79,8 +81,12 @@ class Users(HalResource):
     def get_user_by_model(self, model: UserModel):
         return User(model, parent=self)
 
-    def create_user(self, first_name, last_name, age: Optional[int] = None, sex: Optional[Literal['m', 'f']] = 'm',
-                    children=None, current_work: Union[None, dict, WorkModel] = None):
+    def create_user(
+            self, first_name, last_name, age: Optional[int] = None,
+            sex: Optional[Literal['m', 'f']] = 'm',
+            children=None, current_work: Union[None, dict, WorkModel] = None,
+            join_work_time: Optional[datetime.datetime] = None,
+    ):
         user_id = self._next_id
         children = children or []
         children = [
@@ -100,6 +106,7 @@ class Users(HalResource):
             sex=sex,
             children=children,
             current_work=current_work,
+            join_work_time=join_work_time,
         )
         self._next_id += 1
         self.models[str(user_id)] = model

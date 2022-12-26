@@ -21,14 +21,11 @@ import {
     TextField,
     TextInput,
 } from 'react-admin';
-import RichTextInput from 'ra-input-rich-text';
 import {IField} from "./apiInfo";
-import React, {FunctionComponent} from "react";
+import React from "react";
 import {getFieldValidators} from "./validators";
-import MappingInput from "./MappingInput";
-import MappingField from "./MappingField";
-import { JsonField, JsonInput } from "react-admin-json-view";
-
+import {RichTextInput} from "ra-input-rich-text";
+import {JsonField, JsonInput, MappingField, MappingInput} from "./widgets";
 
 export const defaultFieldStyle = {
     // maxWidth: '18em',
@@ -43,7 +40,7 @@ interface IFabric {
 }
 
 
-// function view_fabric<P>(Component: FunctionComponent<P>, default_props?: any) {
+// function view_fabric<P>(Component: FC<P>, default_props?: any) {
 function view_fabric(Component: any, default_props?: any) {
     return function(key: string, field: IField) {
         return (
@@ -76,6 +73,32 @@ function input_fabric(Component: any) {
 }
 
 
+// Select input
+
+function select_input_fabric(key: string, field: IField) {
+    let validators = getFieldValidators(field);
+    let {emptyValue, ...params} = field.params;
+    // let parse_fuc;
+    if (emptyValue == null) {
+        emptyValue = '';
+        // parse_fuc = (value: string) => value === '' ? null : value;
+    }
+    // else {
+    //     parse_fuc = null;
+    // }
+    return (
+        <SelectInput
+            key={key}
+            source={field.source}
+            validate={validators}
+            style={defaultFieldStyle}
+            emptyValue={emptyValue}
+            {...params}
+        />
+    );
+}
+
+
 // Array field and input
 
 function array_view_fabric(key: string, field: IField) {
@@ -86,7 +109,14 @@ function array_view_fabric(key: string, field: IField) {
             source={field.source}
             {...params}
         >
-            <Datagrid>
+            <Datagrid
+                bulkActionButtons={false}
+                sx={{
+                    '& .RaDatagrid-headerCell': {
+                        backgroundColor: '#e0e0e0',
+                    },
+                }}
+            >
                 {getFields(fields)}
             </Datagrid>
         </ArrayField>
@@ -192,7 +222,7 @@ export const COMPONENTS: Record<string, IFabric> = {
     'NullableBooleanInput': input_fabric(NullableBooleanInput),
     'BooleanInput': input_fabric(BooleanInput),
     'NumberInput': input_fabric(NumberInput),
-    'SelectInput': input_fabric(SelectInput),
+    'SelectInput': select_input_fabric,
     'ArrayInput': array_input_fabric,
     'ReferenceInput': referenceInputFabric,
     'MappingInput': mapping_input_fabric,
@@ -200,7 +230,7 @@ export const COMPONENTS: Record<string, IFabric> = {
 };
 
 
-function getFieldComponent(key, field: IField): JSX.Element {
+function getFieldComponent(key: string, field: IField): JSX.Element {
     let fabric = COMPONENTS[field.type] || view_fabric(TextField);
     return fabric(key, field);
 }
