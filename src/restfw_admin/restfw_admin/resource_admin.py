@@ -51,6 +51,7 @@ class ResourceAdmin:
     embedded_name: str = ''
     update_method: str = ''
     index: int = 0
+    order_by: Optional[list[str]] = None
     default_fields: Optional[Union[Only, Exclude]] = Exclude(
         '_links',
         '_embedded',
@@ -100,6 +101,7 @@ class ResourceAdmin:
             embedded_name=self.embedded_name,
             update_method=self.update_method.upper(),
             deletable=deletable,
+            order_by=self.order_by or [],
             views=views,
         )
 

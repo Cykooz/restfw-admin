@@ -67,6 +67,7 @@ class ResourceInfoModel:
     embedded_name: str
     update_method: str
     deletable: bool
+    order_by: list[str]
     views: ViewsModel
 
 

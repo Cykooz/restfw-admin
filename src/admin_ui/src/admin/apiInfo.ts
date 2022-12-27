@@ -1,4 +1,4 @@
-import {Identifier, RaRecord} from "ra-core";
+import {Identifier, RaRecord, SortPayload} from "ra-core";
 
 
 export interface IValidator {
@@ -38,6 +38,7 @@ export interface IResourceInfo {
     embedded_name: string;
     update_method: string;
     deletable: boolean;
+    order_by: string[];
     views: {
         list: IListView | null,
         show: IShowView | null,
@@ -55,6 +56,8 @@ export interface IApiInfo {
     rootUrl(): string;
 
     resourceUrl(name: string): string;
+
+    getOrderBy(name: string, sort: SortPayload): { [key: string]: string };
 
     resourceId(name: string, data: any, def?: Identifier | null): Identifier;
 
@@ -95,6 +98,22 @@ export class ApiInfo implements IApiInfo {
         return this.root_url + this.resources[name].location;
     }
 
+    getOrderBy(name: string, sort: SortPayload): { [key: string]: string } {
+        if (!(name in this.resources)) {
+            console.warn(`ApiInfo: Unknown resource with a name "${name}".`);
+            return {};
+        }
+        const resource = this.resources[name];
+        const {field, order} = sort;
+        if (field && resource.order_by.includes(field)) {
+            const sign = order === 'ASC' ? '' : '-';
+            return {
+                'order_by': `${sign}${field}`
+            };
+        }
+        return {};
+    }
+
     resourceId(name: string, data: any, def: Identifier | null = null): Identifier {
         if (name in this.resources) {
             const info = this.resources[name];
@@ -120,7 +139,6 @@ export class ApiInfo implements IApiInfo {
             console.warn(`ApiInfo: Unknown resource with a name "${name}".`);
             return 'PUT';
         }
-
         return this.resources[name].update_method;
     }
 

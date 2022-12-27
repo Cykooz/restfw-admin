@@ -1,5 +1,5 @@
 import {stringify} from 'query-string';
-import {fetchUtils, DataProvider, SortPayload} from 'ra-core';
+import {DataProvider, fetchUtils} from 'ra-core';
 import {IApiInfo} from "./apiInfo";
 import {IHttpClient} from "./types";
 
@@ -36,7 +36,7 @@ import {IHttpClient} from "./types";
 const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJson): DataProvider => ({
     getList: async (resource, params) => {
         const {page, perPage} = params.pagination;
-        const orderBy = sort2orderBy(params.sort);
+        const orderBy = apiInfo.getOrderBy(resource, params.sort);
         const query = {
             ...params.filter,
             ...orderBy,
@@ -81,7 +81,7 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
 
     getManyReference: async (resource, params) => {
         const {page, perPage} = params.pagination;
-        const orderBy = sort2orderBy(params.sort);
+        const orderBy = apiInfo.getOrderBy(resource, params.sort);
         const query = {
             ...params.filter,
             ...orderBy,
@@ -169,18 +169,6 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
         return {data: await Promise.all(tasks)};
     },
 });
-
-
-function sort2orderBy(sort: SortPayload) {
-    const {field, order} = sort;
-    if (field) {
-        const sign = order === 'ASC' ? '' : '-';
-        return {
-            'order_by': `${sign}${field}`
-        };
-    }
-    return {};
-}
 
 
 function getTotalCount(headers: Headers): number {

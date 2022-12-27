@@ -14,8 +14,8 @@
 CHANGELOG
 *********
 
-0.9a1 (2022-12-27)
-==================
+Next release
+============
 
 Features
 --------
@@ -23,6 +23,8 @@ Features
 - Updated ``react-admin`` to version 4.
 - Implemented simple and comfortable version of ``JsonField`` and
   ``JsonInput``.
+- Added field ``ResourceAdmin.order_by`` to control list of resource fields,
+  that may be used for sorting.
 
 Changes
 -------
