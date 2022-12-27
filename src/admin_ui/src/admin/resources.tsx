@@ -97,6 +97,13 @@ function getShowView(resourceInfo: IResourceInfo) {
 }
 
 
+const CreateToolbar = (props: any) => (
+    <Toolbar {...props} >
+        <SaveButton alwaysEnable/>
+    </Toolbar>
+);
+
+
 function getCreateView(resourceInfo: IResourceInfo) {
     const {create} = resourceInfo.views;
     if (!create) {
@@ -106,7 +113,7 @@ function getCreateView(resourceInfo: IResourceInfo) {
     return () => {
         return (
             <Create>
-                <SimpleForm>
+                <SimpleForm toolbar={<CreateToolbar/>}>
                     {getInputs(create.fields)}
                 </SimpleForm>
             </Create>
@@ -117,7 +124,7 @@ function getCreateView(resourceInfo: IResourceInfo) {
 
 const EditWithoutDeleteToolbar = () => (
     <Toolbar>
-        <SaveButton/>
+        <SaveButton />
     </Toolbar>
 );
 
