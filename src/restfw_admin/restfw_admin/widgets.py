@@ -383,8 +383,13 @@ class MappingInput(InputWidget):
 @dataclass()
 class JsonField(FieldWidget):
     type = 'JsonField'
-    # The indent-width for nested objects, default: 2
-    indent_width: Optional[int] = None
+    # The indent-width for nested objects
+    indent_width: Optional[int] = 2
+    collapsed: bool = False
+    # Set as empty sting for disable expand button
+    expand_label: Optional[str] = None
+    # Set as empty sting for disable expand button
+    collapse_label: Optional[str] = None
 
 
 @dataclass()
