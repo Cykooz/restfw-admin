@@ -22,10 +22,10 @@ import {
     TextInput,
 } from 'react-admin';
 import {IField} from "./apiInfo";
-import React from "react";
+import React, {ReactElement} from "react";
 import {getFieldValidators} from "./validators";
 import {RichTextInput} from "ra-input-rich-text";
-import {JsonField, JsonInput, MappingField, MappingInput} from "./widgets";
+import {JsonField, JsonInput, MappingField, MappingInput, SimpleArrayField} from "./widgets";
 
 export const defaultFieldStyle = {
     // maxWidth: '18em',
@@ -42,7 +42,7 @@ interface IFabric {
 
 // function view_fabric<P>(Component: FC<P>, default_props?: any) {
 function view_fabric(Component: any, default_props?: any) {
-    return function(key: string, field: IField) {
+    return function (key: string, field: IField) {
         return (
             <Component
                 key={key}
@@ -58,7 +58,7 @@ function view_fabric(Component: any, default_props?: any) {
 
 // function input_fabric<P>(Component: FunctionComponent<P>) {
 function input_fabric(Component: any) {
-    return function(key: string, field: IField) {
+    return function (key: string, field: IField) {
         let validators = getFieldValidators(field);
         return (
             <Component
@@ -212,6 +212,7 @@ export const COMPONENTS: Record<string, IFabric> = {
     'ReferenceField': referenceFieldFabric,
     'SelectField': view_fabric(SelectField),
     'ArrayField': array_view_fabric,
+    'SimpleArrayField': view_fabric(SimpleArrayField),
     'MappingField': mapping_field_fabric,
     'JsonField': view_fabric(JsonField),
     // Inputs
@@ -236,16 +237,30 @@ function getFieldComponent(key: string, field: IField): JSX.Element {
 }
 
 
-export function getFields(fields: IField[]) {
-    return fields.map((field, index) => {
+export function getFields(fields: IField[]): ReactElement | ReactElement[] | undefined {
+    const result = fields.map((field, index) => {
         return getFieldComponent(index.toString(), field);
     });
+    if (result.length === 0) {
+        return;
+    } else if (result.length === 1) {
+        return result[0];
+    } else {
+        return result;
+    }
 }
 
 
-export function getInputs(fields: IField[]) {
-    return fields.map((field, index) => {
+export function getInputs(fields: IField[]): ReactElement | ReactElement[] | undefined {
+    const result = fields.map((field, index) => {
         let fabric = COMPONENTS[field.type] || input_fabric(TextInput);
         return fabric(index.toString(), field);
     });
+    if (result.length === 0) {
+        return;
+    } else if (result.length === 1) {
+        return result[0];
+    } else {
+        return result;
+    }
 }

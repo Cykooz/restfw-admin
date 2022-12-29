@@ -141,16 +141,14 @@ def nullable_input(registry: Registry, node: ColanderNode, node_type: schemas.Nu
 
 @view_field_converter(colander.Sequence)
 def sequence_field(registry: Registry, node: ColanderNode, node_type: SchemaType):
-    fields: Dict[str, widgets.FieldWidget] = {}
     widget = get_field_widget(registry, node.children[0])
     if isinstance(widget, widgets.MappingField):
-        fields = widget.fields
+        return widgets.ArrayField(
+            label=node.title,
+            fields=widget.fields,
+        )
     else:
-        fields[''] = widget
-    return widgets.ArrayField(
-        label=node.title,
-        fields=fields,
-    )
+        return widgets.SimpleArrayField(label=node.title)
 
 
 @input_field_converter(colander.Sequence)

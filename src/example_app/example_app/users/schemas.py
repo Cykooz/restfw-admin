@@ -27,6 +27,10 @@ class UserSchema(schemas.HalResourceSchema):
     sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
     children = schemas.SequenceNode(Child(title='Child'))
     current_work = Work(title='Current work')
+    tags = schemas.SequenceNode(
+        schemas.StringNode(title='Tag'),
+        title='Tags'
+    )
 
 
 class CreateUserSchema(schemas.MappingNode):
@@ -65,6 +69,10 @@ class CreateUserSchema(schemas.MappingNode):
         title='Join Work Time',
         nullable=True,
         # missing=None,
+    )
+    tags = schemas.SequenceNode(
+        schemas.StringNode(title='Tag'),
+        title='Tags'
     )
 
 

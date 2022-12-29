@@ -295,6 +295,12 @@ class ArrayInput(InputWidget):
 
 
 @dataclass()
+class SimpleArrayField(FieldWidget):
+    type = 'SimpleArrayField'
+    break_lines: bool = False
+
+
+@dataclass()
 class ReferenceFieldBase:
     reference: str
     reference_field: str

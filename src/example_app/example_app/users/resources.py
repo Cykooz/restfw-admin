@@ -36,6 +36,7 @@ class UserModel:
     children: List[ChildModel]
     current_work: WorkModel
     join_work_time: Optional[datetime.datetime]
+    tags: list[str]
 
 
 class User(HalResource):
@@ -86,6 +87,7 @@ class Users(HalResource):
             sex: Optional[Literal['m', 'f']] = 'm',
             children=None, current_work: Union[None, dict, WorkModel] = None,
             join_work_time: Optional[datetime.datetime] = None,
+            tags: Optional[list[str]] = None
     ):
         user_id = self._next_id
         children = children or []
@@ -107,6 +109,7 @@ class Users(HalResource):
             children=children,
             current_work=current_work,
             join_work_time=join_work_time,
+            tags=tags or [],
         )
         self._next_id += 1
         self.models[str(user_id)] = model

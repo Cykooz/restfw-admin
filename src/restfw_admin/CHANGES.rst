@@ -14,8 +14,8 @@
 CHANGELOG
 *********
 
-0.9a3 (2022-12-28)
-==================
+Next release
+============
 
 Features
 --------
@@ -25,6 +25,7 @@ Features
   ``JsonInput``.
 - Added field ``ResourceAdmin.order_by`` to control list of resource fields,
   that may be used for sorting.
+- Added widget ``SimpleArrayList``.
 
 Changes
 -------
