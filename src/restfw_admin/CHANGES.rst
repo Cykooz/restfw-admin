@@ -14,8 +14,8 @@
 CHANGELOG
 *********
 
-0.9a4 (2022-12-29)
-==================
+Next release
+============
 
 Features
 --------
@@ -26,6 +26,7 @@ Features
 - Added field ``ResourceAdmin.order_by`` to control list of resource fields,
   that may be used for sorting.
 - Added widget ``SimpleArrayList``.
+- Added widget ``NestedArrayList``.
 
 Changes
 -------

@@ -24,8 +24,13 @@ class UsersAdmin(ResourceAdmin):
             'age',
             'sex',
             'current_work.title',
+            'children.name',
+            'tags',
         ),
         widgets={
+            'children': {
+                'name': widgets.TextField(label='Child names')
+            },
             'current_work': {
                 'title': widgets.TextField(label='Current work title')
             }

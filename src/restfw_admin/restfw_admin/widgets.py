@@ -256,8 +256,8 @@ class SelectArrayInput(SelectInput):
 class ArrayField(FieldWidget):
     type = 'ArrayField'
     fields: Dict[str, FieldWidget] = None
-    # Name for the field to be used as key when displaying children.
-    key: Optional[str] = ra_field('fieldKey')
+    # # Name for the field to be used as key when displaying children.
+    # key: Optional[str] = ra_field('fieldKey')
 
     def __post_init__(self):
         if self.fields is None:
@@ -278,8 +278,8 @@ class ArrayInput(InputWidget):
     fields: Dict[str, InputWidget] = None
     disable_add: Optional[bool] = ra_field('disableAdd')
     disable_remove: Optional[bool] = ra_field('disableRemove')
-    # Name for the field to be used as key when displaying children.
-    key: Optional[str] = ra_field('fieldKey')
+    # # Name for the field to be used as key when displaying children.
+    # key: Optional[str] = ra_field('fieldKey')
 
     def __post_init__(self):
         if self.fields is None:
@@ -298,6 +298,31 @@ class ArrayInput(InputWidget):
 class SimpleArrayField(FieldWidget):
     type = 'SimpleArrayField'
     break_lines: bool = False
+
+
+@dataclass()
+class NestedArrayField(FieldWidget):
+    type = 'NestedArrayField'
+    fields: Dict[str, FieldWidget] = None
+    single_field: bool = False
+
+    def __post_init__(self):
+        if self.fields is None and self.single_field is None:
+            raise TypeError("__init__() missing 1 required argument: 'fields'")
+
+    def to_model(self, field_name: str) -> FieldModel:
+        field_model = super().to_model(field_name)
+        if self.single_field:
+            field_model.params['fields'] = None
+            first_field = list(self.fields.values())[0]
+            field_model.params['single_field'] = first_field.to_model('_value')
+        else:
+            field_model.params['fields'] = [
+                widget.to_model(name)
+                for name, widget in self.fields.items()
+            ]
+            field_model.params['single_field'] = None
+        return field_model
 
 
 @dataclass()

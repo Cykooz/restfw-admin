@@ -11,6 +11,9 @@ from typing import Dict, List, Optional, Tuple, TypeVar, Union
 from restfw.typing import Json, SimpleJsonValue
 
 
+_DEFAULT = object()
+
+
 @dataclass()
 class ValidatorModel:
     name: str
@@ -23,6 +26,11 @@ class FieldModel:
     source: Optional[str]
     params: Dict[str, Union[Json, 'FieldModel']] = field(default_factory=dict)
     validators: List[ValidatorModel] = field(default_factory=list)
+    id: Optional[str] = _DEFAULT
+
+    def __post_init__(self):
+        if self.id is _DEFAULT:
+            self.id = self.source or None
 
 
 @dataclass()

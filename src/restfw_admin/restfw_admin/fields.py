@@ -47,7 +47,10 @@ def get_field_widget(
         node_type: Optional[colander.SchemaType] = None,
 ) -> Optional[FieldWidget]:
     node_type = node_type or node.typ
-    converter: Optional[FieldConverter] = registry.queryAdapter(node_type, interfaces.ISchemaNodeToFieldWidget)
+    converter: Optional[FieldConverter] = registry.queryAdapter(
+        node_type,
+        interfaces.ISchemaNodeToFieldWidget
+    )
     if converter:
         widget = converter(registry, node, node_type)
         if widget:

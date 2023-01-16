@@ -2,7 +2,7 @@ import {
     ArrayField,
     ArrayInput,
     BooleanField,
-    BooleanInput,
+    BooleanInput, ChipField,
     Datagrid,
     DateField,
     DateInput,
@@ -17,7 +17,7 @@ import {
     RichTextField,
     SelectField,
     SelectInput,
-    SimpleFormIterator,
+    SimpleFormIterator, SingleFieldList,
     TextField,
     TextInput,
 } from 'react-admin';
@@ -25,7 +25,7 @@ import {IField} from "./apiInfo";
 import React, {ReactElement} from "react";
 import {getFieldValidators} from "./validators";
 import {RichTextInput} from "ra-input-rich-text";
-import {JsonField, JsonInput, MappingField, MappingInput, SimpleArrayField} from "./widgets";
+import {JsonField, JsonInput, MappingField, MappingInput, NestedArrayField, SimpleArrayField} from "./widgets";
 
 export const defaultFieldStyle = {
     // maxWidth: '18em',
@@ -142,6 +142,45 @@ function array_input_fabric(key: string, field: IField) {
 }
 
 
+// Nested array field
+
+function nested_array_view_fabric(key: string, field: IField) {
+    let {fields, single_field, ...params} = field.params;
+    if (single_field) {
+        return (
+            <NestedArrayField
+                key={key}
+                source={field.source}
+                {...params}
+            >
+                <SingleFieldList linkType={false}>
+                    {getField(single_field)}
+                </SingleFieldList>
+            </NestedArrayField>
+        );
+    } else {
+        return (
+            <NestedArrayField
+                key={key}
+                source={field.source}
+                {...params}
+            >
+                <Datagrid
+                    bulkActionButtons={false}
+                    sx={{
+                        '& .RaDatagrid-headerCell': {
+                            backgroundColor: '#e0e0e0',
+                        },
+                    }}
+                >
+                    {getFields(fields)}
+                </Datagrid>
+            </NestedArrayField>
+        );
+    }
+}
+
+
 // Reference field and input
 
 function referenceFieldFabric(key: string, field: IField) {
@@ -200,7 +239,8 @@ function mapping_input_fabric(key: string, field: IField) {
     );
 }
 
-export const COMPONENTS: Record<string, IFabric> = {
+
+const COMPONENTS: Record<string, IFabric> = {
     'TextField': view_fabric(TextField),
     'RichTextField': view_fabric(RichTextField),
     'DateField': view_fabric(DateField),
@@ -213,8 +253,10 @@ export const COMPONENTS: Record<string, IFabric> = {
     'SelectField': view_fabric(SelectField),
     'ArrayField': array_view_fabric,
     'SimpleArrayField': view_fabric(SimpleArrayField),
+    'NestedArrayField': nested_array_view_fabric,
     'MappingField': mapping_field_fabric,
     'JsonField': view_fabric(JsonField),
+    'ChipField': view_fabric(ChipField),
     // Inputs
     'TextInput': input_fabric(TextInput),
     'RichTextInput': view_fabric(RichTextInput),
@@ -237,9 +279,15 @@ function getFieldComponent(key: string, field: IField): JSX.Element {
 }
 
 
+function getField(field: IField): ReactElement {
+    const key = field.id ?? `field{field.name}`;
+    return getFieldComponent(key, field);
+}
+
 export function getFields(fields: IField[]): ReactElement | ReactElement[] | undefined {
     const result = fields.map((field, index) => {
-        return getFieldComponent(index.toString(), field);
+        const key = field.id ?? `field{index}`;
+        return getFieldComponent(key, field);
     });
     if (result.length === 0) {
         return;
@@ -253,8 +301,9 @@ export function getFields(fields: IField[]): ReactElement | ReactElement[] | und
 
 export function getInputs(fields: IField[]): ReactElement | ReactElement[] | undefined {
     const result = fields.map((field, index) => {
-        let fabric = COMPONENTS[field.type] || input_fabric(TextInput);
-        return fabric(index.toString(), field);
+        const fabric = COMPONENTS[field.type] || input_fabric(TextInput);
+        const key = field.id ?? `field{index}`;
+        return fabric(key, field);
     });
     if (result.length === 0) {
         return;

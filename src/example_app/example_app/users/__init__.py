@@ -9,7 +9,7 @@ def includeme(config):
     """
     :type config: pyramid.config.Configurator
     """
-    from .resources import check_credentials
+    from .resources import check_credentials, ChildModel
 
     from .policy import ExampleSecurityPolicy
     config.set_security_policy(ExampleSecurityPolicy())
@@ -25,6 +25,10 @@ def includeme(config):
             'Admin', 'Root',
             age=39,
             current_work={'title': 'Administrator', 'address': 'Yellow st.'},
+            children=[
+                ChildModel(sex='m', name='Artem', age=13),
+                ChildModel(sex='m', name='Andrey', age=22),
+            ],
             tags=['admin', 'good employee']
         )
         users.create_user('Ivan', 'Petrov', age=25)

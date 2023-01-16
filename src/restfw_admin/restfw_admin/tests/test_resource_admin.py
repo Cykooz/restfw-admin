@@ -11,11 +11,11 @@ from restfw.hal import HalResource
 from restfw.interfaces import MethodOptions
 from restfw.schemas import GetEmbeddedSchema
 
-from .. import widgets as all_widgets, widgets
+from .. import widgets, widgets as all_widgets
 from ..models import FieldModel, ValidatorModel
 from ..resource_admin import (
     Exclude, Only, ResourceAdmin, ViewSettings, exclude_widgets, only_widgets, replace_widgets,
-    unflat
+    unflat,
 )
 from ..resources import get_admin
 
@@ -307,7 +307,8 @@ def test_get_user_show_view(pyramid_request):
                 'label': 'Children',
                 'fields': [
                     FieldModel(
-                        type='SelectField', source='sex',
+                        type='SelectField',
+                        source='sex',
                         params={
                             'label': 'Sex',
                             'choices': [{'id': 'm', 'name': 'M'}, {'id': 'f', 'name': 'F'}]
@@ -316,13 +317,18 @@ def test_get_user_show_view(pyramid_request):
                     FieldModel(type='TextField', source='name', params={'label': 'Name'}),
                     FieldModel(type='NumberField', source='age', params={'label': 'Age'}),
                     FieldModel(
-                        type='ArrayField',
+                        type='NestedArrayField',
                         source='toys',
                         params={
                             'label': 'Toys',
-                            'fields': [
-                                FieldModel(type='TextField', source='', params={'label': 'Toy name'}),
-                            ]
+                            'fields': None,
+                            'single_field': FieldModel(
+                                type='ChipField',
+                                source='_value',
+                                params={
+                                    'label': 'Toy name',
+                                }
+                            )
                         },
                     ),
                 ]

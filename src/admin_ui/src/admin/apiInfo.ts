@@ -7,6 +7,7 @@ export interface IValidator {
 }
 
 export interface IField {
+    id: string | null,
     type: string;
     source: string;
     params: any;

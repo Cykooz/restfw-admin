@@ -148,7 +148,15 @@ def sequence_field(registry: Registry, node: ColanderNode, node_type: SchemaType
             fields=widget.fields,
         )
     else:
-        return widgets.SimpleArrayField(label=node.title)
+        if isinstance(widget, widgets.TextField):
+            widget = widgets.ChipField(
+                label=widget.label,
+            )
+        return widgets.NestedArrayField(
+            label=node.title,
+            fields={'': widget},
+            single_field=True,
+        )
 
 
 @input_field_converter(colander.Sequence)
