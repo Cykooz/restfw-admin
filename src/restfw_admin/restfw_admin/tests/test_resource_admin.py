@@ -323,7 +323,7 @@ def test_get_user_show_view(pyramid_request):
                             'label': 'Toys',
                             'fields': None,
                             'single_field': FieldModel(
-                                type='ChipField',
+                                type='TextField',
                                 source='_value',
                                 params={
                                     'label': 'Toy name',

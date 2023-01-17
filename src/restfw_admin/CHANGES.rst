@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Changes
+-------
+
+- Changed visuals of NestedArrayField with single field.
+
 0.9 (2023-01-16)
 ================
 

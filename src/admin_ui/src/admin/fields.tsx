@@ -26,6 +26,7 @@ import React, {ReactElement} from "react";
 import {getFieldValidators} from "./validators";
 import {RichTextInput} from "ra-input-rich-text";
 import {JsonField, JsonInput, MappingField, MappingInput, NestedArrayField, SimpleArrayField} from "./widgets";
+import Chip from "@mui/material/Chip";
 
 export const defaultFieldStyle = {
     // maxWidth: '18em',
@@ -154,7 +155,7 @@ function nested_array_view_fabric(key: string, field: IField) {
                 {...params}
             >
                 <SingleFieldList linkType={false}>
-                    {getField(single_field)}
+                    <Chip label={getField(single_field)} />
                 </SingleFieldList>
             </NestedArrayField>
         );

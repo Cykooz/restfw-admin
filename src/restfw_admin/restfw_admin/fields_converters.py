@@ -148,10 +148,6 @@ def sequence_field(registry: Registry, node: ColanderNode, node_type: SchemaType
             fields=widget.fields,
         )
     else:
-        if isinstance(widget, widgets.TextField):
-            widget = widgets.ChipField(
-                label=widget.label,
-            )
         return widgets.NestedArrayField(
             label=node.title,
             fields={'': widget},

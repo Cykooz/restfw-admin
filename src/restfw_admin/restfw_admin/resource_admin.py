@@ -14,7 +14,7 @@ from . import models
 from .fields import get_field_widgets, get_input_widgets
 from .models import FieldModel
 from .typing import ColanderNode
-from .widgets import ArrayField, ChipField, MappingField, NestedArrayField, TextField, Widget
+from .widgets import ArrayField, MappingField, NestedArrayField, Widget
 
 
 @dataclasses.dataclass()
@@ -245,10 +245,6 @@ class ResourceAdmin:
                             elif isinstance(widget, NestedArrayField):
                                 pass
                             else:
-                                if isinstance(widget, TextField):
-                                    widget = ChipField(
-                                        label=widget.label,
-                                    )
                                 widget = NestedArrayField(
                                     label=widget.label,
                                     fields={'': widget},
