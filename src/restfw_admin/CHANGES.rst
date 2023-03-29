@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Fixed error in setup.py.
+
 0.9.4 (2023-03-29)
 ==================
 

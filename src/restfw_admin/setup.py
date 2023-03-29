@@ -1,7 +1,7 @@
 # encoding: utf-8
 import os
 import sys
-from setuptools import findall, setup, find_packages
+from setuptools import findall, setup, find_namespace_packages
 sys.path.append('.')
 import version
 
@@ -82,7 +82,7 @@ setup(
     author_email='cykooz@gmail.com',
     url='https://github.com/Cykooz/restfw_admin',
     package_dir={'': '.'},
-    packages=find_packages(),
+    packages=find_namespace_packages(),
     package_data=find_package_data(),
     include_package_data=True,
     zip_safe=False,
