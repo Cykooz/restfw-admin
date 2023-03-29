@@ -18,9 +18,9 @@ from urllib.request import urlopen
 
 
 BUILDOUT_VERSION = '3.0.1'
-PIP_VERSION = '22.3.1'
-SETUPTOOLS_VERSION = '65.6.3'
-WHEEL_VERSION = '0.38.4'
+PIP_VERSION = '23.0.1'
+SETUPTOOLS_VERSION = '67.6.1'
+WHEEL_VERSION = '0.40.0'
 
 GET_PIP_URL = 'https://bootstrap.pypa.io/get-pip.py'
 

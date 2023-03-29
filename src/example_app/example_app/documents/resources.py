@@ -11,11 +11,17 @@ from restfw.hal import HalResource
 
 
 @dataclass()
+class DocMetaDataModel:
+    type: str = 'text/plain'
+    custom: dict = field(default_factory=dict)
+
+
+@dataclass()
 class DocModel:
     id: int
     user_id: int
     data: str = ''
-    meta: dict = field(default_factory=dict)
+    meta: DocMetaDataModel = field(default_factory=DocMetaDataModel)
 
 
 class Doc(HalResource):

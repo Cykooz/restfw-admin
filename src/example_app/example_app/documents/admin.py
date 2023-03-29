@@ -49,7 +49,9 @@ class DocsAdmin(ResourceAdmin):
                 link='show',
             ),
             'data': all_widgets.RichTextField(),
-            'meta': all_widgets.JsonField(),
+            'meta': {
+                'custom': all_widgets.JsonField(),
+            },
         }
     )
     create_view = ViewSettings(
@@ -61,12 +63,19 @@ class DocsAdmin(ResourceAdmin):
                 validators=[Required()]
             ),
             'data': all_widgets.RichTextInput(),
-            'meta': all_widgets.JsonInput(initial_value={}, full_width=True),
+            'meta': {
+                'custom': all_widgets.JsonInput(
+                    initial_value={},
+                    full_width=True,
+                ),
+            },
         }
     )
     edit_view = ViewSettings(
         widgets={
             'data': all_widgets.RichTextInput(),
-            'meta': all_widgets.JsonInput(full_width=True),
+            'meta': {
+                'custom': all_widgets.JsonInput(full_width=True),
+            },
         }
     )

@@ -14,6 +14,19 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Changes
+-------
+
+- Updated dependencies.
+
+Bug Fixes
+---------
+
+- Fixed ``JsonField`` in view page.
+
 0.9.2 (2023-01-17)
 ==================
 

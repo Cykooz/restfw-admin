@@ -4,6 +4,7 @@ import {RaRecord} from "ra-core";
 import {InjectedFieldProps, PublicFieldProps} from "ra-ui-materialui/src/field/types";
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import {qtcreatorLight} from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import get from "lodash/get";
 
 const ViewJSON = (JsonObj: any, indent_width: number, expand: boolean) => {
     if (JsonObj === JSON.stringify({})) return '';
@@ -25,7 +26,7 @@ const ViewJSON = (JsonObj: any, indent_width: number, expand: boolean) => {
 
 function get_json(record: RaRecord | undefined, source: string): any {
     if (record) {
-        return record[source];
+        return get(record, source);
     }
     return "";
 }
@@ -54,7 +55,9 @@ export const JsonField = (props: JsonFieldProps) => {
     const record = useRecordContext();
     if (!json && !source) throw new Error(`Missing mandatory prop: json or source`);
     const data = json || get_json(record, source || '');
-    if (!data) return null;
+    if (!data && typeof data !== 'object') {
+        return null;
+    }
     let expand_btn;
     if (expand_label && collapse_label)
         expand_btn = (
