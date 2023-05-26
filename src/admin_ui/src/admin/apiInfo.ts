@@ -16,6 +16,7 @@ export interface IField {
 
 export interface IListView {
     fields: IField[];
+    filters: IField[] | null;
 }
 
 export interface IShowView {

@@ -2,11 +2,10 @@ import * as React from 'react';
 import {Children, cloneElement, FunctionComponent, ReactElement} from 'react';
 import FormControl from '@mui/material/FormControl';
 import {Labeled} from 'react-admin';
-import {InjectedFieldProps, PublicFieldProps} from "ra-ui-materialui/src/field/types";
+import {FieldProps} from "ra-ui-materialui/src/field/types";
 
 export interface MappingFieldProps
-    extends PublicFieldProps,
-        InjectedFieldProps {
+    extends FieldProps {
     children: ReactElement | ReactElement[];
 }
 

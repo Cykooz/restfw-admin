@@ -21,16 +21,16 @@ from .widgets import ArrayField, MappingField, NestedArrayField, Widget
 class Only:
     names: Tuple[str, ...]
 
-    def __init__(self, *args: str):
-        self.names = args
+    def __init__(self, first_name: str, *other_names: str):
+        self.names = (first_name,) + other_names
 
 
 @dataclasses.dataclass()
 class Exclude:
     names: Tuple[str, ...]
 
-    def __init__(self, *args: str):
-        self.names = args
+    def __init__(self, first_name: str, *other_names: str):
+        self.names = (first_name,) + other_names
 
 
 WidgetReplaces = Dict[str, Union[None, Widget, 'WidgetReplaces']]
@@ -40,6 +40,18 @@ WidgetReplaces = Dict[str, Union[None, Widget, 'WidgetReplaces']]
 class ViewSettings:
     fields: Optional[Union[Only, Exclude]] = None
     widgets: WidgetReplaces = dataclasses.field(default_factory=dict)
+
+
+@dataclasses.dataclass()
+class Filters:
+    fields: Optional[Union[Only, Exclude]] = None
+    always_on: Optional[Union[List[str], Tuple[str, ...]]] = None
+    widgets: WidgetReplaces = dataclasses.field(default_factory=dict)
+
+
+@dataclasses.dataclass()
+class ListViewSettings(ViewSettings):
+    filters: Optional[Filters] = None
 
 
 class ResourceAdmin:
@@ -57,7 +69,7 @@ class ResourceAdmin:
         '_embedded',
     )
     fields: Optional[Union[Only, Exclude]] = None
-    list_view = ViewSettings()
+    list_view = ListViewSettings()
     show_view = ViewSettings()
     create_view = ViewSettings()
     edit_view = ViewSettings()
@@ -115,13 +127,38 @@ class ResourceAdmin:
             embedded_item_node: Optional[ColanderNode] = embedded_node.get(self.embedded_name)
             if embedded_item_node and isinstance(embedded_item_node.typ, colander.Sequence):
                 list_item_node = embedded_item_node.children[0]
-                return self._get_view(
+                list_view = self._get_view(
                     list_item_node,
                     self.list_view,
                     models.ListViewModel,
                     fields_type='view',
                     use_nested_array_field=True,
                 )
+                if list_view and self.list_view.filters:
+                    filters = self.list_view.filters
+                    input_schema: ColanderNode = options_for_get.input_schema()
+                    if input_schema:
+                        filters_widgets = get_input_widgets(self._registry, input_schema)
+                        list_view.filters = self._widgets_to_fields(
+                            ViewSettings(
+                                fields=filters.fields,
+                                widgets=filters.widgets,
+                            ),
+                            filters_widgets,
+                            use_nested_array_field=True,
+                            default_fields=Exclude(
+                                'embedded',
+                                'offset',
+                                'limit',
+                                'total_count',
+                                'total_count',
+                            )
+                        )
+                        if filters.always_on:
+                            for field in list_view.filters:
+                                if field.source in filters.always_on:
+                                    field.params['alwaysOn'] = True
+                return list_view
 
     def get_show_view(self) -> Optional[models.ShowViewModel]:
         return self._get_view(
@@ -201,10 +238,12 @@ class ResourceAdmin:
             self,
             view_settings: ViewSettings,
             widgets: Dict[str, Widget],
-            use_nested_array_field=False
+            use_nested_array_field=False,
+            default_fields=None
     ) -> List[FieldModel]:
+        default_fields = default_fields or self.default_fields
         only_field_names: list[str] = []
-        for fields in (self.default_fields, self.fields, view_settings.fields):
+        for fields in (default_fields, self.fields, view_settings.fields):
             if fields:
                 names = unflat(fields.names)
                 if isinstance(fields, Only):

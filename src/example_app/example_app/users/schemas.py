@@ -93,6 +93,24 @@ class UsersSchema(schemas.HalResourceWithEmbeddedSchema):
     )
 
 
+class GetUsersSchema(schemas.GetEmbeddedSchema):
+    id = schemas.UnsignedIntegerNode(
+        title='User ID',
+        description='Filter by user ID',
+        missing=colander.drop,
+    )
+    sex = schemas.StringNode(
+        title='Sex',
+        description='Filter by user sex',
+        validator=colander.OneOf(['m', 'f']),
+        missing=colander.drop,
+    )
+    age = schemas.UnsignedIntegerNode(
+        title='Age',
+        missing=colander.drop,
+    )
+
+
 @colander.deferred
 def user_id_validator(_, kw):
     users = kw['request'].root['users']

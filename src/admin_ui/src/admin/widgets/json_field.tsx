@@ -1,7 +1,7 @@
 import React from "react";
 import {FunctionField, Link, useRecordContext} from 'react-admin';
 import {RaRecord} from "ra-core";
-import {InjectedFieldProps, PublicFieldProps} from "ra-ui-materialui/src/field/types";
+import {FieldProps} from "ra-ui-materialui/src/field/types";
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import {qtcreatorLight} from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import get from "lodash/get";
@@ -33,8 +33,7 @@ function get_json(record: RaRecord | undefined, source: string): any {
 
 
 export interface JsonFieldProps
-    extends PublicFieldProps,
-        InjectedFieldProps {
+    extends FieldProps {
     json?: string | object;
     indent_width?: number;
     collapsed?: boolean;

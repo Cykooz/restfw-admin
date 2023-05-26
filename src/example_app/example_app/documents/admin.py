@@ -5,7 +5,7 @@
 """
 from restfw_admin import widgets as all_widgets
 from restfw_admin.config import resource_admin_config
-from restfw_admin.resource_admin import Exclude, Only, ResourceAdmin, ViewSettings
+from restfw_admin.resource_admin import Exclude, Only, ResourceAdmin, ViewSettings, ListViewSettings
 from restfw_admin.validators import Required
 from .views import DocView, DocsView
 
@@ -26,7 +26,7 @@ class DocsAdmin(ResourceAdmin):
         'data',
         'meta',
     )
-    list_view = ViewSettings(
+    list_view = ListViewSettings(
         fields=Exclude(
             'data',
             'meta',

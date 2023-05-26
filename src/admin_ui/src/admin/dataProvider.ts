@@ -35,22 +35,44 @@ import {IHttpClient} from "./types";
  */
 const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJson): DataProvider => ({
     getList: async (resource, params) => {
-        const {page, perPage} = params.pagination;
+        let {page, perPage} = params.pagination;
         const orderBy = apiInfo.getOrderBy(resource, params.sort);
-        const query = {
-            ...params.filter,
-            ...orderBy,
-            offset: (page - 1) * perPage,
-            limit: perPage,
-            total_count: true
-        };
+        let get_total_count = true;
+        let total_count = 0;
+        let data: any[] = [];
+        let offset = (page - 1) * perPage;
 
-        const url = `${apiInfo.resourceUrl(resource)}?${stringify(query)}`;
-        const {headers, json} = await httpClient(url);
+        while (perPage > 0) {
+            const query = {
+                ...params.filter,
+                ...orderBy,
+                offset: offset,
+                limit: perPage,
+                total_count: get_total_count
+            };
+
+            const url = `${apiInfo.resourceUrl(resource)}?${stringify(query)}`;
+            const {headers, json} = await httpClient(url);
+
+            if (get_total_count) {
+                total_count = getTotalCount(headers);
+                get_total_count = false;
+            }
+            const embedded = apiInfo.getEmbeddedResources(resource, json);
+            data = data.concat(embedded);
+            if (embedded.length < perPage) {
+                break;
+            }
+            offset += embedded.length;
+            if (offset >= total_count) {
+                break;
+            }
+            perPage -= embedded.length;
+        }
 
         return {
-            data: apiInfo.getEmbeddedResources(resource, json),
-            total: getTotalCount(headers),
+            data: data,
+            total: total_count,
         };
     },
 
@@ -155,7 +177,7 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
         return {data: json};
     },
 
-    // restfw doesn't handle filters on DELETE route,
+    // HAL doesn't handle filters on DELETE route,
     // so we make a fallback to calling DELETE n times instead
     deleteMany: async (resource, params) => {
         const url = `${apiInfo.resourceUrl(resource)}`;

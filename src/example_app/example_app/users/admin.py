@@ -3,9 +3,9 @@
 :Authors: cykooz
 :Date: 09.02.2020
 """
-from restfw_admin import  widgets
+from restfw_admin import widgets
 from restfw_admin.config import resource_admin_config
-from restfw_admin.resource_admin import Only, ResourceAdmin, ViewSettings
+from restfw_admin.resource_admin import Only, ResourceAdmin, ListViewSettings, Filters
 from .views import UserView, UsersView
 
 
@@ -16,7 +16,7 @@ class UsersAdmin(ResourceAdmin):
     child_view_class = UserView
     location = '/users'
     index = 0
-    list_view = ViewSettings(
+    list_view = ListViewSettings(
         fields=Only(
             'id',
             'created',
@@ -34,5 +34,8 @@ class UsersAdmin(ResourceAdmin):
             'current_work': {
                 'title': widgets.TextField(label='Current work title')
             }
-        }
+        },
+        filters=Filters(
+            always_on=['id']
+        ),
     )

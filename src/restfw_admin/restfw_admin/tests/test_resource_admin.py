@@ -9,13 +9,12 @@ from cykooz.testing import D
 from restfw import schemas, views
 from restfw.hal import HalResource
 from restfw.interfaces import MethodOptions
-from restfw.schemas import GetEmbeddedSchema
 
 from .. import widgets, widgets as all_widgets
 from ..models import FieldModel, ValidatorModel
 from ..resource_admin import (
-    Exclude, Only, ResourceAdmin, ViewSettings, exclude_widgets, only_widgets, replace_widgets,
-    unflat,
+    Exclude, Only, ResourceAdmin, exclude_widgets, only_widgets, replace_widgets,
+    unflat, ListViewSettings, Filters,
 )
 from ..resources import get_admin
 
@@ -62,6 +61,16 @@ class UsersSchema(schemas.HalResourceWithEmbeddedSchema):
             UserSchema(title='User'),
             name='users', title='List of embedded users'
         ),
+        missing=colander.drop,
+    )
+
+
+class GetUsersSchema(schemas.GetEmbeddedSchema):
+    id = schemas.UnsignedIntegerNode(title='ID', missing=colander.drop)
+    name = schemas.StringNode(title='User name', missing=colander.drop)
+    sex = schemas.StringNode(
+        title='Sex',
+        validator=colander.OneOf(['m', 'f']),
         missing=colander.drop,
     )
 
@@ -125,7 +134,7 @@ class Users(HalResource):
 
 @views.resource_view_config(Users)
 class UsersView(views.HalResourceWithEmbeddedView):
-    options_for_get = MethodOptions(GetEmbeddedSchema, UsersSchema, permission='users.get')
+    options_for_get = MethodOptions(GetUsersSchema, UsersSchema, permission='users.get')
     options_for_post = MethodOptions(CreateUserSchema, UserSchema, permission='users.edit')
 
 
@@ -135,7 +144,7 @@ class UsersAdmin(ResourceAdmin):
     child_view_class = UserView
     location = '/users'
     index = 0
-    list_view = ViewSettings(
+    list_view = ListViewSettings(
         fields=Only(
             'id',
             'created',
@@ -152,7 +161,10 @@ class UsersAdmin(ResourceAdmin):
             'previews_work': {
                 'title': widgets.TextField(label='Previews work title')
             }
-        }
+        },
+        filters=Filters(
+            always_on=['id'],
+        )
     )
 
 
@@ -265,6 +277,34 @@ def test_get_user_list_view(pyramid_request):
         FieldModel(type='TextField', source='previews_work.title', params={'label': 'Previews work title'}),
         FieldModel(
             type='SelectField', source='sex',
+            params={
+                'label': 'Sex',
+                'choices': [
+                    {'id': 'm', 'name': 'M'},
+                    {'id': 'f', 'name': 'F'},
+                ]
+            },
+        ),
+    ]
+    filters = sorted(view.filters, key=lambda f: f.source)
+    assert filters == [
+        FieldModel(
+            type='TextInput', source='id',
+            params={'label': 'ID', 'alwaysOn': True},
+            validators=[
+                ValidatorModel(name='minValue', args=(0,)),
+                ValidatorModel(name='number'),
+            ],
+        ),
+        FieldModel(
+            type='TextInput', source='name',
+            params={'label': 'User name'},
+            validators=[
+                ValidatorModel(name='minLength', args=(1,)),
+            ]
+        ),
+        FieldModel(
+            type='SelectInput', source='sex',
             params={
                 'label': 'Sex',
                 'choices': [

@@ -14,6 +14,21 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Added support filters for list view.
+- Added support of getting list of resources bigger than
+  limit on page size in backend API.
+
+Changes
+-------
+
+- Updated dependencies.
+
 0.9.6 (2023-03-29)
 ==================
 

@@ -38,8 +38,9 @@ class ViewModel:
     fields: List[FieldModel]
 
 
+@dataclass()
 class ListViewModel(ViewModel):
-    pass
+    filters: Optional[List[FieldModel]] = None
 
 
 class ShowViewModel(ViewModel):

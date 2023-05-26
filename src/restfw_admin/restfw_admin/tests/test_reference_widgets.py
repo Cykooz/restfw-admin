@@ -11,7 +11,7 @@ from restfw.schemas import GetEmbeddedSchema
 
 from .. import validators as all_validators, widgets as all_widgets
 from ..models import FieldModel, ValidatorModel
-from ..resource_admin import Exclude, ResourceAdmin, ViewSettings
+from ..resource_admin import Exclude, ResourceAdmin, ViewSettings, ListViewSettings
 
 
 # Docs
@@ -63,7 +63,7 @@ class DocsAdmin(ResourceAdmin):
     child_view_class = DocView
     location = '/docs'
     index = 1
-    list_view = ViewSettings(
+    list_view = ListViewSettings(
         fields=Exclude('data'),
         widgets={
             'user_id': all_widgets.ReferenceField(

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import {FC, memo, ReactElement, useEffect, useState} from 'react';
 import get from 'lodash/get';
-import {ListContextProvider, RaRecord, useRecordContext} from 'ra-core';
-import {InjectedFieldProps, PublicFieldProps} from "react-admin";
+import {ListContextProvider, useRecordContext} from 'ra-core';
+import {FieldProps} from "react-admin";
 
-export interface NestedArrayFieldProps extends PublicFieldProps, InjectedFieldProps {
+export interface NestedArrayFieldProps extends FieldProps {
     children: ReactElement;
 }
 
@@ -65,7 +65,7 @@ export const NestedArrayField: FC<NestedArrayFieldProps> = memo(props => {
 });
 
 
-function get_nested_list(record: RaRecord, path: string | string[]): any[] {
+function get_nested_list(record: Record<string, any>, path: string | string[]): any[] {
     if (!Array.isArray(path)) {
         path = path.split('.');
     }
