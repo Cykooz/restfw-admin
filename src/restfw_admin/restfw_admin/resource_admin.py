@@ -152,7 +152,8 @@ class ResourceAdmin:
                                 'limit',
                                 'total_count',
                                 'total_count',
-                            )
+                            ),
+                            fields=[],
                         )
                         if filters.always_on:
                             for field in list_view.filters:
@@ -214,7 +215,11 @@ class ResourceAdmin:
         else:
             get_widgets = get_field_widgets
         widgets = get_widgets(self._registry, schema_node)
-        fields = self._widgets_to_fields(view_settings, widgets, use_nested_array_field)
+        fields = self._widgets_to_fields(
+            view_settings,
+            widgets,
+            use_nested_array_field,
+        )
         return view_model_class(fields=fields)
 
     def _get_schema_node(
@@ -239,11 +244,13 @@ class ResourceAdmin:
             view_settings: ViewSettings,
             widgets: Dict[str, Widget],
             use_nested_array_field=False,
-            default_fields=None
+            default_fields=None,
+            fields=None,
     ) -> List[FieldModel]:
-        default_fields = default_fields or self.default_fields
+        default_fields = default_fields if default_fields is not None else self.default_fields
+        fields = fields if fields is not None else self.fields
         only_field_names: list[str] = []
-        for fields in (default_fields, self.fields, view_settings.fields):
+        for fields in (default_fields, fields, view_settings.fields):
             if fields:
                 names = unflat(fields.names)
                 if isinstance(fields, Only):

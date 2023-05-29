@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Ignore global fields settings during build filter fields for resource admin UI.
+
 0.10 (2023-05-26)
 =================
 

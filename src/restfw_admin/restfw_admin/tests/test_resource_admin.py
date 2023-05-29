@@ -73,6 +73,10 @@ class GetUsersSchema(schemas.GetEmbeddedSchema):
         validator=colander.OneOf(['m', 'f']),
         missing=colander.drop,
     )
+    has_children = schemas.BooleanNode(
+        title='Has children',
+        missing=colander.drop,
+    )
 
 
 class CreateUserSchema(schemas.MappingNode):
@@ -289,6 +293,11 @@ def test_get_user_list_view(pyramid_request):
     filters = sorted(view.filters, key=lambda f: f.source)
     assert filters == [
         FieldModel(
+            type='BooleanInput',
+            source='has_children',
+            params={'label': 'Has children'},
+        ),
+        FieldModel(
             type='TextInput', source='id',
             params={'label': 'ID', 'alwaysOn': True},
             validators=[
@@ -320,6 +329,40 @@ def test_get_user_list_view(pyramid_request):
     view = resource_admin.get_list_view()
     fields = {f.source for f in view.fields}
     assert fields == {'id', 'created', 'sex', 'current_work.title', 'previews_work.title'}
+    filters = sorted(view.filters, key=lambda f: f.source)
+    assert filters == [
+        FieldModel(
+            type='BooleanInput',
+            source='has_children',
+            params={'label': 'Has children'},
+        ),
+        FieldModel(
+            type='TextInput', source='id',
+            params={'label': 'ID', 'alwaysOn': True},
+            validators=[
+                ValidatorModel(name='minValue', args=(0,)),
+                ValidatorModel(name='number'),
+            ],
+        ),
+        # Filter by name is not excluded by global settings
+        FieldModel(
+            type='TextInput', source='name',
+            params={'label': 'User name'},
+            validators=[
+                ValidatorModel(name='minLength', args=(1,)),
+            ]
+        ),
+        FieldModel(
+            type='SelectInput', source='sex',
+            params={
+                'label': 'Sex',
+                'choices': [
+                    {'id': 'm', 'name': 'M'},
+                    {'id': 'f', 'name': 'F'},
+                ]
+            },
+        ),
+    ]
 
     # Exclude fields for view
     resource_admin.list_view.fields = Exclude('sex')
