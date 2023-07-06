@@ -18,6 +18,9 @@ class DocSchema(schemas.HalResourceSchema):
     id = schemas.UnsignedIntegerNode(title='ID')
     user_id = schemas.IntegerNode(title='User ID')
     data = schemas.EmptyStringNode(title='Document data')
+    publish_date = schemas.DateTimeNode(
+        title='Publish date', nullable=True,
+    )
     meta = DocMetaDataSchema(title='Meta data')
 
 
@@ -35,6 +38,9 @@ class CreateDocSchema(schemas.MappingNode):
     user_id = schemas.IntegerNode(title='User ID', validator=user_id_validator)
     data = schemas.EmptyStringNode(title='Document data')
     meta = DocMetaDataSchema(title='Meta data')
+    publish_date = schemas.DateTimeNode(
+        title='Publish date', nullable=True,
+    )
 
 
 PatchDocSchema = schemas.clone_schema_class(

@@ -24,6 +24,7 @@ class DocsAdmin(ResourceAdmin):
         'id',
         'user_id',
         'data',
+        'publish_date',
         'meta',
     )
     list_view = ListViewSettings(

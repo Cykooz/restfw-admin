@@ -4,8 +4,9 @@
 :Date: 31.07.2020
 """
 from dataclasses import dataclass, field
-from typing import Dict
+from typing import Dict, Optional
 
+import datetime
 from pyramid.authorization import Allow, Everyone
 from restfw.hal import HalResource
 
@@ -21,6 +22,7 @@ class DocModel:
     id: int
     user_id: int
     data: str = ''
+    publish_date: Optional[datetime.datetime] = None
     meta: DocMetaDataModel = field(default_factory=DocMetaDataModel)
 
 
