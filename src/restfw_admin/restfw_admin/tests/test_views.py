@@ -4,6 +4,7 @@
 :Date: 06.08.2020
 """
 import pytest
+from cykooz.testing import D
 
 from ..config import set_restfw_admin_extra_params
 from ..resources import get_admin
@@ -31,7 +32,9 @@ def test_api_info(web_app, pyramid_request):
         '_links': {'self': {'href': url}},
         'title': 'Admin UI',
         'root_url': 'http://localhost',
-        'resources': {},
+        'resources': {
+            'admin_choices': D(),
+        },
         'extra': {},
     }
 
@@ -48,7 +51,9 @@ def test_api_info(web_app, pyramid_request):
         '_links': {'self': {'href': url}},
         'title': 'Admin UI',
         'root_url': 'http://localhost',
-        'resources': {},
+        'resources': {
+            'admin_choices': D(),
+        },
         'extra': {
             'foo': 123,
             'bar': 'http://admin.go',

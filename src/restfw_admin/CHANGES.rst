@@ -14,6 +14,20 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Added widgets ``DynSelectField`` and ``DynSelectInput`` that
+  work with admin choices.
+
+Changes
+-------
+
+- Updated dependencies.
+
 0.10.2 (2023-05-29)
 ===================
 

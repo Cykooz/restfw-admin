@@ -8,7 +8,6 @@ export interface JsonInputProps
     indent_width?: number;
     error_text?: string;
     parse_json?: boolean;
-
 }
 
 /**

@@ -14,6 +14,11 @@ class DocMetaDataSchema(schemas.MappingNode):
     custom = schemas.MappingNode(title='Custom data', unknown='preserve')
 
 
+class EditDocMetaDataSchema(schemas.MappingNode):
+    type = schemas.EmptyStringNode(title='Document type', missing='')
+    custom = schemas.MappingNode(title='Custom data', unknown='preserve')
+
+
 class DocSchema(schemas.HalResourceSchema):
     id = schemas.UnsignedIntegerNode(title='ID')
     user_id = schemas.IntegerNode(title='User ID')
@@ -37,9 +42,10 @@ class DocsSchema(schemas.HalResourceWithEmbeddedSchema):
 class CreateDocSchema(schemas.MappingNode):
     user_id = schemas.IntegerNode(title='User ID', validator=user_id_validator)
     data = schemas.EmptyStringNode(title='Document data')
-    meta = DocMetaDataSchema(title='Meta data')
+    meta = EditDocMetaDataSchema(title='Meta data')
     publish_date = schemas.DateTimeNode(
         title='Publish date', nullable=True,
+        missing=None,
     )
 
 

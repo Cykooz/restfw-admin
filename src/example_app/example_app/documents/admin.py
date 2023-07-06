@@ -4,10 +4,19 @@
 :Date: 31.07.2020
 """
 from restfw_admin import widgets as all_widgets
-from restfw_admin.config import resource_admin_config
+from restfw_admin.config import resource_admin_config, admin_choices_config
 from restfw_admin.resource_admin import Exclude, Only, ResourceAdmin, ViewSettings, ListViewSettings
 from restfw_admin.validators import Required
 from .views import DocView, DocsView
+
+
+@admin_choices_config('doc_types')
+def get_doc_types(request):
+    return [
+        ('article', 'Article'),
+        ('news', 'News'),
+        ('paper', 'Paper'),
+    ]
 
 
 @resource_admin_config('docs')
@@ -30,7 +39,7 @@ class DocsAdmin(ResourceAdmin):
     list_view = ListViewSettings(
         fields=Exclude(
             'data',
-            'meta',
+            'meta.custom'
         ),
         widgets={
             'user_id': all_widgets.ReferenceField(
@@ -39,6 +48,9 @@ class DocsAdmin(ResourceAdmin):
                 label='User',
                 link='show',
             ),
+            'meta': {
+                'type': all_widgets.DynSelectField(group='doc_types'),
+            },
         }
     )
     show_view = ViewSettings(
@@ -51,6 +63,7 @@ class DocsAdmin(ResourceAdmin):
             ),
             'data': all_widgets.RichTextField(),
             'meta': {
+                'type': all_widgets.DynSelectField(group='doc_types'),
                 'custom': all_widgets.JsonField(),
             },
         }
@@ -65,6 +78,7 @@ class DocsAdmin(ResourceAdmin):
             ),
             'data': all_widgets.RichTextInput(),
             'meta': {
+                'type': all_widgets.DynSelectInput(group='doc_types'),
                 'custom': all_widgets.JsonInput(
                     initial_value={},
                     full_width=True,
@@ -76,6 +90,7 @@ class DocsAdmin(ResourceAdmin):
         widgets={
             'data': all_widgets.RichTextInput(),
             'meta': {
+                'type': all_widgets.DynSelectInput(group='doc_types'),
                 'custom': all_widgets.JsonInput(full_width=True),
             },
         }

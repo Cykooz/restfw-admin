@@ -13,7 +13,7 @@ from restfw.typing import PyramidRequest
 from . import schemas
 from .config import get_admin_ui_settings
 from .models import ApiInfoModel
-from .resources import Admin, AdminChoices, ApiInfo, get_admin
+from .resources import Admin, AdminChoices, ApiInfo, get_admin, AdminChoice
 
 
 TEMPLATE = '''<script>
@@ -79,6 +79,18 @@ class ApiInfoView(views.HalResourceView):
 
 
 # AdminChoices
+
+@views.resource_view_config()
+class AdminChoiceView(views.ResourceView):
+    resource: AdminChoice
+    options_for_get = MethodOptions(
+        None, schemas.AdminChoiceSchema,
+        permission='admin_choices.get',
+    )
+
+    def as_dict(self):
+        return self.resource.model
+
 
 @views.resource_view_config()
 class AdminChoicesView(views.HalResourceWithEmbeddedView):

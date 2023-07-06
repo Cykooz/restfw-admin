@@ -7,7 +7,7 @@ import colander
 from restfw import schemas
 
 
-class AdminChoiceSchema(schemas.MappingNode):
+class AdminChoiceSchema(schemas.ResourceSchema):
     uniq_id = schemas.StringNode(title='Unique ID of choice')
     group = schemas.StringNode(title='Choice group')
     id = schemas.EmptyStringNode(title='Choice ID')

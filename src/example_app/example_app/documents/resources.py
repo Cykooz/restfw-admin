@@ -13,7 +13,7 @@ from restfw.hal import HalResource
 
 @dataclass()
 class DocMetaDataModel:
-    type: str = 'text/plain'
+    type: str = ''
     custom: dict = field(default_factory=dict)
 
 

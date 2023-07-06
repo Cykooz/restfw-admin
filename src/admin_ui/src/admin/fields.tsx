@@ -2,7 +2,8 @@ import {
     ArrayField,
     ArrayInput,
     BooleanField,
-    BooleanInput, ChipField,
+    BooleanInput,
+    ChipField,
     Datagrid,
     DateField,
     DateInput,
@@ -17,7 +18,8 @@ import {
     RichTextField,
     SelectField,
     SelectInput,
-    SimpleFormIterator, SingleFieldList,
+    SimpleFormIterator,
+    SingleFieldList,
     TextField,
     TextInput,
 } from 'react-admin';
@@ -25,7 +27,14 @@ import {IField} from "./apiInfo";
 import React, {ReactElement} from "react";
 import {getFieldValidators} from "./validators";
 import {RichTextInput} from "ra-input-rich-text";
-import {JsonField, JsonInput, MappingField, MappingInput, NestedArrayField, SimpleArrayField} from "./widgets";
+import {
+    JsonField,
+    JsonInput,
+    MappingField,
+    MappingInput,
+    NestedArrayField,
+    SimpleArrayField
+} from "./widgets";
 import Chip from "@mui/material/Chip";
 
 export const defaultFieldStyle = {
@@ -155,7 +164,7 @@ function nested_array_view_fabric(key: string, field: IField) {
                 {...params}
             >
                 <SingleFieldList linkType={false}>
-                    <Chip label={getField(single_field)} />
+                    <Chip label={getField(single_field)}/>
                 </SingleFieldList>
             </NestedArrayField>
         );
@@ -199,12 +208,13 @@ function referenceFieldFabric(key: string, field: IField) {
 
 
 function referenceInputFabric(key: string, field: IField) {
-    let {child, ...params} = field.params;
+    let {child, filter, ...params} = field.params;
     return (
         <ReferenceInput
             key={key}
             source={field.source}
             sort={false}
+            filter={filter}
             {...params}
         >
             {getFieldComponent('1', child)}

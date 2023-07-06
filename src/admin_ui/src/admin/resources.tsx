@@ -147,7 +147,7 @@ function getEditView(resourceInfo: IResourceInfo) {
 
     return () => {
         return (
-            <Edit>
+            <Edit mutationMode="pessimistic">
                 <SimpleForm {...form_props}>
                     {getInputs(edit.fields)}
                 </SimpleForm>

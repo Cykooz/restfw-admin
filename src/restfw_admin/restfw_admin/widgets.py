@@ -256,6 +256,7 @@ class SelectArrayInput(SelectInput):
 class ArrayField(FieldWidget):
     type = 'ArrayField'
     fields: Dict[str, FieldWidget] = None
+
     # # Name for the field to be used as key when displaying children.
     # key: Optional[str] = ra_field('fieldKey')
 
@@ -278,6 +279,7 @@ class ArrayInput(InputWidget):
     fields: Dict[str, InputWidget] = None
     disable_add: Optional[bool] = ra_field('disableAdd')
     disable_remove: Optional[bool] = ra_field('disableRemove')
+
     # # Name for the field to be used as key when displaying children.
     # key: Optional[str] = ra_field('fieldKey')
 
@@ -367,6 +369,47 @@ class ReferenceInput(InputWidget, ReferenceInputBase):
         option_text = model.params.pop('optionText', None)
         if not widget:
             widget = SelectInput(option_text=option_text)
+        model.params['child'] = widget.to_model(field_name=None)
+        return model
+
+
+@dataclass()
+class DynSelectBase:
+    group: str
+
+
+@dataclass()
+class DynSelectField(FieldWidget, DynSelectBase):
+    type = 'ReferenceField'
+
+    def to_model(self, field_name: str) -> FieldModel:
+        model = super().to_model(field_name)
+        model.params['reference'] = 'admin_choices'
+        model.params['queryOptions'] = {
+            'meta': {
+                'filter': {
+                    'group': model.params.pop('group'),
+                }
+            }
+        }
+        model.params['child'] = TextField().to_model(field_name='name')
+        return model
+
+
+@dataclass()
+class DynSelectInput(InputWidget, DynSelectBase):
+    type = 'ReferenceInput'
+    # If True, add an empty item to the list of choices to allow for empty value
+    allow_empty: Optional[bool] = ra_field('allowEmpty')
+    per_page: Optional[int] = ra_field('perPage')
+
+    def to_model(self, field_name: str) -> FieldModel:
+        model = super().to_model(field_name)
+        model.params['reference'] = 'admin_choices'
+        model.params['filter'] = {
+            'group': model.params.pop('group')
+        }
+        widget = SelectInput(option_text='name')
         model.params['child'] = widget.to_model(field_name=None)
         return model
 

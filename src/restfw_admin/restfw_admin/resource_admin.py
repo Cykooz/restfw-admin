@@ -69,7 +69,7 @@ class ResourceAdmin:
         '_embedded',
     )
     fields: Optional[Union[Only, Exclude]] = None
-    list_view = ListViewSettings()
+    list_view: Optional[ListViewSettings] = ListViewSettings()
     show_view = ViewSettings()
     create_view = ViewSettings()
     edit_view = ViewSettings()
@@ -118,6 +118,8 @@ class ResourceAdmin:
         )
 
     def get_list_view(self) -> Optional[models.ListViewModel]:
+        if self.list_view is None:
+            return
         options_for_get = self.container_view_class.options_for_get
         if options_for_get and options_for_get.output_schema:
             schema: ColanderNode = options_for_get.output_schema()

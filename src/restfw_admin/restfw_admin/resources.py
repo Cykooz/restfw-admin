@@ -3,6 +3,8 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
+from typing import TypedDict
+
 from pyramid.authorization import Allow, Everyone
 from restfw.hal import HalResource, SimpleContainer
 from restfw.root import Root
@@ -30,6 +32,22 @@ class ApiInfo(HalResource):
         }
 
 
+class ChoiceModel(TypedDict):
+    uniq_id: str
+    group: str
+    id: str
+    name: str
+
+
+class AdminChoice(HalResource):
+    url_placeholder = '<choice_id>'
+
+    def __init__(self, model: ChoiceModel, parent: HalResource):
+        self.__parent__ = parent
+        self.__name__ = model['uniq_id']
+        self.model = model
+
+
 class AdminChoices(HalResource):
 
     def __getitem__(self, key):
@@ -37,12 +55,11 @@ class AdminChoices(HalResource):
         if group:
             choices = self.get_choices(self.get_registry(), group)
             for choice in choices:
-                if choice['uniq_id'] == key:
+                if choice.model['uniq_id'] == key:
                     return choice
-        return super(AdminChoices, self).__getitem__(key)
+        return super().__getitem__(key)
 
-    @staticmethod
-    def get_choices(registry, group=None, choice_ids=None):
+    def get_choices(self, registry, group=None, choice_ids=None):
         if group:
             utility = registry.queryUtility(IAdminChoices, name=group)
             if utility:
@@ -52,20 +69,21 @@ class AdminChoices(HalResource):
         else:
             utilities = list(registry.getUtilitiesFor(IAdminChoices))
 
-        utilities.sort(key=lambda x: x[0])
-
         choice_ids = set(choice_ids) if choice_ids else None
-
+        utilities.sort(key=lambda x: x[0])
         for group, utility in utilities:
             for value, title in utility(registry):
                 if choice_ids and value not in choice_ids:
                     continue
-                yield {
-                    'uniq_id': '%s:%s' % (group, value),
-                    'group': group,
-                    'id': value,
-                    'name': title
-                }
+                yield AdminChoice(
+                    model={
+                        'uniq_id': f'{group}:{value}',
+                        'group': group,
+                        'id': value,
+                        'name': title
+                    },
+                    parent=self
+                )
 
 
 class Admin(SimpleContainer):

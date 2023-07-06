@@ -89,9 +89,17 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
     },
 
     getMany: async (resource, params) => {
+        let filter = {};
+        if (params.hasOwnProperty("meta")) {
+            let meta = params.meta;
+            if (meta && meta.hasOwnProperty('filter')){
+                filter = meta.filter;
+            }
+        }
         const query = {
             id: params.ids,
             total_count: true,
+            ...filter
         };
         const url = `${apiInfo.resourceUrl(resource)}?${stringify(query)}`;
         const {json} = await httpClient(url);

@@ -23,27 +23,46 @@ def test_admin_choices(web_app, pyramid_request, app_config):
 
     product_type_choices = [
         {
-            'uniq_id': 'product_types:contacts', 'group': 'product_types',
-            'name': 'Contacts', 'id': 'contacts',
+            'uniq_id': 'product_types:contacts',
+            'group': 'product_types',
+            'name': 'Contacts',
+            'id': 'contacts',
         },
         {
-            'uniq_id': 'product_types:backup', 'group': 'product_types',
-            'name': 'Backup', 'id': 'backup',
+            'uniq_id': 'product_types:backup',
+            'group': 'product_types',
+            'name': 'Backup',
+            'id': 'backup',
         },
         {
-            'uniq_id': 'product_types:family_storage', 'group': 'product_types',
-            'name': 'Family Storage', 'id': 'family_storage',
+            'uniq_id': 'product_types:family_storage',
+            'group': 'product_types',
+            'name': 'Family Storage',
+            'id': 'family_storage',
         },
     ]
 
     app_config.scan()
-    choices = list(admin_choices.get_choices(pyramid_request.registry))
+    choices = [
+        c.model
+        for c in admin_choices.get_choices(pyramid_request.registry)
+    ]
     assert choices == product_type_choices
 
-    choices = list(admin_choices.get_choices(pyramid_request.registry, group='product_types'))
+    choices = [
+        c.model
+        for c in admin_choices.get_choices(
+            pyramid_request.registry, group='product_types'
+        )
+    ]
     assert choices == product_type_choices
 
-    choices = list(admin_choices.get_choices(pyramid_request.registry, group='unknown'))
+    choices = [
+        c.model
+        for c in admin_choices.get_choices(
+            pyramid_request.registry, group='unknown'
+        )
+    ]
     assert choices == []
 
     # url = pyramid_request.resource_url(admin_choices)
