@@ -380,6 +380,8 @@ class DynSelectBase:
 
 @dataclass()
 class DynSelectField(FieldWidget, DynSelectBase):
+    """It is SelectFiled with choices that dynamically loads
+    from AdminChoices resource."""
     type = 'ReferenceField'
 
     def to_model(self, field_name: str) -> FieldModel:
@@ -398,6 +400,8 @@ class DynSelectField(FieldWidget, DynSelectBase):
 
 @dataclass()
 class DynSelectInput(InputWidget, DynSelectBase):
+    """It is SelectInput with choices that dynamically loads
+    from AdminChoices resource."""
     type = 'ReferenceInput'
     # If True, add an empty item to the list of choices to allow for empty value
     allow_empty: Optional[bool] = ra_field('allowEmpty')

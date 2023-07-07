@@ -80,10 +80,6 @@ class admin_choices_config(object):
 def add_resource_admin(config: Configurator, fabric: Union[Type[ResourceAdmin], str], name: str):
     dotted = config.maybe_dotted
     fabric = dotted(fabric)
-    #verifyObject(interfaces.IExternalLinkFabric, fabric, tentative=True)
-
-    # if not isinstance(resource_type, (tuple, list)):
-    #     resource_type = (resource_type,)
 
     intr = config.introspectable(
         category_name='restfw_resource_admin',
@@ -178,7 +174,11 @@ def get_admin_ui_settings(registry: Registry) -> AdminUiSettings:
     return registry.setdefault('admin_ui', AdminUiSettings())
 
 
-def add_restfw_admin_auth_provider(config: Configurator, js_name: str, js_code: str):
+def add_restfw_admin_auth_provider(
+        config: Configurator,
+        js_name: str,
+        js_code: str,
+):
     ui_settings = get_admin_ui_settings(config.registry)
     ui_settings.auth_provider = JsFunction(js_name, js_code)
 

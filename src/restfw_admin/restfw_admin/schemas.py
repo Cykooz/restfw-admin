@@ -8,10 +8,13 @@ from restfw import schemas
 
 
 class AdminChoiceSchema(schemas.ResourceSchema):
-    uniq_id = schemas.StringNode(title='Unique ID of choice')
-    group = schemas.StringNode(title='Choice group')
-    id = schemas.EmptyStringNode(title='Choice ID')
-    name = schemas.EmptyStringNode(title='Choice name')
+    uniq_id = schemas.StringNode(title='Unique ID')
+    group = schemas.StringNode(title='Group')
+    id = schemas.EmptyStringNode(
+        title='ID',
+        description='Choice ID that unique inside of its group',
+    )
+    name = schemas.EmptyStringNode(title='Name')
 
 
 class AdminChoicesSchema(schemas.HalResourceWithEmbeddedSchema):
@@ -25,8 +28,11 @@ class AdminChoicesSchema(schemas.HalResourceWithEmbeddedSchema):
 
 
 class GetAdminChoicesSchema(schemas.GetEmbeddedSchema):
-    group = schemas.StringNode(title='Filter by choice group', missing=colander.drop)
+    group = schemas.StringNode(
+        title='Choice group',
+        missing=colander.drop,
+    )
     id = schemas.SequenceNode(
-        schemas.StringNode(title='Choice ID'),
-        title='Filter by choices IDs', missing=colander.drop,
+        schemas.StringNode(title='ID'),
+        title='Choices IDs', missing=colander.drop,
     )
