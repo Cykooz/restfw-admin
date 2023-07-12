@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Added filling of ``help_text`` for input widgets.
+
 0.12 (2023-07-12)
 =================
 

@@ -30,6 +30,7 @@ def boolean_field(registry: Registry, node: ColanderNode, node_type: SchemaType)
 def boolean_input(registry: Registry, node: ColanderNode, node_type: SchemaType):
     return widgets.BooleanInput(
         label=node.title,
+        helper_text=node.description or None,
         validators=get_validators(registry, node),
     )
 
@@ -53,6 +54,7 @@ def number_input(registry: Registry, node: ColanderNode, node_type: SchemaType):
     validators.append(Number())
     widget = widgets.TextInput(
         label=node.title,
+        helper_text=node.description or None,
         validators=validators,
     )
     return widget
@@ -71,6 +73,7 @@ def string_field(registry: Registry, node: ColanderNode, node_type: colander.Str
 def string_input(registry: Registry, node: ColanderNode, node_type: colander.String):
     field = widgets.TextInput(
         label=node.title,
+        helper_text=node.description or None,
         validators=get_validators(registry, node),
     )
     if not node_type.allow_empty:
@@ -91,6 +94,7 @@ def date_field(registry: Registry, node: ColanderNode, node_type: SchemaType):
 def date_input(registry: Registry, node: ColanderNode, node_type: SchemaType):
     return widgets.DateInput(
         label=node.title,
+        helper_text=node.description or None,
         validators=get_validators(registry, node),
     )
 
@@ -109,6 +113,7 @@ def datetime_field(registry: Registry, node: ColanderNode, node_type: SchemaType
 def datetime_input(registry: Registry, node: ColanderNode, node_type: SchemaType):
     return widgets.DateTimeInput(
         label=node.title,
+        helper_text=node.description or None,
         validators=get_validators(registry, node),
     )
 
@@ -168,6 +173,7 @@ def sequence_input(registry: Registry, node: ColanderNode, node_type: SchemaType
     return widgets.ArrayInput(
         fields=fields,
         label=node.title,
+        helper_text=node.description or None,
         validators=get_validators(registry, node),
     )
 
@@ -195,4 +201,5 @@ def mapping_input(registry: Registry, node: ColanderNode, node_type: colander.Ma
     return widgets.MappingInput(
         fields=fields,
         label=node.title,
+        helper_text=node.description or None,
     )

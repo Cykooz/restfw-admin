@@ -87,7 +87,7 @@ class InputWidget(Widget):
     initial_value: Optional[Json] = ra_field('defaultValue')
     # Validation rules for the current property.
     validators: Optional[List[Validator]] = None
-    # Text to be displayed under the input
+    # Text to be displayed under the input (cannot be used inside a filter)
     helper_text: Optional[str] = ra_field('helperText')
     # If true, the input will expand to fill the form width.
     full_width: Optional[bool] = ra_field('fullWidth')

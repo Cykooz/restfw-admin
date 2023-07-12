@@ -141,6 +141,8 @@ class ResourceAdmin:
                     input_schema: ColanderNode = options_for_get.input_schema()
                     if input_schema:
                         filters_widgets = get_input_widgets(self._registry, input_schema)
+                        for widget in filters_widgets.values():
+                            widget.helper_text = None
                         list_view.filters = self._widgets_to_fields(
                             ViewSettings(
                                 fields=filters.fields,

@@ -31,6 +31,7 @@ class DocSchema(schemas.HalResourceSchema):
     weight = colander.SchemaNode(
         colander.Decimal('.00', decimal.ROUND_HALF_UP),
         title='Weight',
+        description='Used for documents ordering.',
     )
     meta = DocMetaDataSchema(title='Meta data')
 
@@ -56,6 +57,7 @@ class CreateDocSchema(schemas.MappingNode):
     weight = colander.SchemaNode(
         colander.Decimal('.00', decimal.ROUND_HALF_UP),
         title='Weight',
+        description='Used for documents ordering.',
         missing=decimal.Decimal('0.00'),
     )
 
