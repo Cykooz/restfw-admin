@@ -38,6 +38,7 @@ def boolean_input(registry: Registry, node: ColanderNode, node_type: SchemaType)
 
 @view_field_converter(colander.Integer)
 @view_field_converter(colander.Float)
+@view_field_converter(colander.Decimal)
 def number_field(registry: Registry, node: ColanderNode, node_type: SchemaType):
     return widgets.NumberField(
         label=node.title,
@@ -46,6 +47,7 @@ def number_field(registry: Registry, node: ColanderNode, node_type: SchemaType):
 
 @input_field_converter(colander.Integer)
 @input_field_converter(colander.Float)
+@input_field_converter(colander.Decimal)
 def number_input(registry: Registry, node: ColanderNode, node_type: SchemaType):
     validators = get_validators(registry, node)
     validators.append(Number())

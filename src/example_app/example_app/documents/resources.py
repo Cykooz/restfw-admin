@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 31.07.2020
 """
+import decimal
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 
@@ -23,6 +24,7 @@ class DocModel:
     user_id: int
     data: str = ''
     publish_date: Optional[datetime.datetime] = None
+    weight: decimal.Decimal = decimal.Decimal('0.00')
     meta: DocMetaDataModel = field(default_factory=DocMetaDataModel)
 
 

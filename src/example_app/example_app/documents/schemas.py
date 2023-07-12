@@ -3,6 +3,8 @@
 :Authors: cykooz
 :Date: 31.07.2020
 """
+import decimal
+
 import colander
 from restfw import schemas
 
@@ -26,6 +28,10 @@ class DocSchema(schemas.HalResourceSchema):
     publish_date = schemas.DateTimeNode(
         title='Publish date', nullable=True,
     )
+    weight = colander.SchemaNode(
+        colander.Decimal('.00', decimal.ROUND_HALF_UP),
+        title='Weight',
+    )
     meta = DocMetaDataSchema(title='Meta data')
 
 
@@ -46,6 +52,11 @@ class CreateDocSchema(schemas.MappingNode):
     publish_date = schemas.DateTimeNode(
         title='Publish date', nullable=True,
         missing=None,
+    )
+    weight = colander.SchemaNode(
+        colander.Decimal('.00', decimal.ROUND_HALF_UP),
+        title='Weight',
+        missing=decimal.Decimal('0.00'),
     )
 
 

@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Added support of ``colander.Decimal`` node type.
+
 0.11 (2023-07-07)
 =================
 

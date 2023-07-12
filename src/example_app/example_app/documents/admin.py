@@ -34,6 +34,7 @@ class DocsAdmin(ResourceAdmin):
         'user_id',
         'data',
         'publish_date',
+        'weight',
         'meta',
     )
     list_view = ListViewSettings(
