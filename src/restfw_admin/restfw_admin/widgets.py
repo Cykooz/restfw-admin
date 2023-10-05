@@ -128,12 +128,18 @@ class RichTextInput(FieldWidget):
 @dataclass()
 class NumberField(FieldWidget):
     type = 'NumberField'
-    # Override the browser locale in the date formatting.
-    # Passed as first argument to Intl.DateTimeFormat().
+    # Override the browser locale that used for formatting.
+    # Passed as first argument to Intl.NumberFormat().
     locales: Optional[str] = None
     # Number formatting options. Passed as second argument.
     # to Intl.NumberFormat().
     options: Optional[Dict[str, SimpleJsonValue]] = None
+
+    def __post_init__(self):
+        if not self.options or 'useGrouping' not in self.options:
+            # Disable thousands grouping by default
+            self.options = self.options or {}
+            self.options['useGrouping'] = False
 
 
 @dataclass()

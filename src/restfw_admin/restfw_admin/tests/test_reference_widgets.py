@@ -92,7 +92,15 @@ def test_reference_field_and_input(pyramid_request, app_config):
     view = resource_admin.get_list_view()
     fields = sorted(view.fields, key=lambda f: f.source)
     assert fields == [
-        FieldModel(type='NumberField', source='id', params={'label': 'ID'}),
+        FieldModel(
+            type='NumberField', source='id',
+            params={
+                'label': 'ID',
+                'options': {
+                    'useGrouping': False,
+                },
+            }
+        ),
         FieldModel(
             type='ReferenceField',
             source='user_id',

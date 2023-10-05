@@ -14,6 +14,23 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Added support of field ``widget`` of colander's node.
+  Now you can use it to specify only one widget (field or input)
+  for node or you can set it as tuple (list, set) of widgets if you need
+  to specify both of field and input widgets.
+
+Changes
+-------
+
+- Updated dependencies.
+- For ``NumberField`` disabled thousands grouping by default.
+
 0.12.2 (2023-07-12)
 ===================
 

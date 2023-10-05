@@ -29,6 +29,13 @@ class Child(schemas.MappingNode):
         schemas.StringNode(title='Toy name'),
         title='Toys',
     )
+    birth_date = schemas.IntegerNode(
+        title='Birth date',
+        widget=(
+            widgets.DateField(show_time=True),
+            widgets.DateInput(),
+        ),
+    )
 
 
 class Work(schemas.MappingNode):
@@ -273,10 +280,26 @@ def test_get_user_list_view(pyramid_request):
     view = resource_admin.get_list_view()
     fields = sorted(view.fields, key=lambda f: f.source)
     assert fields == [
-        FieldModel(type='NumberField', source='age', params={'label': 'Age'}),
+        FieldModel(
+            type='NumberField', source='age',
+            params={
+                'label': 'Age',
+                'options': {
+                    'useGrouping': False,
+                },
+            }
+        ),
         FieldModel(type='DateField', source='created', params={'label': 'Created', 'showTime': True}),
         FieldModel(type='TextField', source='current_work.title', params={'label': 'Current work title'}),
-        FieldModel(type='NumberField', source='id', params={'label': 'ID'}),
+        FieldModel(
+            type='NumberField', source='id',
+            params={
+                'label': 'ID',
+                'options': {
+                    'useGrouping': False,
+                },
+            }
+        ),
         FieldModel(type='TextField', source='name', params={'label': 'User name'}),
         FieldModel(type='TextField', source='previews_work.title', params={'label': 'Previews work title'}),
         FieldModel(
@@ -382,7 +405,15 @@ def test_get_user_show_view(pyramid_request):
     view = resource_admin.get_show_view()
     fields = sorted(view.fields, key=lambda f: f.source)
     assert fields == [
-        FieldModel(type='NumberField', source='age', params={'label': 'Age'}),
+        FieldModel(
+            type='NumberField', source='age',
+            params={
+                'label': 'Age',
+                'options': {
+                    'useGrouping': False,
+                },
+            }
+        ),
         FieldModel(
             type='ArrayField',
             source='children',
@@ -398,7 +429,15 @@ def test_get_user_show_view(pyramid_request):
                         }
                     ),
                     FieldModel(type='TextField', source='name', params={'label': 'Name'}),
-                    FieldModel(type='NumberField', source='age', params={'label': 'Age'}),
+                    FieldModel(
+                        type='NumberField', source='age',
+                        params={
+                            'label': 'Age',
+                            'options': {
+                                'useGrouping': False,
+                            },
+                        }
+                    ),
                     FieldModel(
                         type='NestedArrayField',
                         source='toys',
@@ -412,6 +451,14 @@ def test_get_user_show_view(pyramid_request):
                                     'label': 'Toy name',
                                 }
                             )
+                        },
+                    ),
+                    FieldModel(
+                        type='DateField',
+                        source='birth_date',
+                        params={
+                            'label': 'Birth Date',
+                            'showTime': True,
                         },
                     ),
                 ]
@@ -433,7 +480,15 @@ def test_get_user_show_view(pyramid_request):
             },
         ),
         FieldModel(type='TextField', source='description', params={'label': 'Description'}),
-        FieldModel(type='NumberField', source='id', params={'label': 'ID'}),
+        FieldModel(
+            type='NumberField', source='id',
+            params={
+                'label': 'ID',
+                'options': {
+                    'useGrouping': False,
+                },
+            }
+        ),
         FieldModel(type='TextField', source='name', params={'label': 'User name'}),
         FieldModel(
             type='MappingField',
@@ -537,6 +592,13 @@ def test_get_user_create_view(pyramid_request):
                             ]
                         },
                         validators=[ValidatorModel(name='required', args=())]
+                    ),
+                    FieldModel(
+                        type='DateInput',
+                        source='birth_date',
+                        params={
+                            'label': 'Birth Date',
+                        },
                     ),
                 ]
             },
@@ -691,6 +753,13 @@ def test_get_user_edit_view(pyramid_request):
                             ]
                         },
                         validators=[ValidatorModel(name='required', args=())]
+                    ),
+                    FieldModel(
+                        type='DateInput',
+                        source='birth_date',
+                        params={
+                            'label': 'Birth Date',
+                        },
                     ),
                 ]
             },

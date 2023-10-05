@@ -26,7 +26,7 @@ export const NestedArrayField: FC<NestedArrayFieldProps> = memo(props => {
             value={{
                 data,
                 selectedIds: [],
-                sort: {field: '', order: ''},
+                sort: {field: '', order: 'ASC'},
                 displayedFilters: null,
                 filterValues: null,
                 hasNextPage: false,
