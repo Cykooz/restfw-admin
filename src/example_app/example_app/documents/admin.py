@@ -65,7 +65,6 @@ class DocsAdmin(ResourceAdmin):
             'data': all_widgets.RichTextField(),
             'meta': {
                 'type': all_widgets.DynSelectField(group='doc_types'),
-                'custom': all_widgets.JsonField(),
             },
         }
     )
@@ -80,10 +79,6 @@ class DocsAdmin(ResourceAdmin):
             'data': all_widgets.RichTextInput(),
             'meta': {
                 'type': all_widgets.DynSelectInput(group='doc_types'),
-                'custom': all_widgets.JsonInput(
-                    initial_value={},
-                    full_width=True,
-                ),
             },
         }
     )
@@ -92,7 +87,6 @@ class DocsAdmin(ResourceAdmin):
             'data': all_widgets.RichTextInput(),
             'meta': {
                 'type': all_widgets.DynSelectInput(group='doc_types'),
-                'custom': all_widgets.JsonInput(full_width=True),
             },
         }
     )

@@ -457,7 +457,7 @@ def test_get_user_show_view(pyramid_request):
                         type='DateField',
                         source='birth_date',
                         params={
-                            'label': 'Birth Date',
+                            'label': 'Birth date',
                             'showTime': True,
                         },
                     ),
@@ -597,7 +597,7 @@ def test_get_user_create_view(pyramid_request):
                         type='DateInput',
                         source='birth_date',
                         params={
-                            'label': 'Birth Date',
+                            'label': 'Birth date',
                         },
                     ),
                 ]
@@ -758,7 +758,7 @@ def test_get_user_edit_view(pyramid_request):
                         type='DateInput',
                         source='birth_date',
                         params={
-                            'label': 'Birth Date',
+                            'label': 'Birth date',
                         },
                     ),
                 ]

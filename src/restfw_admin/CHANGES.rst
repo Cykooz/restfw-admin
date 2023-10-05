@@ -14,6 +14,16 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Added copying ``label`` and ``helper_text`` from widget constructed
+  by system into widget specified by user through ``widget`` argument
+  of colander's node.
+
 0.13 (2023-10-06)
 =================
 

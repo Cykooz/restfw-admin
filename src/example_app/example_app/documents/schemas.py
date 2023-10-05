@@ -8,17 +8,27 @@ import decimal
 import colander
 from restfw import schemas
 
+from restfw_admin import widgets
 from ..users.schemas import user_id_validator
 
 
 class DocMetaDataSchema(schemas.MappingNode):
     type = schemas.EmptyStringNode(title='Document type')
-    custom = schemas.MappingNode(title='Custom data', unknown='preserve')
+    custom = schemas.MappingNode(
+        title='Custom data', unknown='preserve',
+        widget=widgets.JsonField(),
+    )
 
 
 class EditDocMetaDataSchema(schemas.MappingNode):
     type = schemas.EmptyStringNode(title='Document type', missing='')
-    custom = schemas.MappingNode(title='Custom data', unknown='preserve')
+    custom = schemas.MappingNode(
+        title='Custom data', unknown='preserve',
+        widget=widgets.JsonInput(
+            initial_value={},
+            full_width=True,
+        ),
+    )
 
 
 class DocSchema(schemas.HalResourceSchema):

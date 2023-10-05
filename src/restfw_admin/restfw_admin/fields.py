@@ -47,24 +47,25 @@ def get_field_widget(
         node_type: Optional[colander.SchemaType] = None,
 ) -> Optional[FieldWidget]:
     widget = None
+    node_type = node_type or node.typ
+    converter: Optional[FieldConverter] = registry.queryAdapter(
+        node_type,
+        interfaces.ISchemaNodeToFieldWidget
+    )
+    if converter:
+        widget = converter(registry, node, node_type)
 
-    if widgets := node.widget:
+    if user_widgets := node.widget:
         # Try to find field widget in widgets from colander's node
-        if not isinstance(widgets, (list, tuple, set)):
-            widgets = (widgets,)
-        for unk_widget in widgets:
-            if isinstance(unk_widget, FieldWidget):
-                widget = unk_widget
+        if not isinstance(user_widgets, (list, tuple, set)):
+            user_widgets = (user_widgets,)
+        user_widget: FieldWidget
+        for user_widget in user_widgets:
+            if isinstance(user_widget, FieldWidget):
+                if widget and not user_widget.label:
+                    user_widget.label = widget.label
+                widget = user_widget
                 break
-
-    if not widget:
-        node_type = node_type or node.typ
-        converter: Optional[FieldConverter] = registry.queryAdapter(
-            node_type,
-            interfaces.ISchemaNodeToFieldWidget
-        )
-        if converter:
-            widget = converter(registry, node, node_type)
 
     if widget:
         widget = _try_convert_to_select_field(registry, widget, node)
@@ -77,24 +78,31 @@ def get_input_widget(
         node_type: Optional[colander.SchemaType] = None,
 ) -> Optional[InputWidget]:
     widget = None
+    node_type = node_type or node.typ
+    converter: Optional[InputConverter] = registry.queryAdapter(
+        node_type,
+        interfaces.ISchemaNodeToInputWidget
+    )
+    if converter:
+        widget = converter(registry, node, node_type)
 
-    if widgets := node.widget:
+    if user_widgets := node.widget:
         # Try to find input widget in widgets from colander's node
-        if not isinstance(widgets, (list, tuple, set)):
-            widgets = (widgets,)
-        for unk_widget in widgets:
-            if isinstance(unk_widget, InputWidget):
-                widget = unk_widget
+        if not isinstance(user_widgets, (list, tuple, set)):
+            user_widgets = (user_widgets,)
+        user_widget: InputWidget
+        for user_widget in user_widgets:
+            if isinstance(user_widget, InputWidget):
+                if widget:
+                    for name in ('label', 'helper_text'):
+                        if not getattr(user_widget, name):
+                            setattr(
+                                user_widget,
+                                name,
+                                getattr(widget, name)
+                            )
+                widget = user_widget
                 break
-
-    if not widget:
-        node_type = node_type or node.typ
-        converter: Optional[InputConverter] = registry.queryAdapter(
-            node_type,
-            interfaces.ISchemaNodeToInputWidget
-        )
-        if converter:
-            widget = converter(registry, node, node_type)
 
     if widget:
         widget = _try_convert_to_select_input(registry, widget, node)
