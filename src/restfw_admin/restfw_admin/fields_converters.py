@@ -77,7 +77,12 @@ def string_input(registry: Registry, node: ColanderNode, node_type: colander.Str
         validators=get_validators(registry, node),
     )
     if not node_type.allow_empty:
-        field.validators.append(MinLength(1))
+        for validator in field.validators:
+            if isinstance(validator, MinLength):
+                validator.min = max(validator.min, 1)
+                break
+        else:
+            field.validators.append(MinLength(1))
     return field
 
 

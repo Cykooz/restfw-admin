@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Fixed duplication of ``MinLength`` validator in ``TextInput`` widget.
+
 0.13.2 (2023-10-06)
 ===================
 
