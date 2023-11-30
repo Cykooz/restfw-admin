@@ -5,7 +5,7 @@
 """
 from restfw_admin import widgets as all_widgets
 from restfw_admin.config import resource_admin_config, admin_choices_config
-from restfw_admin.resource_admin import Exclude, Only, ResourceAdmin, ViewSettings, ListViewSettings
+from restfw_admin.resource_admin import Exclude, Only, ResourceAdmin, ViewSettings, ListViewSettings, Filters
 from restfw_admin.validators import Required
 from .views import DocView, DocsView
 
@@ -32,6 +32,7 @@ class DocsAdmin(ResourceAdmin):
     fields = Only(
         'id',
         'user_id',
+        'name',
         'data',
         'publish_date',
         'weight',
@@ -52,7 +53,8 @@ class DocsAdmin(ResourceAdmin):
             'meta': {
                 'type': all_widgets.DynSelectField(group='doc_types'),
             },
-        }
+        },
+        filters=Filters(),
     )
     show_view = ViewSettings(
         widgets={

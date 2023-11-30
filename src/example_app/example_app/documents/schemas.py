@@ -34,6 +34,7 @@ class EditDocMetaDataSchema(schemas.MappingNode):
 class DocSchema(schemas.HalResourceSchema):
     id = schemas.UnsignedIntegerNode(title='ID')
     user_id = schemas.IntegerNode(title='User ID')
+    name = schemas.StringNode(title='Document name')
     data = schemas.EmptyStringNode(title='Document data')
     publish_date = schemas.DateTimeNode(
         title='Publish date', nullable=True,
@@ -56,8 +57,15 @@ class DocsSchema(schemas.HalResourceWithEmbeddedSchema):
     )
 
 
+class GetDocsSchema(schemas.GetEmbeddedSchema):
+    name = schemas.StringNode(
+        title='Document name', missing=colander.drop,
+    )
+
+
 class CreateDocSchema(schemas.MappingNode):
     user_id = schemas.IntegerNode(title='User ID', validator=user_id_validator)
+    name = schemas.StringNode(title='Document name')
     data = schemas.EmptyStringNode(title='Document data')
     meta = EditDocMetaDataSchema(title='Meta data')
     publish_date = schemas.DateTimeNode(

@@ -17,10 +17,16 @@ CHANGELOG
 Next release
 ============
 
+Changes
+-------
+
+- Updated dependencies.
+
 Bug Fixes
 ---------
 
 - Fixed duplication of ``MinLength`` validator in ``TextInput`` widget.
+- Fixed error ``method is null`` when filter contains only one item.
 
 0.13.2 (2023-10-06)
 ===================

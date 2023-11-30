@@ -27,14 +27,7 @@ import {IField} from "./apiInfo";
 import React, {ReactElement} from "react";
 import {getFieldValidators} from "./validators";
 import {RichTextInput} from "ra-input-rich-text";
-import {
-    JsonField,
-    JsonInput,
-    MappingField,
-    MappingInput,
-    NestedArrayField,
-    SimpleArrayField
-} from "./widgets";
+import {JsonField, JsonInput, MappingField, MappingInput, NestedArrayField, SimpleArrayField} from "./widgets";
 import Chip from "@mui/material/Chip";
 
 export const defaultFieldStyle = {
@@ -310,7 +303,10 @@ export function getFields(fields: IField[]): ReactElement | ReactElement[] | und
 }
 
 
-export function getInputs(fields: IField[]): ReactElement | ReactElement[] | undefined {
+export function getInputs(
+    fields: IField[],
+    always_array: boolean = false,  // Returns an array, even if it contains a single element.
+): ReactElement | ReactElement[] | undefined {
     const result = fields.map((field, index) => {
         const fabric = COMPONENTS[field.type] || input_fabric(TextInput);
         const key = field.id ?? `field{index}`;
@@ -318,7 +314,7 @@ export function getInputs(fields: IField[]): ReactElement | ReactElement[] | und
     });
     if (result.length === 0) {
         return;
-    } else if (result.length === 1) {
+    } else if (result.length === 1 && !always_array) {
         return result[0];
     } else {
         return result;

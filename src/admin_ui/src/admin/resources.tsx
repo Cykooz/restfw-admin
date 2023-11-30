@@ -62,7 +62,7 @@ function getListView(resourceInfo: IResourceInfo) {
         let grid_props = new GridProps();
         if (!resourceInfo.deletable)
             grid_props.bulkActionButtons = false;
-        let filters = getInputs(list.filters || []);
+        let filters = getInputs(list.filters || [], true);
         return (
             <List filters={filters}>
                 <Datagrid

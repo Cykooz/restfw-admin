@@ -17,7 +17,10 @@ from .resources import Doc, Docs
 @views.resource_view_config(Doc)
 class DocView(views.HalResourceView):
     resource: Doc
-    options_for_get = MethodOptions(None, schemas.DocSchema, permission='docs.get')
+    options_for_get = MethodOptions(
+        None, schemas.DocSchema,
+        permission='docs.get'
+    )
     options_for_patch = MethodOptions(
         schemas.PatchDocSchema, schemas.DocSchema,
         permission='docs.edit',
@@ -34,7 +37,7 @@ class DocView(views.HalResourceView):
 class DocsView(views.HalResourceWithEmbeddedView):
     resource: Docs
     options_for_get = MethodOptions(
-        GetEmbeddedSchema, schemas.DocsSchema,
+        schemas.GetDocsSchema, schemas.DocsSchema,
         permission='docs.get',
     )
     options_for_post = MethodOptions(
@@ -43,9 +46,11 @@ class DocsView(views.HalResourceWithEmbeddedView):
     )
 
     def get_embedded(self, params):
+        name = params.get('name')
         docs = [
             self.resource.get_doc_by_model(model)
             for model in self.resource.models.values()
+            if not name or model.name == name
         ]
         return views.list_to_embedded_resources(
             self.request, params, docs,

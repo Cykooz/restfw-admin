@@ -17,6 +17,7 @@ def includeme(config: Configurator):
         docs = event.root['docs'] = Docs()
         docs.http_post(event.request, params={
             'user_id': 1,
+            'name': 'Important document',
             'data': 'It is a document data.'
         })
 

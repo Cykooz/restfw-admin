@@ -22,6 +22,7 @@ class DocMetaDataModel:
 class DocModel:
     id: int
     user_id: int
+    name: str = ''
     data: str = ''
     publish_date: Optional[datetime.datetime] = None
     weight: decimal.Decimal = decimal.Decimal('0.00')
