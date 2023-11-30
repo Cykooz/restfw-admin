@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 25.04.2020
 """
+import copy
 from functools import partial
 from typing import Callable, Dict, Optional, Type
 
@@ -62,6 +63,7 @@ def get_field_widget(
         user_widget: FieldWidget
         for user_widget in user_widgets:
             if isinstance(user_widget, FieldWidget):
+                user_widget = copy.deepcopy(user_widget)
                 if widget and not user_widget.label:
                     user_widget.label = widget.label
                 widget = user_widget
@@ -93,6 +95,7 @@ def get_input_widget(
         user_widget: InputWidget
         for user_widget in user_widgets:
             if isinstance(user_widget, InputWidget):
+                user_widget = copy.deepcopy(user_widget)
                 if widget:
                     for name in ('label', 'helper_text'):
                         if not getattr(user_widget, name):

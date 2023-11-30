@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Fixed error with node's widget.
+
 0.14 (2023-11-30)
 =================
 
