@@ -14,6 +14,19 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Added support of server-validation.
+
+Changes
+-------
+
+- Updated dependencies.
+
 0.14.2 (2023-11-30)
 ===================
 

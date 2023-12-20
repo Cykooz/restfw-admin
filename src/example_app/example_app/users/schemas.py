@@ -18,6 +18,11 @@ class Work(schemas.MappingNode):
     address = schemas.StringNode(title="Address")
 
 
+def name_wo_spaces(node, value):
+    if value and ' ' in value:
+        raise colander.Invalid(node, 'Spaces do not enabled in name.')
+
+
 class UserSchema(schemas.HalResourceSchema):
     id = schemas.UnsignedIntegerNode(title='ID')
     created = schemas.DateTimeNode(title='Created')
@@ -38,7 +43,7 @@ class CreateUserSchema(schemas.MappingNode):
         title='First Name',
         validator=colander.All(
             colander.Length(max=50),
-            colander.Regex(r'^[a-zA-z0-9]+$')
+            name_wo_spaces
         ),
     )
     last_name = schemas.EmptyStringNode(

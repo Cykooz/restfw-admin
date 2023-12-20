@@ -2,6 +2,7 @@ import {stringify} from 'query-string';
 import {DataProvider, fetchUtils} from 'ra-core';
 import {IApiInfo} from "./apiInfo";
 import {IHttpClient} from "./types";
+import {HttpError} from "react-admin";
 
 /**
  * Maps react-admin queries to a HAL REST API
@@ -92,7 +93,7 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
         let filter = {};
         if (params.hasOwnProperty("meta")) {
             let meta = params.meta;
-            if (meta && meta.hasOwnProperty('filter')){
+            if (meta && meta.hasOwnProperty('filter')) {
                 filter = meta.filter;
             }
         }
@@ -136,7 +137,7 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
         const {json} = await httpClient(url, {
             method: update_method,
             body: JSON.stringify(params.data),
-        });
+        }).catch(on_validation_error);
 
         return {
             data: {
@@ -155,7 +156,7 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
             const {json} = await httpClient(`${url}/${id}`, {
                 method: update_method,
                 body: JSON.stringify(params.data),
-            });
+            }).catch(on_validation_error);
             return apiInfo.resourceId(resource, json, id);
         });
         return {data: await Promise.all(tasks)};
@@ -167,7 +168,7 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
         const {json} = await httpClient(url, {
             method: 'POST',
             body: JSON.stringify(params.data),
-        });
+        }).catch(on_validation_error);
         return {
             data: {
                 ...json,
@@ -215,6 +216,20 @@ function getTotalCount(headers: Headers): number {
     total = total.split('/').pop() || '0';
 
     return parseInt(total, 10);
+}
+
+
+function on_validation_error(error: HttpError) {
+    if (error.status === 422) {
+        return Promise.reject(new HttpError(
+            error.body.description,
+            error.status,
+            {
+                errors: error.body.detail,
+            },
+        ));
+    }
+    return Promise.reject(error)
 }
 
 export default Provider;
