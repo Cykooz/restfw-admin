@@ -22,6 +22,7 @@ import {
     SingleFieldList,
     TextField,
     TextInput,
+    UrlField,
 } from 'react-admin';
 import {IField} from "./apiInfo";
 import React, {ReactElement} from "react";
@@ -261,6 +262,7 @@ const COMPONENTS: Record<string, IFabric> = {
     'MappingField': mapping_field_fabric,
     'JsonField': view_fabric(JsonField),
     'ChipField': view_fabric(ChipField),
+    'UrlField': view_fabric(UrlField),
     // Inputs
     'TextInput': input_fabric(TextInput),
     'RichTextInput': view_fabric(RichTextInput),

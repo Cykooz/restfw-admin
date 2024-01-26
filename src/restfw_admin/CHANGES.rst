@@ -14,6 +14,19 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Added ``UrlField`` widget.
+
+Changed
+-------
+
+- Updated dependencies.
+
 1.0 (2023-12-20)
 ================
 
