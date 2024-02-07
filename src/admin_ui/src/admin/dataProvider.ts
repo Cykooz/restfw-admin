@@ -182,6 +182,7 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
 
         const {json} = await httpClient(url, {
             method: 'DELETE',
+            body: JSON.stringify({}),
         });
         return {data: json};
     },
@@ -194,6 +195,7 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
         const tasks = params.ids.map(async (id) => {
             await httpClient(`${url}/${id}`, {
                 method: 'DELETE',
+                body: JSON.stringify({}),
             });
             return id;
         });

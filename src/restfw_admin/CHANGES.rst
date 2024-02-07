@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Fixed request body for DELETE method.
+
 1.1 (2024-01-26)
 ================
 
