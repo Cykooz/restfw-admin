@@ -5,7 +5,10 @@
 """
 from restfw_admin import widgets
 from restfw_admin.config import resource_admin_config
-from restfw_admin.resource_admin import Only, ResourceAdmin, ListViewSettings, Filters
+from restfw_admin.resource_admin import (
+    Only, ResourceAdmin, ListViewSettings, Filters,
+    Exclude
+)
 from .views import UserView, UsersView
 
 
@@ -36,6 +39,7 @@ class UsersAdmin(ResourceAdmin):
             }
         },
         filters=Filters(
-            always_on=['id']
+            fields=Exclude('id__in'),
+            always_on=['id'],
         ),
     )

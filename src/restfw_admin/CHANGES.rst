@@ -14,6 +14,20 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Added support of requesting resource items by filter ``<id_filed>__in``.
+  Such filter is used in internals of ``react-admin``.
+
+Changed
+-------
+
+- Updated dependencies.
+
 1.1.2 (2024-02-07)
 ==================
 

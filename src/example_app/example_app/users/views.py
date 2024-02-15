@@ -64,6 +64,9 @@ class UsersView(views.HalResourceWithEmbeddedView):
 
 
 def _is_conforms_to_filters(model, filters: dict) -> bool:
+    id_in = filters.get('id__in', [])
+    if id_in and model.id not in id_in:
+        return False
     return all(
         not hasattr(model, k) or getattr(model, k) == v
         for k, v in filters.items()

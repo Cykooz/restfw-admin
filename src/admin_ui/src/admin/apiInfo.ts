@@ -59,6 +59,8 @@ export interface IApiInfo {
 
     resourceUrl(name: string): string;
 
+    resourceIdField(name: string): string;
+
     getOrderBy(name: string, sort: SortPayload): { [key: string]: string };
 
     resourceId(name: string, data: any, def?: Identifier | null): Identifier;
@@ -98,6 +100,10 @@ export class ApiInfo implements IApiInfo {
 
     resourceUrl(name: string) {
         return this.root_url + this.resources[name].location;
+    }
+
+    resourceIdField(name: string): string {
+        return this.resources[name].id_field;
     }
 
     getOrderBy(name: string, sort: SortPayload): { [key: string]: string } {

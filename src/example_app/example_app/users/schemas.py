@@ -104,6 +104,15 @@ class GetUsersSchema(schemas.GetEmbeddedSchema):
         description='Filter by user ID',
         missing=colander.drop,
     )
+    id__in = schemas.SequenceNode(
+        schemas.UnsignedIntegerNode(
+            title='User IDs',
+            description='Filter by user IDs',
+            missing=colander.drop,
+        ),
+        accept_scalar=True,
+        missing=colander.drop,
+    )
     sex = schemas.StringNode(
         title='Sex',
         description='Filter by user sex',
