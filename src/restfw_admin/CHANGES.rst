@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Updated all dependencies.
+
 1.2 (2024-02-15)
 ================
 

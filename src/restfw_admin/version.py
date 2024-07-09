@@ -34,16 +34,19 @@ With that setup, a new release can be labelled by simply invoking:
 
     git tag -a v1.0
 """
-from __future__ import print_function
-
 import re
 import subprocess
 import sys
-from distutils.version import StrictVersion
+from typing import Optional
 
-__author__ = ('Douglas Creager <dcreager@dcreager.net>',
-              'Michal Nazarewicz <mina86@mina86.com>',
-              'Kirill Kuzminykh <cykooz@gmail.com')
+from pkg_resources import parse_version as Version
+
+
+__author__ = (
+    'Douglas Creager <dcreager@dcreager.net>',
+    'Michal Nazarewicz <mina86@mina86.com>',
+    'Kirill Kuzminykh <cykooz@gmail.com',
+)
 __license__ = 'This file is placed into the public domain.'
 __maintainer__ = 'Kirill Kuzminykh'
 __email__ = 'cykooz@gmail.com'
@@ -57,41 +60,42 @@ RELEASE_VERSION_FILE = 'RELEASE-VERSION'
 # http://legacy.python.org/dev/peps/pep-0440/
 _PEP440_SHORT_VERSION_RE = r'\d+(?:\.\d+)+(?:(?:[abc]|rc)\d+(?:\.\d+)*)?'
 _PEP440_VERSION_RE = r'^%s(?:\.post\d+)?(?:\.dev\d+)?$' % _PEP440_SHORT_VERSION_RE
-_GIT_DESCRIPTION_RE = r'^v(?P<ver>%s)-(?P<commits>\d+)-g(?P<sha>[\da-f]+)$' % _PEP440_SHORT_VERSION_RE
+_GIT_DESCRIPTION_RE = (
+        r'^v(?P<ver>%s)-(?P<commits>\d+)-g(?P<sha>[\da-f]+)$' % _PEP440_SHORT_VERSION_RE
+)
 
 
-def read_git_version():
+def read_git_version() -> tuple[Optional[Version], Optional[int]]:
     try:
-        proc = subprocess.Popen(('git', 'describe', '--long',
-                                 '--match', 'v[0-9]*.*'),
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(
+            ('git', 'describe', '--long', '--match', 'v[0-9]*.*'),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         data, _ = proc.communicate()
         if proc.returncode:
             return None, None
         ver = data.decode('utf-8').splitlines()[0].strip()
-    except:
+    except Exception:
         return None, None
 
     if not ver:
         return None, None
     m = re.search(_GIT_DESCRIPTION_RE, ver)
     if not m:
-        sys.stderr.write('version: git description (%s) is invalid, '
-                         'ignoring\n' % ver)
+        sys.stderr.write('version: git description (%s) is invalid, ignoring\n' % ver)
         return None, None
 
     commits = int(m.group('commits'))
-    ver = StrictVersion(m.group('ver'))
+    ver = Version(m.group('ver'))
     if not commits:
         return ver, commits
     else:
-        if len(ver.version) == 2:
-            ver.version += (0,)
-        ver.version = (ver.version[0], ver.version[1], ver.version[2] + commits)
+        ver = _increase_patch(ver, commits)
         return ver, commits
 
 
-def read_release_version():
+def read_release_version() -> Optional[Version]:
     try:
         fd = open(RELEASE_VERSION_FILE)
         try:
@@ -99,25 +103,27 @@ def read_release_version():
         finally:
             fd.close()
         if not re.search(_PEP440_VERSION_RE, ver):
-            sys.stderr.write('version: release version (%s) is invalid, '
-                             'will use it anyway\n' % ver)
-        return StrictVersion(ver)
-    except:
-        return None
+            sys.stderr.write(
+                'version: release version (%s) is invalid, '
+                'will use it anyway\n' % ver
+            )
+        return Version(ver)
+    except Exception:
+        return
 
 
-def write_release_version(version):
+def write_release_version(version: Version):
     fd = open(RELEASE_VERSION_FILE, 'w')
-    fd.write('%s\n' % version)
+    fd.write(f'{version}\n')
     fd.close()
 
 
-def get_version():
+def get_version() -> str:
     release_version = read_release_version()
     version = read_git_version()[0] or release_version
     if not version:
         print('ERROR: Cannot find the version number for "mountbit"')
-        version = StrictVersion('0.0')
+        version = Version('0.0')
     if not release_version or version != release_version:
         write_release_version(version)
     return str(version)
@@ -133,11 +139,15 @@ def get_version_for_new_release():
 def main():
     import argparse
     import datetime
+
     parser = argparse.ArgumentParser(description='Run periodic tasks for users')
-    parser.add_argument('-u', dest='version',
-                        help='replace title "Next release" in CHANGES.txt on given version number '
-                             'and current date. You can use "auto" as version number for generate '
-                             'version number automatically')
+    parser.add_argument(
+        '-u',
+        dest='version',
+        help='replace title "Next release" in CHANGES.txt on given version number '
+             'and current date. You can use "auto" as version number for generate '
+             'version number automatically',
+    )
     args = parser.parse_args()
     args_version = (args.version or '').strip()
     if not args_version:
@@ -152,7 +162,7 @@ def main():
     except ValueError:
         if args_version == 'auto':
             raise
-        version = args_version
+        version = Version(args_version)
 
     with open(CHANGES_FILE, 'rt') as f:
         changes = f.read()
@@ -160,9 +170,9 @@ def main():
     if find in changes:
         if args_version == 'auto':
             # Increase the patch number to account for the additional commit.
-            version.version = (version.version[0], version.version[1], version.version[2] + 1)
+            version = _increase_patch(version, 1)
         else:
-            version = StrictVersion(args_version)
+            version = Version(args_version)
         replace = '%s (%s)' % (version, datetime.date.today().strftime('%Y-%m-%d'))
         replace = '%s\n%s\n' % (replace, '=' * len(replace))
         new_changes = changes.replace(find, replace)
@@ -170,6 +180,14 @@ def main():
             with open(CHANGES_FILE, 'wt') as f:
                 f.write(new_changes)
             print(version)
+
+
+def _increase_patch(version: Version, inc: int) -> Version:
+    v_tuple = version.release
+    if len(v_tuple) == 2:
+        v_tuple = (v_tuple[0], v_tuple[1], 0)
+    v_tuple = (v_tuple[0], v_tuple[1], v_tuple[2] + inc)
+    return Version('.'.join(str(v) for v in v_tuple))
 
 
 if __name__ == '__main__':

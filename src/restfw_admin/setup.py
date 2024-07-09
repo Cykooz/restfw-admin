@@ -2,6 +2,7 @@
 import os
 import sys
 from setuptools import findall, setup, find_namespace_packages
+
 sys.path.append('.')
 import version
 
@@ -24,7 +25,7 @@ def find_package_data(include_paths=None):
     for path in findall(root):
         if path.endswith('~'):
             continue
-        rel_path = path[len(HERE):]
+        rel_path = path[len(HERE) :]
         is_strict_path = False
         ext = os.path.splitext(path)[1]
 
@@ -40,11 +41,15 @@ def find_package_data(include_paths=None):
             if os.path.isfile(os.path.join(package_path, '__init__.py')):
                 break
             package_path = os.path.dirname(package_path)
-        package_name = package_path[len(HERE) + 1:].replace(os.path.sep, '.')
+        package_name = package_path[len(HERE) + 1 :].replace(os.path.sep, '.')
 
         globs = package_data.setdefault(package_name, set())
-        data_path = path[len(package_path) + 1:]
-        data_glob = data_path if is_strict_path else os.path.join(os.path.dirname(data_path), '*' + ext)
+        data_path = path[len(package_path) + 1 :]
+        data_glob = (
+            data_path
+            if is_strict_path
+            else os.path.join(os.path.dirname(data_path), '*' + ext)
+        )
         globs.add(data_glob)
     for key, value in package_data.items():
         package_data[key] = list(value)
@@ -62,15 +67,15 @@ setup(
     long_description=README + '\n\n' + CHANGES,
     long_description_content_type='text/x-rst',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Framework :: Pyramid',
@@ -99,7 +104,7 @@ setup(
             'WebTest',
             'sphinx',
             'jinja2',
-        ]
+        ],
     },
     install_requires=[
         'setuptools',
@@ -107,8 +112,7 @@ setup(
         'restfw>=8.2',
     ],
     entry_points={
-        'console_scripts':
-        [
+        'console_scripts': [
             'admin_test = restfw_admin.runtests:runtests [test]',
         ],
     },
