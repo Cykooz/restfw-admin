@@ -21,7 +21,7 @@ echo
 
 echo "Build Admin UI"
 cd "${CUR_DIR}/src/admin_ui"
-${NODEJS} "${CUR_DIR}/parts/nodejs/lib/node_modules/yarn/bin/yarn.js" run build
+"${CUR_DIR}/bin/yarn" run build
 echo
 
 echo "Build SDIST and WHEEL"

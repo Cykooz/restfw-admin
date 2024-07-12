@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 25.04.2020
 """
+
 import dataclasses
 from typing import Dict, Iterable, List, Literal, Optional, Tuple, Type, Union
 
@@ -52,6 +53,7 @@ class Filters:
 @dataclasses.dataclass()
 class ListViewSettings(ViewSettings):
     filters: Optional[Filters] = None
+    infinite_pagination: bool = False
 
 
 class ResourceAdmin:
@@ -82,7 +84,9 @@ class ResourceAdmin:
             self.location = f'/{name}'  # TODO: url-encode
 
         if not self.embedded_name:
-            schema: ColanderNode = self.container_view_class.options_for_get.output_schema()
+            schema: ColanderNode = (
+                self.container_view_class.options_for_get.output_schema()
+            )
             for node in schema.children:
                 if node.name == '_embedded' and node.children:
                     self.embedded_name = node.children[0].name
@@ -126,8 +130,12 @@ class ResourceAdmin:
             embedded_node: Optional[ColanderNode] = schema.get('_embedded')
             if not embedded_node:
                 return
-            embedded_item_node: Optional[ColanderNode] = embedded_node.get(self.embedded_name)
-            if embedded_item_node and isinstance(embedded_item_node.typ, colander.Sequence):
+            embedded_item_node: Optional[ColanderNode] = embedded_node.get(
+                self.embedded_name
+            )
+            if embedded_item_node and isinstance(
+                embedded_item_node.typ, colander.Sequence
+            ):
                 list_item_node = embedded_item_node.children[0]
                 list_view = self._get_view(
                     list_item_node,
@@ -140,7 +148,9 @@ class ResourceAdmin:
                     filters = self.list_view.filters
                     input_schema: ColanderNode = options_for_get.input_schema()
                     if input_schema:
-                        filters_widgets = get_input_widgets(self._registry, input_schema)
+                        filters_widgets = get_input_widgets(
+                            self._registry, input_schema
+                        )
                         for widget in filters_widgets.values():
                             widget.helper_text = None
                         list_view.filters = self._widgets_to_fields(
@@ -163,6 +173,8 @@ class ResourceAdmin:
                             for field in list_view.filters:
                                 if field.source in filters.always_on:
                                     field.params['alwaysOn'] = True
+                if list_view:
+                    list_view.infinite_pagination = self.list_view.infinite_pagination
                 return list_view
 
     def get_show_view(self) -> Optional[models.ShowViewModel]:
@@ -203,13 +215,13 @@ class ResourceAdmin:
             )
 
     def _get_view(
-            self,
-            schema_node: Optional[ColanderNode],
-            view_settings: ViewSettings,
-            view_model_class: Type[models.ViewModelType],
-            *,
-            fields_type: Literal['view', 'input'],
-            use_nested_array_field=False,
+        self,
+        schema_node: Optional[ColanderNode],
+        view_settings: ViewSettings,
+        view_model_class: Type[models.ViewModelType],
+        *,
+        fields_type: Literal['view', 'input'],
+        use_nested_array_field=False,
     ) -> Optional[models.ViewModelType]:
         if schema_node is None:
             return
@@ -227,31 +239,32 @@ class ResourceAdmin:
         return view_model_class(fields=fields)
 
     def _get_schema_node(
-            self,
-            view_class: Type[HalResourceView],
-            *,
-            method: str,
-            schema_type: Literal['input', 'output'],
+        self,
+        view_class: Type[HalResourceView],
+        *,
+        method: str,
+        schema_type: Literal['input', 'output'],
     ) -> Optional[ColanderNode]:
         method_options = getattr(view_class, f'options_for_{method}')
         if not method_options:
             return
         schema_class: Type[ColanderNode] = getattr(
-            method_options,
-            f'{schema_type}_schema'
+            method_options, f'{schema_type}_schema'
         )
         if schema_class:
             return schema_class()
 
     def _widgets_to_fields(
-            self,
-            view_settings: ViewSettings,
-            widgets: Dict[str, Widget],
-            use_nested_array_field=False,
-            default_fields=None,
-            fields=None,
+        self,
+        view_settings: ViewSettings,
+        widgets: Dict[str, Widget],
+        use_nested_array_field=False,
+        default_fields=None,
+        fields=None,
     ) -> List[FieldModel]:
-        default_fields = default_fields if default_fields is not None else self.default_fields
+        default_fields = (
+            default_fields if default_fields is not None else self.default_fields
+        )
         fields = fields if fields is not None else self.fields
         only_field_names: list[str] = []
         for fields in (default_fields, fields, view_settings.fields):
@@ -302,10 +315,7 @@ class ResourceAdmin:
                                 )
                         filtered_widgets[name] = widget
             widgets = filtered_widgets
-        return [
-            widget.to_model(name)
-            for name, widget in widgets.items()
-        ]
+        return [widget.to_model(name) for name, widget in widgets.items()]
 
 
 def unflat(names: Iterable[str]) -> Dict[str, dict]:
@@ -323,7 +333,9 @@ def unflat(names: Iterable[str]) -> Dict[str, dict]:
     return fields
 
 
-def only_widgets(widgets: Dict[str, Widget], names: Dict[str, dict]) -> Dict[str, Widget]:
+def only_widgets(
+    widgets: Dict[str, Widget], names: Dict[str, dict]
+) -> Dict[str, Widget]:
     """Returns a dictionary with widgets whose name is contained in "names" dictionary."""
     res = {}
     for name, inner_names in names.items():
@@ -336,7 +348,9 @@ def only_widgets(widgets: Dict[str, Widget], names: Dict[str, dict]) -> Dict[str
     return res
 
 
-def exclude_widgets(widgets: Dict[str, Widget], names: Dict[str, dict]) -> Dict[str, Widget]:
+def exclude_widgets(
+    widgets: Dict[str, Widget], names: Dict[str, dict]
+) -> Dict[str, Widget]:
     """Returns a dictionary without widgets whose name is contained in "names" dictionary."""
     widgets = widgets.copy()
     for name, inner_names in names.items():

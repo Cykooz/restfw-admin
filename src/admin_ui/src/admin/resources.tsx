@@ -1,9 +1,9 @@
-import React, {ReactElement} from "react";
+import {ReactElement} from "react";
 import {
     Create,
     Datagrid,
     Edit,
-    EditButton,
+    EditButton, InfiniteList,
     List,
     Resource,
     SaveButton,
@@ -59,24 +59,34 @@ function getListView(resourceInfo: IResourceInfo) {
         return null;
     }
     return () => {
-        let grid_props = new GridProps();
+        const grid_props = new GridProps();
         if (!resourceInfo.deletable)
             grid_props.bulkActionButtons = false;
-        let filters = getInputs(list.filters || [], true);
+        const data_grid = (
+            <Datagrid
+                rowClick={show ? 'show' : ''}
+                sx={{
+                    '& .RaDatagrid-headerCell': {
+                        backgroundColor: '#e0e0e0',
+                    },
+                }}
+                {...grid_props}
+            >
+                {getFields(list.fields)}
+                {edit ? <EditButton/> : null}
+            </Datagrid>
+        );
+        const filters = getInputs(list.filters || [], true);
+        if (list.infinite_pagination) {
+            return (
+                <InfiniteList filters={filters}>
+                    {data_grid}
+                </InfiniteList>
+            );
+        }
         return (
             <List filters={filters}>
-                <Datagrid
-                    rowClick={show ? 'show' : ''}
-                    sx={{
-                        '& .RaDatagrid-headerCell': {
-                            backgroundColor: '#e0e0e0',
-                        },
-                    }}
-                    {...grid_props}
-                >
-                    {getFields(list.fields)}
-                    {edit ? <EditButton/> : null}
-                </Datagrid>
+                {data_grid}
             </List>
         );
     };
@@ -140,7 +150,7 @@ function getEditView(resourceInfo: IResourceInfo) {
     if (!edit) {
         return null;
     }
-    let form_props = new FormProps();
+    const form_props = new FormProps();
     if (!resourceInfo.deletable) {
         form_props.toolbar = <EditWithoutDeleteToolbar/>;
     }

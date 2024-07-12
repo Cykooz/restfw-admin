@@ -3,9 +3,17 @@
 :Authors: cykooz
 :Date: 31.07.2020
 """
+
 from restfw_admin import widgets as all_widgets
 from restfw_admin.config import resource_admin_config, admin_choices_config
-from restfw_admin.resource_admin import Exclude, Only, ResourceAdmin, ViewSettings, ListViewSettings, Filters
+from restfw_admin.resource_admin import (
+    Exclude,
+    Only,
+    ResourceAdmin,
+    ViewSettings,
+    ListViewSettings,
+    Filters,
+)
 from restfw_admin.validators import Required
 from .views import DocView, DocsView
 
@@ -26,9 +34,7 @@ class DocsAdmin(ResourceAdmin):
     child_view_class = DocView
     location = '/docs'
     index = 1
-    default_fields = Exclude(
-        '_embedded'
-    )
+    default_fields = Exclude('_embedded')
     fields = Only(
         'id',
         'user_id',
@@ -39,10 +45,7 @@ class DocsAdmin(ResourceAdmin):
         'meta',
     )
     list_view = ListViewSettings(
-        fields=Exclude(
-            'data',
-            'meta.custom'
-        ),
+        fields=Exclude('data', 'meta.custom'),
         widgets={
             'user_id': all_widgets.ReferenceField(
                 reference='users',
@@ -55,6 +58,7 @@ class DocsAdmin(ResourceAdmin):
             },
         },
         filters=Filters(),
+        infinite_pagination=True,
     )
     show_view = ViewSettings(
         widgets={
@@ -76,7 +80,7 @@ class DocsAdmin(ResourceAdmin):
                 reference='users',
                 option_text='first_name',
                 label='User',
-                validators=[Required()]
+                validators=[Required()],
             ),
             'data': all_widgets.RichTextInput(),
             'meta': {

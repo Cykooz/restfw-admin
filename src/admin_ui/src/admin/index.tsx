@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Admin} from 'react-admin';
 import {fetchUtils} from 'ra-core';
 import halRestDataProvider from './dataProvider';
@@ -10,7 +10,7 @@ import {AppParams} from "./types";
 function defaultHttpClient(url: string, options: fetchUtils.Options = {}) {
     if (!options.headers)
         options.headers = new Headers({Accept: 'application/json'});
-    let headers = options.headers as Headers;
+    const headers = options.headers as Headers;
     headers.set('X-Requested-With', 'XMLHttpRequest');
     return fetchUtils.fetchJson(url, options);
 }

@@ -1,4 +1,4 @@
-import * as React from 'react';
+/* eslint-disable @typescript-eslint/no-empty-function */
 import {FC, memo, ReactElement, useEffect, useState} from 'react';
 import get from 'lodash/get';
 import {ListContextProvider, useRecordContext} from 'ra-core';
@@ -17,8 +17,10 @@ export const NestedArrayField: FC<NestedArrayFieldProps> = memo(props => {
     const [data, setData] = useState(initialState);
 
     useEffect(() => {
-        const data = get_nested_list(record, source || "");
-        setData(data);
+        if (record) {
+            const data = get_nested_list(record, source || "");
+            setData(data);
+        }
     }, [record, source]);
 
     return (
@@ -57,6 +59,8 @@ export const NestedArrayField: FC<NestedArrayFieldProps> = memo(props => {
                 showFilter: (a, b) => {
                 },
                 total: data.length,
+                error: null,
+                isPending: false
             }}
         >
             {children}
@@ -73,7 +77,7 @@ function get_nested_list(record: Record<string, any>, path: string | string[]): 
         return [record];
     }
     const root_name = path[0];
-    let child_path = path.slice(1)
+    const child_path = path.slice(1)
     let child = get(record, root_name)
     let result: any[] = []
     if (Array.isArray(child)) {

@@ -1,4 +1,3 @@
-import * as React from 'react';
 import {Children, cloneElement, FC, ReactElement} from 'react';
 import {InputProps} from 'ra-core';
 import FormLabel from '@mui/material/FormLabel';

@@ -1,4 +1,5 @@
 import {Identifier, RaRecord, SortPayload} from "ra-core";
+import get from "lodash/get";
 
 
 export interface IValidator {
@@ -17,6 +18,7 @@ export interface IField {
 export interface IListView {
     fields: IField[];
     filters: IField[] | null;
+    infinite_pagination: boolean;
 }
 
 export interface IShowView {
@@ -61,13 +63,17 @@ export interface IApiInfo {
 
     resourceIdField(name: string): string;
 
-    getOrderBy(name: string, sort: SortPayload): { [key: string]: string };
+    getOrderBy(name: string, sort?: SortPayload): { [key: string]: string };
 
     resourceId(name: string, data: any, def?: Identifier | null): Identifier;
 
     resourceUpdateMethod(name: string): string;
 
     getEmbeddedResources<RecordType extends RaRecord = RaRecord>(name: string, data: any): RecordType[];
+
+    getLink(name: string, data: any): string | null;
+
+    isInfinitePagination(resource_name: string): boolean;
 
     mapResources<T>(callback: MapCallback<T>): T[];
 }
@@ -106,18 +112,20 @@ export class ApiInfo implements IApiInfo {
         return this.resources[name].id_field;
     }
 
-    getOrderBy(name: string, sort: SortPayload): { [key: string]: string } {
+    getOrderBy(name: string, sort?: SortPayload): { [key: string]: string } {
         if (!(name in this.resources)) {
             console.warn(`ApiInfo: Unknown resource with a name "${name}".`);
             return {};
         }
         const resource = this.resources[name];
-        const {field, order} = sort;
-        if (field && resource.order_by.includes(field)) {
-            const sign = order === 'ASC' ? '' : '-';
-            return {
-                'order_by': `${sign}${field}`
-            };
+        if (sort) {
+            const {field, order} = sort;
+            if (field && resource.order_by.includes(field)) {
+                const sign = order === 'ASC' ? '' : '-';
+                return {
+                    'order_by': `${sign}${field}`
+                };
+            }
         }
         return {};
     }
@@ -125,11 +133,11 @@ export class ApiInfo implements IApiInfo {
     resourceId(name: string, data: any, def: Identifier | null = null): Identifier {
         if (name in this.resources) {
             const info = this.resources[name];
-            if (info.id_field && data.hasOwnProperty(info.id_field))
+            if (info.id_field && Object.prototype.hasOwnProperty.call(data, info.id_field))
                 return data[info.id_field];
         }
 
-        if (data.hasOwnProperty('id'))
+        if (Object.prototype.hasOwnProperty.call(data, 'id'))
             return data.id;
 
         const self_url = data._links.self.href.split('/');
@@ -156,7 +164,7 @@ export class ApiInfo implements IApiInfo {
             return [];
         }
 
-        if (!data.hasOwnProperty('_embedded')) {
+        if (!Object.prototype.hasOwnProperty.call(data, '_embedded')) {
             console.warn(`ApiInfo: "_embedded" field is absent in data for "${name}" resource.`);
             return [];
         }
@@ -168,7 +176,7 @@ export class ApiInfo implements IApiInfo {
         }
 
         const embedded_data = data._embedded;
-        if (!embedded_data.hasOwnProperty(embedded_name)) {
+        if (!Object.prototype.hasOwnProperty.call(embedded_data, embedded_name)) {
             console.warn(
                 `ApiInfo: Embedded resources with a name "${embedded_name}" ` +
                 `has not found inside of "_embedded" field of "${name}" resource.`
@@ -186,9 +194,25 @@ export class ApiInfo implements IApiInfo {
         )
     }
 
+    getLink(name: string, data: any): string | null {
+        return get(data, `_links.${name}.href`);
+    }
+
+    isInfinitePagination(resource_name: string): boolean {
+        if (!(resource_name in this.resources)) {
+            console.warn(`ApiInfo: Unknown resource with a name "${resource_name}".`);
+            return false;
+        }
+        const list_view = this.resources[resource_name].views.list;
+        if (list_view) {
+            return list_view.infinite_pagination;
+        }
+        return false;
+    }
+
     mapResources<T>(callback: MapCallback<T>): T[] {
-        let result: T[] = [];
-        for (let key in this.resources) {
+        const result: T[] = [];
+        for (const key in this.resources) {
             const resourceInfo = this.resources[key];
             result.push(callback(resourceInfo));
         }

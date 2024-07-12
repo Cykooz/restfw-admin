@@ -1,4 +1,3 @@
-import * as React from 'react';
 import {Children, cloneElement, FunctionComponent, ReactElement} from 'react';
 import FormControl from '@mui/material/FormControl';
 import {Labeled} from 'react-admin';

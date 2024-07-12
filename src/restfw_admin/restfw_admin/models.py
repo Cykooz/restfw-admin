@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 24.04.2020
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -41,6 +42,7 @@ class ViewModel:
 @dataclass()
 class ListViewModel(ViewModel):
     filters: Optional[List[FieldModel]] = None
+    infinite_pagination: bool = False
 
 
 class ShowViewModel(ViewModel):
@@ -55,7 +57,9 @@ class EditViewModel(ViewModel):
     pass
 
 
-ViewModelType = TypeVar('ViewModelType', ListViewModel, ShowViewModel, CreateViewModel, EditViewModel)
+ViewModelType = TypeVar(
+    'ViewModelType', ListViewModel, ShowViewModel, CreateViewModel, EditViewModel
+)
 
 
 @dataclass()

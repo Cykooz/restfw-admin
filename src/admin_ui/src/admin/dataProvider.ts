@@ -1,4 +1,4 @@
-import {stringify} from 'query-string';
+import queryString from 'query-string';
 import {DataProvider, fetchUtils} from 'ra-core';
 import {IApiInfo} from "./apiInfo";
 import {IHttpClient} from "./types";
@@ -36,44 +36,44 @@ import {HttpError} from "react-admin";
  */
 const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJson): DataProvider => ({
     getList: async (resource, params) => {
-        let {page, perPage} = params.pagination;
+        let page = 1;
+        let perPage = 100;
+        if (params.pagination) {
+            page = params.pagination.page;
+            perPage = params.pagination.perPage;
+        }
         const orderBy = apiInfo.getOrderBy(resource, params.sort);
-        let get_total_count = true;
-        let total_count = 0;
+        let get_total_count = !apiInfo.isInfinitePagination(resource);
+        let total_count: number | undefined = undefined;
         let data: any[] = [];
-        let offset = (page - 1) * perPage;
+        const offset = (page - 1) * perPage;
+        const query = {
+            ...params.filter,
+            ...orderBy,
+            offset: offset,
+            limit: perPage,
+            total_count: get_total_count
+        };
+        let page_url: string | null = `${apiInfo.resourceUrl(resource)}?${queryString.stringify(query)}`;
 
-        while (perPage > 0) {
-            const query = {
-                ...params.filter,
-                ...orderBy,
-                offset: offset,
-                limit: perPage,
-                total_count: get_total_count
-            };
-
-            const url = `${apiInfo.resourceUrl(resource)}?${stringify(query)}`;
-            const {headers, json} = await httpClient(url);
-
+        while (page_url && perPage > 0) {
+            const {headers, json} = await httpClient(page_url);
             if (get_total_count) {
                 total_count = getTotalCount(headers);
                 get_total_count = false;
             }
             const embedded = apiInfo.getEmbeddedResources(resource, json);
             data = data.concat(embedded);
-            if (embedded.length < perPage) {
-                break;
-            }
-            offset += embedded.length;
-            if (offset >= total_count) {
-                break;
-            }
+            page_url = apiInfo.getLink('next', json);
             perPage -= embedded.length;
         }
 
         return {
             data: data,
             total: total_count,
+            pageInfo: {
+                hasNextPage: !!page_url
+            }
         };
     },
 
@@ -91,13 +91,13 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
 
     getMany: async (resource, params) => {
         let filter: { [key: string]: any } = {};
-        if (params.hasOwnProperty("meta")) {
-            let meta = params.meta;
-            if (meta && meta.hasOwnProperty('filter')) {
+        if (Object.prototype.hasOwnProperty.call(params, "meta")) {
+            const meta = params.meta;
+            if (meta && Object.prototype.hasOwnProperty.call(meta, 'filter')) {
                 filter = meta.filter;
             }
         }
-        let query: { [key: string]: any } = {
+        const query: { [key: string]: any } = {
             total_count: true,
             ...filter
         };
@@ -106,7 +106,7 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
             query[filter_name] = params.ids;
         }
 
-        const url = `${apiInfo.resourceUrl(resource)}?${stringify(query)}`;
+        const url = `${apiInfo.resourceUrl(resource)}?${queryString.stringify(query)}`;
         const {json} = await httpClient(url);
 
         return {
@@ -125,7 +125,7 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
             total_count: true
         };
 
-        const url = `${apiInfo.resourceUrl(resource)}?${stringify(query)}`;
+        const url = `${apiInfo.resourceUrl(resource)}?${queryString.stringify(query)}`;
         const {headers, json} = await httpClient(url);
 
         return {

@@ -25,7 +25,7 @@ import {
     UrlField,
 } from 'react-admin';
 import {IField} from "./apiInfo";
-import React, {ReactElement} from "react";
+import {ReactElement} from "react";
 import {getFieldValidators} from "./validators";
 import {RichTextInput} from "ra-input-rich-text";
 import {JsonField, JsonInput, MappingField, MappingInput, NestedArrayField, SimpleArrayField} from "./widgets";
@@ -63,7 +63,7 @@ function view_fabric(Component: any, default_props?: any) {
 // function input_fabric<P>(Component: FunctionComponent<P>) {
 function input_fabric(Component: any) {
     return function (key: string, field: IField) {
-        let validators = getFieldValidators(field);
+        const validators = getFieldValidators(field);
         return (
             <Component
                 key={key}
@@ -80,23 +80,16 @@ function input_fabric(Component: any) {
 // Select input
 
 function select_input_fabric(key: string, field: IField) {
-    let validators = getFieldValidators(field);
-    let {emptyValue, ...params} = field.params;
-    // let parse_fuc;
-    if (emptyValue == null) {
-        emptyValue = '';
-        // parse_fuc = (value: string) => value === '' ? null : value;
-    }
-    // else {
-    //     parse_fuc = null;
-    // }
+    const validators = getFieldValidators(field);
+    const {emptyValue, ...params} = field.params;
+    const empty_value = emptyValue || '';
     return (
         <SelectInput
             key={key}
             source={field.source}
             validate={validators}
             style={defaultFieldStyle}
-            emptyValue={emptyValue}
+            emptyValue={empty_value}
             {...params}
         />
     );
@@ -106,7 +99,7 @@ function select_input_fabric(key: string, field: IField) {
 // Array field and input
 
 function array_view_fabric(key: string, field: IField) {
-    let {fields, ...params} = field.params;
+    const {fields, ...params} = field.params;
     return (
         <ArrayField
             key={key}
@@ -129,8 +122,8 @@ function array_view_fabric(key: string, field: IField) {
 
 
 function array_input_fabric(key: string, field: IField) {
-    let validators = getFieldValidators(field);
-    let {fields, ...params} = field.params;
+    const validators = getFieldValidators(field);
+    const {fields, ...params} = field.params;
     return (
         <ArrayInput
             key={key}
@@ -149,7 +142,7 @@ function array_input_fabric(key: string, field: IField) {
 // Nested array field
 
 function nested_array_view_fabric(key: string, field: IField) {
-    let {fields, single_field, ...params} = field.params;
+    const {fields, single_field, ...params} = field.params;
     if (single_field) {
         return (
             <NestedArrayField
@@ -188,7 +181,7 @@ function nested_array_view_fabric(key: string, field: IField) {
 // Reference field and input
 
 function referenceFieldFabric(key: string, field: IField) {
-    let {child, ...params} = field.params;
+    const {child, ...params} = field.params;
     return (
         <ReferenceField
             key={key}
@@ -202,7 +195,7 @@ function referenceFieldFabric(key: string, field: IField) {
 
 
 function referenceInputFabric(key: string, field: IField) {
-    let {child, filter, ...params} = field.params;
+    const {child, filter, ...params} = field.params;
     return (
         <ReferenceInput
             key={key}
@@ -219,7 +212,7 @@ function referenceInputFabric(key: string, field: IField) {
 // Mapping
 
 function mapping_field_fabric(key: string, field: IField) {
-    let {fields, ...params} = field.params;
+    const {fields, ...params} = field.params;
     return (
         <MappingField
             key={key}
@@ -232,7 +225,7 @@ function mapping_field_fabric(key: string, field: IField) {
 }
 
 function mapping_input_fabric(key: string, field: IField) {
-    let {fields, ...params} = field.params;
+    const {fields, ...params} = field.params;
     return (
         <MappingInput
             key={key}
@@ -280,19 +273,19 @@ const COMPONENTS: Record<string, IFabric> = {
 
 
 function getFieldComponent(key: string, field: IField): JSX.Element {
-    let fabric = COMPONENTS[field.type] || view_fabric(TextField);
+    const fabric = COMPONENTS[field.type] || view_fabric(TextField);
     return fabric(key, field);
 }
 
 
 function getField(field: IField): ReactElement {
-    const key = field.id ?? `field{field.name}`;
+    const key = field.id ?? `field${field.id}`;
     return getFieldComponent(key, field);
 }
 
 export function getFields(fields: IField[]): ReactElement | ReactElement[] | undefined {
     const result = fields.map((field, index) => {
-        const key = field.id ?? `field{index}`;
+        const key = field.id ?? `field${index}`;
         return getFieldComponent(key, field);
     });
     if (result.length === 0) {
@@ -307,11 +300,11 @@ export function getFields(fields: IField[]): ReactElement | ReactElement[] | und
 
 export function getInputs(
     fields: IField[],
-    always_array: boolean = false,  // Returns an array, even if it contains a single element.
+    always_array = false,  // Returns an array, even if it contains a single element.
 ): ReactElement | ReactElement[] | undefined {
     const result = fields.map((field, index) => {
         const fabric = COMPONENTS[field.type] || input_fabric(TextInput);
-        const key = field.id ?? `field{index}`;
+        const key = field.id ?? `field${index}`;
         return fabric(key, field);
     });
     if (result.length === 0) {

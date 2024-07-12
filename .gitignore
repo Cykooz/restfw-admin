@@ -88,4 +88,6 @@ ENV/
 .*
 !/.gitignore
 !/.ruff.toml
+!/.eslintrc.cjs
 RELEASE-VERSION
+!/src/admin_ui/.eslintrc.cjs

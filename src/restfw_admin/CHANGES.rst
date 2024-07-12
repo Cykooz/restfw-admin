@@ -21,6 +21,8 @@ Features
 --------
 
 - Updated all dependencies.
+- ``react-admin`` was updated to version 5.0.
+- Added ``ListViewSettings.infinite_pagination`` setting.
 
 1.2 (2024-02-15)
 ================

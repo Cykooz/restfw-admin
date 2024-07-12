@@ -14,11 +14,14 @@ export const SimpleArrayField = (props: SimpleArrayFieldProps) => {
         break_lines = false,
     } = props;
     const record = useRecordContext();
+    if (!record) {
+        return <div/>
+    }
     const array = record[source]
     if (typeof array === 'undefined' || array === null || array.length === 0) {
         return <div/>
     } else {
-        let elements: ReactElement[] = [];
+        const elements: ReactElement[] = [];
         array.forEach((item: any, index: number) => {
                 elements.push(<Chip label={item} key={item}/>);
                 if (break_lines && index < array.length - 1) {

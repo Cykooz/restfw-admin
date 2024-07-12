@@ -52,7 +52,7 @@ export const JsonField = (props: JsonFieldProps) => {
     } = props;
     const [expand, setExpand] = React.useState(!collapsed);
     const record = useRecordContext();
-    if (!json && !source) throw new Error(`Missing mandatory prop: json or source`);
+    if (!json && !source) throw new Error('Missing mandatory prop: json or source');
     const data = json || get_json(record, source || '');
     if (!data && typeof data !== 'object') {
         return null;

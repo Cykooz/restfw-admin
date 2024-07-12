@@ -1,7 +1,6 @@
-import React from "react";
 import {TextInput, TextInputProps} from 'react-admin';
 
-const DEFAULT_ERRORTEXT: string = "Invalid JSON";
+const DEFAULT_ERRORTEXT = "Invalid JSON";
 
 export interface JsonInputProps
     extends TextInputProps {
@@ -69,7 +68,7 @@ export const JsonInput = (props: JsonInputProps) => {
         return retval;
     };
 
-    let input_props = {
+    const input_props = {
         ...base_props,
         format: format_json,
         parse: (parse_json ? parse_function : undefined)
