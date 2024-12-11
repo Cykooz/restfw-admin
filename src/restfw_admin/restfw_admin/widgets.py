@@ -3,8 +3,9 @@
 :Authors: cykooz
 :Date: 04.07.2020
 """
+
 from dataclasses import dataclass, field, fields
-from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple
+from typing import Any, ClassVar, Dict, List, Literal, Optional, Tuple, Union
 
 from restfw.typing import Json, JsonNumber, SimpleJsonValue
 
@@ -201,15 +202,17 @@ class ChipField(FieldWidget):
 
 @dataclass()
 class ChoicesWidget(Widget):
-    choices: List[Tuple[SimpleJsonValue, str]] = None
+    choices: Union[List[str], List[Tuple[SimpleJsonValue, str]]] = None
 
     def to_model(self, field_name: Optional[str]) -> FieldModel:
         field_model = super().to_model(field_name)
-        if self.choices is not None:
-            field_model.params['choices'] = [
-                {'id': _id, 'name': name}
-                for _id, name in self.choices
-            ]
+        if self.choices is not None and len(self.choices) > 0:
+            if isinstance(self.choices[0], (tuple, list)):
+                field_model.params['choices'] = [
+                    {'id': _id, 'name': name} for _id, name in self.choices
+                ]
+            else:
+                field_model.params['choices'] = self.choices.copy()
         return field_model
 
 
@@ -273,8 +276,7 @@ class ArrayField(FieldWidget):
     def to_model(self, field_name: str) -> FieldModel:
         field_model = super().to_model(field_name)
         field_model.params['fields'] = [
-            widget.to_model(name)
-            for name, widget in self.fields.items()
+            widget.to_model(name) for name, widget in self.fields.items()
         ]
         return field_model
 
@@ -296,8 +298,7 @@ class ArrayInput(InputWidget):
     def to_model(self, field_name: str) -> FieldModel:
         field_model = super().to_model(field_name)
         field_model.params['fields'] = [
-            widget.to_model(name)
-            for name, widget in self.fields.items()
+            widget.to_model(name) for name, widget in self.fields.items()
         ]
         return field_model
 
@@ -326,8 +327,7 @@ class NestedArrayField(FieldWidget):
             field_model.params['single_field'] = first_field.to_model('_value')
         else:
             field_model.params['fields'] = [
-                widget.to_model(name)
-                for name, widget in self.fields.items()
+                widget.to_model(name) for name, widget in self.fields.items()
             ]
             field_model.params['single_field'] = None
         return field_model
@@ -365,7 +365,7 @@ class ReferenceInput(InputWidget, ReferenceInputBase):
     widget: Optional[ChoicesInputWidget] = None
     # If True, add an empty item to the list of choices to allow for empty value
     allow_empty: Optional[bool] = ra_field('allowEmpty')
-    per_page: Optional[int] = ra_field('perPage')
+    per_page: Optional[int] = ra_field('perPage', default=500)
     # Field name of record to display in the default SelectInput widget.
     option_text: Optional[str] = ra_field('optionText')
 
@@ -388,6 +388,7 @@ class DynSelectBase:
 class DynSelectField(FieldWidget, DynSelectBase):
     """It is SelectFiled with choices that dynamically loads
     from AdminChoices resource."""
+
     type = 'ReferenceField'
 
     def to_model(self, field_name: str) -> FieldModel:
@@ -408,6 +409,7 @@ class DynSelectField(FieldWidget, DynSelectBase):
 class DynSelectInput(InputWidget, DynSelectBase):
     """It is SelectInput with choices that dynamically loads
     from AdminChoices resource."""
+
     type = 'ReferenceInput'
     # If True, add an empty item to the list of choices to allow for empty value
     allow_empty: Optional[bool] = ra_field('allowEmpty')
@@ -416,15 +418,14 @@ class DynSelectInput(InputWidget, DynSelectBase):
     def to_model(self, field_name: str) -> FieldModel:
         model = super().to_model(field_name)
         model.params['reference'] = 'admin_choices'
-        model.params['filter'] = {
-            'group': model.params.pop('group')
-        }
+        model.params['filter'] = {'group': model.params.pop('group')}
         widget = SelectInput(option_text='name')
         model.params['child'] = widget.to_model(field_name=None)
         return model
 
 
 # Mapping
+
 
 @dataclass()
 class MappingField(Widget):
@@ -438,8 +439,7 @@ class MappingField(Widget):
     def to_model(self, field_name: str) -> FieldModel:
         field_model = super().to_model(field_name)
         field_model.params['fields'] = [
-            widget.to_model(name)
-            for name, widget in self.fields.items()
+            widget.to_model(name) for name, widget in self.fields.items()
         ]
         return field_model
 
@@ -456,13 +456,13 @@ class MappingInput(InputWidget):
     def to_model(self, field_name: str) -> FieldModel:
         field_model = super().to_model(field_name)
         field_model.params['fields'] = [
-            widget.to_model(name)
-            for name, widget in self.fields.items()
+            widget.to_model(name) for name, widget in self.fields.items()
         ]
         return field_model
 
 
 # Json
+
 
 @dataclass()
 class JsonField(FieldWidget):

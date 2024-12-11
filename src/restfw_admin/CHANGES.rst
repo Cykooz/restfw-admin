@@ -14,6 +14,26 @@
 CHANGELOG
 *********
 
+Next release
+=============
+
+Features
+--------
+
+- Updated all dependencies.
+- ``react-admin`` was updated to version 5.4.2.
+
+Changes
+-------
+
+- Set default value of ``ReferenceInput.per_page`` as 500.
+- Update ``ChoicesWidget`` to support a list of strings as choices.
+
+Bug Fixes
+---------
+
+- Fixed setting page title.
+
 1.3 (2024-07-12)
 ================
 

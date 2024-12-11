@@ -5,7 +5,7 @@ import FormControl from '@mui/material/FormControl';
 
 
 export interface MappingInputProps extends InputProps {
-    children: ReactElement | ReactElement[];
+    children: ReactElement<InputProps> | ReactElement<InputProps>[];
 }
 
 
@@ -34,12 +34,12 @@ export const MappingInput: FC<MappingInputProps> =
                             if (field.props.source) {
                                 field_source = `${source}.${field.props.source}`;
                             }
-                            if (field.props.source) {
-                                field_index = undefined;
-                            }
+                            // if (field.props.source) {
+                            //     field_index = undefined;
+                            // }
                             return cloneElement(field, {
                                 source: field_source,
-                                index: field_index,
+                                // index: field_index,
                             });
                         }
                     )

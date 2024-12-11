@@ -44,6 +44,8 @@ function App(appParams: AppParams) {
     const httpClient = appParams.getHttpClient?.(fetchUtils.fetchJson) ?? defaultHttpClient;
     const dataProvider = halRestDataProvider(apiInfo, httpClient);
 
+    document.title = apiInfo.getTitle();
+
     return (
         <Admin
             title={apiInfo.getTitle()}

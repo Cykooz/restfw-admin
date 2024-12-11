@@ -25,7 +25,7 @@ import {
     UrlField,
 } from 'react-admin';
 import {IField} from "./apiInfo";
-import {ReactElement} from "react";
+import {JSX, ReactElement} from "react";
 import {getFieldValidators} from "./validators";
 import {RichTextInput} from "ra-input-rich-text";
 import {JsonField, JsonInput, MappingField, MappingInput, NestedArrayField, SimpleArrayField} from "./widgets";

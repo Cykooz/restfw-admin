@@ -5,7 +5,7 @@ import {FieldProps} from "ra-ui-materialui/src/field/types";
 
 export interface MappingFieldProps
     extends FieldProps {
-    children: ReactElement | ReactElement[];
+    children: ReactElement<FieldProps> | ReactElement<FieldProps>[];
 }
 
 export const MappingField: FunctionComponent<MappingFieldProps> =
@@ -26,14 +26,14 @@ export const MappingField: FunctionComponent<MappingFieldProps> =
                             if (field.props.source) {
                                 field_source = `${source}.${field.props.source}`;
                             }
-                            if (field.props.source) {
-                                field_index = undefined;
-                            }
+                            // if (field.props.source) {
+                            //     field_index = undefined;
+                            // }
                             return (
                                 <Labeled label={field.props.label}>
                                     {cloneElement(field, {
                                         source: field_source,
-                                        index: field_index,
+                                        // index: field_index,
                                     })}
                                 </Labeled>
                             );
