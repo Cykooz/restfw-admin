@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Dict, List, Optional, Tuple, TypeVar, Union, Any
 
 from restfw.typing import Json, SimpleJsonValue
 
@@ -82,6 +82,7 @@ class ResourceInfoModel:
     deletable: bool
     order_by: list[str]
     views: ViewsModel
+    extra: dict[str, Any]
 
 
 @dataclass()

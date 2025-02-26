@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 31.07.2020
 """
+
 import colander
 from restfw import schemas, views
 from restfw.hal import HalResource
@@ -16,6 +17,7 @@ from ..resource_admin import Exclude, ResourceAdmin, ViewSettings, ListViewSetti
 
 # Docs
 
+
 class DocSchema(schemas.HalResourceSchema):
     id = schemas.UnsignedIntegerNode(title='ID')
     user_id = schemas.IntegerNode(title='User ID')
@@ -25,8 +27,7 @@ class DocSchema(schemas.HalResourceSchema):
 class DocsSchema(schemas.HalResourceWithEmbeddedSchema):
     _embedded = schemas.EmbeddedNode(
         schemas.SequenceNode(
-            DocSchema(title='Document'),
-            name='docs', title='List of embedded documents'
+            DocSchema(title='Document'), name='docs', title='List of embedded documents'
         ),
         missing=colander.drop,
     )
@@ -53,7 +54,9 @@ class Docs(HalResource):
 
 @views.resource_view_config(Docs)
 class DocsView(views.HalResourceWithEmbeddedView):
-    options_for_get = MethodOptions(GetEmbeddedSchema, DocsSchema, permission='docs.get')
+    options_for_get = MethodOptions(
+        GetEmbeddedSchema, DocsSchema, permission='docs.get'
+    )
     options_for_post = MethodOptions(CreateDocSchema, DocSchema, permission='docs.edit')
 
 
@@ -71,7 +74,7 @@ class DocsAdmin(ResourceAdmin):
                 reference_field='name',
                 label='User',
             )
-        }
+        },
     )
     create_view = ViewSettings(
         widgets={
@@ -79,7 +82,7 @@ class DocsAdmin(ResourceAdmin):
                 reference='users',
                 option_text='name',
                 label='User',
-                validators=[all_validators.Required()]
+                validators=[all_validators.Required()],
             )
         }
     )
@@ -93,13 +96,14 @@ def test_reference_field_and_input(pyramid_request, app_config):
     fields = sorted(view.fields, key=lambda f: f.source)
     assert fields == [
         FieldModel(
-            type='NumberField', source='id',
+            type='NumberField',
+            source='id',
             params={
                 'label': 'ID',
                 'options': {
                     'useGrouping': False,
                 },
-            }
+            },
         ),
         FieldModel(
             type='ReferenceField',
@@ -108,14 +112,16 @@ def test_reference_field_and_input(pyramid_request, app_config):
                 'reference': 'users',
                 'label': 'User',
                 'link': 'edit',
-                'child': FieldModel(type='TextField', source='name', params={'label': 'Name'}),
+                'child': FieldModel(
+                    type='TextField', source='name', params={'label': 'Name'}
+                ),
             },
         ),
     ]
 
     view = resource_admin.get_create_view()
     fields = sorted(view.fields, key=lambda f: f.source)
-    assert fields == [
+    expected = [
         FieldModel(
             type='TextInput',
             source='data',
@@ -128,10 +134,14 @@ def test_reference_field_and_input(pyramid_request, app_config):
             params={
                 'reference': 'users',
                 'label': 'User',
-                'child': FieldModel(type='SelectInput', source=None, params={'optionText': 'name'}),
+                'child': FieldModel(
+                    type='SelectInput', source=None, params={'optionText': 'name'}
+                ),
+                'perPage': 500,
             },
             validators=[ValidatorModel(name='required')],
-        )
+        ),
     ]
+    assert fields == expected
 
     assert resource_admin.get_edit_view() is None

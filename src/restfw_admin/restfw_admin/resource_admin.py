@@ -5,7 +5,7 @@
 """
 
 import dataclasses
-from typing import Dict, Iterable, List, Literal, Optional, Tuple, Type, Union
+from typing import Dict, Iterable, List, Literal, Optional, Tuple, Type, Union, Any
 
 import colander
 from restfw.typing import PyramidRequest
@@ -75,6 +75,7 @@ class ResourceAdmin:
     show_view = ViewSettings()
     create_view = ViewSettings()
     edit_view = ViewSettings()
+    extra: dict[str, Any] = {}
 
     def __init__(self, request: PyramidRequest, name: str):
         self._request = request
@@ -119,6 +120,7 @@ class ResourceAdmin:
             deletable=deletable,
             order_by=self.order_by or [],
             views=views,
+            extra=self.extra,
         )
 
     def get_list_view(self) -> Optional[models.ListViewModel]:

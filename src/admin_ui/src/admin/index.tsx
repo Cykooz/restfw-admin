@@ -5,6 +5,7 @@ import halRestDataProvider from './dataProvider';
 import {ApiInfo, IApiInfo} from './apiInfo';
 import {getResources} from "./resources";
 import {AppParams} from "./types";
+import {DefaultFileUploadProvider} from "./uploadProvider";
 
 
 function defaultHttpClient(url: string, options: fetchUtils.Options = {}) {
@@ -42,7 +43,8 @@ function App(appParams: AppParams) {
 
     const authProvider = appParams.getAuthProvider?.(defaultHttpClient, apiInfo);
     const httpClient = appParams.getHttpClient?.(fetchUtils.fetchJson) ?? defaultHttpClient;
-    const dataProvider = halRestDataProvider(apiInfo, httpClient);
+    const fileUploadProvider = appParams.getFileUploadProvider?.(httpClient, apiInfo) ?? new DefaultFileUploadProvider();
+    const dataProvider = halRestDataProvider(apiInfo, fileUploadProvider, httpClient);
 
     document.title = apiInfo.getTitle();
 
@@ -59,3 +61,4 @@ function App(appParams: AppParams) {
 }
 
 export default App;
+

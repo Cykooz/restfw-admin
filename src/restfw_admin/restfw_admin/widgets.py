@@ -485,3 +485,46 @@ class JsonInput(TextInput):
     # Set to False if the value is a string in JSON format, default: True
     parse_json: bool = True
     multiline: Optional[bool] = True
+
+
+# File
+
+
+@dataclass()
+class FileField(FieldWidget):
+    type = 'FileField'
+    # The link target. Set to “_blank” to open the file on a new tab
+    target: Optional[str] = None
+    # Prompts the user to save the linked URL instead of navigating to it
+    download: None | bool | str = None
+    # A space-separated list of URLs. When the link is followed,
+    # the browser will send POST requests with the body PING to the URLs.
+    # Typically for tracking.
+    ping: Optional[str] = None
+    # The relationship of the linked URL as space-separated link
+    # types (e.g. 'noopener', 'canonical', etc.).
+    rel: Optional[str] = None
+
+    def to_model(self, field_name: Optional[str]) -> FieldModel:
+        model = super().to_model(field_name)
+        if field_name:
+            model.source = field_name + '.src'
+            model.params['title'] = field_name + '.title'
+        return model
+
+
+@dataclass()
+class FileInput(InputWidget):
+    type = 'FileInput'
+    # Accepted file type(s). When empty, all file types are accepted.
+    # Examples:
+    #   '.doc,.docx'
+    #   'application/json,video/*'
+    #   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    accept: Optional[str] = None
+    # Minimum file size (in bytes)
+    min_size: int = ra_field('minSize', default=0)
+    # Minimum file size (in bytes)
+    max_size: Optional[int] = ra_field('maxSize')
+    # Additional options passed to react-dropzone’s useDropzone() hook.
+    options: Optional[dict[str, Json]] = None

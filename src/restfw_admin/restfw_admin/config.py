@@ -3,8 +3,9 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
+
 from dataclasses import dataclass
-from typing import Dict, Optional, Type, Union
+from typing import Optional, Type, Union
 
 import venusian
 from pyramid.config import Configurator
@@ -52,6 +53,7 @@ class admin_choices_config(object):
         ``admin_choices_config`` will work ONLY on module top level members
         because of the limitation of ``venusian.Scanner.scan``.
     """
+
     venusian = venusian  # for testing injection
 
     def __init__(self, name=None, **kwargs):
@@ -63,21 +65,20 @@ class admin_choices_config(object):
         config = scanner.config
         factory = wrapped
 
-        config.registry.registerUtility(
-            factory,
-            IAdminChoices,
-            name=self.name
-        )
+        config.registry.registerUtility(factory, IAdminChoices, name=self.name)
 
     def __call__(self, wrapped):
         if not self.name:
             self.name = wrapped.__name__
-        self.venusian.attach(wrapped, self.register, category=self.category,
-                             depth=self.depth + 1)
+        self.venusian.attach(
+            wrapped, self.register, category=self.category, depth=self.depth + 1
+        )
         return wrapped
 
 
-def add_resource_admin(config: Configurator, fabric: Union[Type[ResourceAdmin], str], name: str):
+def add_resource_admin(
+    config: Configurator, fabric: Union[Type[ResourceAdmin], str], name: str
+):
     dotted = config.maybe_dotted
     fabric = dotted(fabric)
 
@@ -101,7 +102,7 @@ def add_resource_admin(config: Configurator, fabric: Union[Type[ResourceAdmin], 
 
 
 class resource_admin_config(object):
-    """ A function, class or method :term:`decorator` which allows a
+    """A function, class or method :term:`decorator` which allows a
     developer to create resource admin config registrations nearer to it
     definition than use :term:`imperative configuration` to do the same.
 
@@ -140,6 +141,7 @@ class resource_admin_config(object):
         because of the limitation of ``venusian.Scanner.scan``.
 
     """
+
     venusian = venusian  # for testing injection
 
     def __init__(self, name, _depth=0, _category='pyramid'):
@@ -152,8 +154,9 @@ class resource_admin_config(object):
         config.add_resource_admin(wrapped, self.name)
 
     def __call__(self, wrapped):
-        self.venusian.attach(wrapped, self.register, category=self.category,
-                             depth=self.depth + 1)
+        self.venusian.attach(
+            wrapped, self.register, category=self.category, depth=self.depth + 1
+        )
         return wrapped
 
 
@@ -168,6 +171,7 @@ class AdminUiSettings:
     index_html_tpl: str = ''
     auth_provider: Optional[JsFunction] = None
     http_client: Optional[JsFunction] = None
+    upload_provider: Optional[JsFunction] = None
 
 
 def get_admin_ui_settings(registry: Registry) -> AdminUiSettings:
@@ -175,9 +179,9 @@ def get_admin_ui_settings(registry: Registry) -> AdminUiSettings:
 
 
 def add_restfw_admin_auth_provider(
-        config: Configurator,
-        js_name: str,
-        js_code: str,
+    config: Configurator,
+    js_name: str,
+    js_code: str,
 ):
     ui_settings = get_admin_ui_settings(config.registry)
     ui_settings.auth_provider = JsFunction(js_name, js_code)
@@ -188,5 +192,19 @@ def add_restfw_admin_http_client(config: Configurator, js_name: str, js_code: st
     ui_settings.http_client = JsFunction(js_name, js_code)
 
 
-def set_restfw_admin_extra_params(registry: Registry, extra: Dict[str, SimpleJsonValue]):
+def add_restfw_admin_upload_provider(config: Configurator, js_name: str, js_code: str):
+    ui_settings = get_admin_ui_settings(config.registry)
+    ui_settings.upload_provider = JsFunction(js_name, js_code)
+
+
+def set_restfw_admin_extra_params(
+    registry: Registry, extra: dict[str, SimpleJsonValue]
+):
     registry['restfw_admin.extra'] = extra
+
+
+def update_restfw_admin_extra_params(
+    registry: Registry, extra: dict[str, SimpleJsonValue]
+):
+    extra_params = registry.setdefault('restfw_admin.extra', {})
+    extra_params.update(extra)

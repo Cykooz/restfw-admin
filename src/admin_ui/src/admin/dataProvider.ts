@@ -1,8 +1,30 @@
 import queryString from 'query-string';
-import {DataProvider, fetchUtils} from 'ra-core';
+import {DataProvider, fetchUtils, UpdateParams} from 'ra-core';
 import {IApiInfo} from "./apiInfo";
 import {IHttpClient} from "./types";
 import {HttpError} from "react-admin";
+import {IFile, IFileUploadProvider} from "./uploadProvider";
+import {
+    CreateParams,
+    CreateResult,
+    DeleteManyParams,
+    DeleteManyResult,
+    DeleteParams,
+    DeleteResult,
+    GetListParams,
+    GetListResult,
+    GetManyParams,
+    GetManyReferenceParams,
+    GetManyReferenceResult,
+    GetManyResult,
+    Identifier,
+    QueryFunctionContext,
+    RaRecord,
+    UpdateManyParams,
+    UpdateManyResult,
+    UpdateResult
+} from "ra-core/dist/cjs/types";
+import {GetOneParams, GetOneResult} from "ra-core/src/types";
 
 /**
  * Maps react-admin queries to a HAL REST API
@@ -34,16 +56,36 @@ import {HttpError} from "react-admin";
  *
  * export default App;
  */
-const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJson): DataProvider => ({
-    getList: async (resource, params) => {
+
+class DefaultDataProvider implements DataProvider {
+    apiInfo: IApiInfo;
+    uploadProvider: IFileUploadProvider;
+    httpClient: IHttpClient;
+    supportAbortSignal?: boolean | undefined;
+    [key: string]: any;
+
+    constructor(
+        apiInfo: IApiInfo,
+        uploadProvider: IFileUploadProvider,
+        httpClient: IHttpClient = fetchUtils.fetchJson,
+    ) {
+        this.apiInfo = apiInfo;
+        this.uploadProvider = uploadProvider;
+        this.httpClient = httpClient;
+    }
+
+    async getList<RecordType extends RaRecord = any>(
+        resource: string,
+        params: GetListParams & QueryFunctionContext
+    ): Promise<GetListResult<RecordType>> {
         let page = 1;
         let perPage = 100;
         if (params.pagination) {
             page = params.pagination.page;
             perPage = params.pagination.perPage;
         }
-        const orderBy = apiInfo.getOrderBy(resource, params.sort);
-        let get_total_count = !apiInfo.isInfinitePagination(resource);
+        const orderBy = this.apiInfo.getOrderBy(resource, params.sort);
+        let get_total_count = !this.apiInfo.isInfinitePagination(resource);
         let total_count: number | undefined = undefined;
         let data: any[] = [];
         const offset = (page - 1) * perPage;
@@ -54,17 +96,17 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
             limit: perPage,
             total_count: get_total_count
         };
-        let page_url: string | null = `${apiInfo.resourceUrl(resource)}?${queryString.stringify(query)}`;
+        let page_url: string | null = `${this.apiInfo.resourceUrl(resource)}?${queryString.stringify(query)}`;
 
         while (page_url && perPage > 0) {
-            const {headers, json} = await httpClient(page_url);
+            const {headers, json} = await this.httpClient(page_url);
             if (get_total_count) {
                 total_count = getTotalCount(headers);
                 get_total_count = false;
             }
-            const embedded = apiInfo.getEmbeddedResources(resource, json);
+            const embedded = this.apiInfo.getEmbeddedResources(resource, json);
             data = data.concat(embedded);
-            page_url = apiInfo.getLink('next', json);
+            page_url = this.apiInfo.getLink('next', json);
             perPage -= embedded.length;
         }
 
@@ -75,21 +117,27 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
                 hasNextPage: !!page_url
             }
         };
-    },
+    }
 
-    getOne: async (resource, params) => {
-        const url = `${apiInfo.resourceUrl(resource)}/${params.id}`;
-        const {json} = await httpClient(url);
+    async getOne<RecordType extends RaRecord = any>(
+        resource: string,
+        params: GetOneParams<RecordType> & QueryFunctionContext
+    ): Promise<GetOneResult<RecordType>> {
+        const url = `${this.apiInfo.resourceUrl(resource)}/${params.id}`;
+        const {json} = await this.httpClient(url);
 
         return {
             data: {
                 ...json,
-                id: apiInfo.resourceId(resource, json, params.id)
+                id: this.apiInfo.resourceId(resource, json, params.id)
             },
         };
-    },
+    }
 
-    getMany: async (resource, params) => {
+    async getMany<RecordType extends RaRecord = any>(
+        resource: string,
+        params: GetManyParams<RecordType> & QueryFunctionContext
+    ): Promise<GetManyResult<RecordType>> {
         let filter: { [key: string]: any } = {};
         if (Object.prototype.hasOwnProperty.call(params, "meta")) {
             const meta = params.meta;
@@ -102,21 +150,24 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
             ...filter
         };
         if (params.ids.length > 0) {
-            const filter_name = apiInfo.resourceIdField(resource) + '__in';
+            const filter_name = this.apiInfo.resourceIdField(resource) + '__in';
             query[filter_name] = params.ids;
         }
 
-        const url = `${apiInfo.resourceUrl(resource)}?${queryString.stringify(query)}`;
-        const {json} = await httpClient(url);
+        const url = `${this.apiInfo.resourceUrl(resource)}?${queryString.stringify(query)}`;
+        const {json} = await this.httpClient(url);
 
         return {
-            data: apiInfo.getEmbeddedResources(resource, json),
+            data: this.apiInfo.getEmbeddedResources(resource, json),
         };
-    },
+    }
 
-    getManyReference: async (resource, params) => {
+    async getManyReference<RecordType extends RaRecord = any>(
+        resource: string,
+        params: GetManyReferenceParams & QueryFunctionContext
+    ): Promise<GetManyReferenceResult<RecordType>> {
         const {page, perPage} = params.pagination;
-        const orderBy = apiInfo.getOrderBy(resource, params.sort);
+        const orderBy = this.apiInfo.getOrderBy(resource, params.sort);
         const query = {
             ...params.filter,
             ...orderBy,
@@ -125,20 +176,49 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
             total_count: true
         };
 
-        const url = `${apiInfo.resourceUrl(resource)}?${queryString.stringify(query)}`;
-        const {headers, json} = await httpClient(url);
+        const url = `${this.apiInfo.resourceUrl(resource)}?${queryString.stringify(query)}`;
+        const {headers, json} = await this.httpClient(url);
 
         return {
-            data: apiInfo.getEmbeddedResources(resource, json),
+            data: this.apiInfo.getEmbeddedResources(resource, json),
             total: getTotalCount(headers),
         };
-    },
+    }
 
-    update: async (resource, params) => {
-        const url = `${apiInfo.resourceUrl(resource)}/${params.id}`;
-        const update_method = apiInfo.resourceUpdateMethod(resource);
+    async upload_files(
+        resource: string,
+        params: CreateParams | UpdateParams | UpdateManyParams
+    ): Promise<void> {
+        const file_filed_names = this.apiInfo.resourceFileInputs(resource);
+        let file_fields: { [name: string]: IFile } = {};
+        for (const i in file_filed_names) {
+            const name = file_filed_names[i];
+            if (name in params.data) {
+                file_fields[name] = params.data[name];
+            }
+        }
+        if (file_fields) {
+            file_fields = await this.uploadProvider.upload(resource, file_fields);
+            for (const i in file_filed_names) {
+                const name = file_filed_names[i];
+                if (name in file_fields) {
+                    params.data[name] = file_fields[name];
+                } else if (name in params.data) {
+                    delete params.data[name];
+                }
+            }
+        }
+    }
 
-        const {json} = await httpClient(url, {
+    async update<RecordType extends RaRecord = any>(
+        resource: string,
+        params: UpdateParams
+    ): Promise<UpdateResult<RecordType>> {
+        const url = `${this.apiInfo.resourceUrl(resource)}/${params.id}`;
+        const update_method = this.apiInfo.resourceUpdateMethod(resource);
+        await this.upload_files(resource, params);
+
+        const {json} = await this.httpClient(url, {
             method: update_method,
             body: JSON.stringify(params.data),
         }).catch(on_validation_error);
@@ -146,66 +226,84 @@ const Provider = (apiInfo: IApiInfo, httpClient: IHttpClient = fetchUtils.fetchJ
         return {
             data: {
                 ...json,
-                id: apiInfo.resourceId(resource, json, params.id)
+                id: this.apiInfo.resourceId(resource, json, params.id)
             },
         };
-    },
+    }
 
     // HAL doesn't handle filters on UPDATE route, so we make a fallback to calling UPDATE n times instead
-    updateMany: async (resource, params) => {
-        const update_method = apiInfo.resourceUpdateMethod(resource);
-        const url = `${apiInfo.resourceUrl(resource)}`;
+    async updateMany<RecordType extends RaRecord = any>(
+        resource: string,
+        params: UpdateManyParams
+    ): Promise<UpdateManyResult<RecordType>> {
+        const update_method = this.apiInfo.resourceUpdateMethod(resource);
+        const url = `${this.apiInfo.resourceUrl(resource)}`;
+        await this.upload_files(resource, params);
 
         const tasks = params.ids.map(async (id) => {
-            const {json} = await httpClient(`${url}/${id}`, {
+            const {json} = await this.httpClient(`${url}/${id}`, {
                 method: update_method,
                 body: JSON.stringify(params.data),
             }).catch(on_validation_error);
-            return apiInfo.resourceId(resource, json, id);
+            return this.apiInfo.resourceId(resource, json, id);
         });
         return {data: await Promise.all(tasks)};
-    },
+    }
 
-    create: async (resource, params) => {
-        const url = `${apiInfo.resourceUrl(resource)}`;
 
-        const {json} = await httpClient(url, {
+    async create<
+        RecordType extends Omit<RaRecord, 'id'> = any,
+        ResultRecordType extends RaRecord = RecordType & { id: Identifier; }
+    >(
+        resource: string,
+        params: CreateParams
+    ): Promise<CreateResult<ResultRecordType>> {
+        const url = `${this.apiInfo.resourceUrl(resource)}`;
+        await this.upload_files(resource, params);
+
+        const {json} = await this.httpClient(url, {
             method: 'POST',
             body: JSON.stringify(params.data),
         }).catch(on_validation_error);
         return {
             data: {
                 ...json,
-                id: apiInfo.resourceId(resource, json)
+                id: this.apiInfo.resourceId(resource, json)
             },
         };
-    },
+    }
 
-    delete: async (resource, params) => {
-        const url = `${apiInfo.resourceUrl(resource)}/${params.id}`;
+    async delete<RecordType extends RaRecord = any>(
+        resource: string,
+        params: DeleteParams<RecordType>
+    ): Promise<DeleteResult<RecordType>> {
+        const url = `${this.apiInfo.resourceUrl(resource)}/${params.id}`;
 
-        const {json} = await httpClient(url, {
+        const {json} = await this.httpClient(url, {
             method: 'DELETE',
             body: JSON.stringify({}),
         });
         return {data: json};
-    },
+    }
 
     // HAL doesn't handle filters on DELETE route,
     // so we make a fallback to calling DELETE n times instead
-    deleteMany: async (resource, params) => {
-        const url = `${apiInfo.resourceUrl(resource)}`;
+    async deleteMany<RecordType extends RaRecord = any>(
+        resource: string,
+        params: DeleteManyParams<RecordType>
+    ): Promise<DeleteManyResult<RecordType>> {
+        const url = `${this.apiInfo.resourceUrl(resource)}`;
 
         const tasks = params.ids.map(async (id) => {
-            await httpClient(`${url}/${id}`, {
+            await this.httpClient(`${url}/${id}`, {
                 method: 'DELETE',
                 body: JSON.stringify({}),
             });
             return id;
         });
         return {data: await Promise.all(tasks)};
-    },
-});
+    }
+}
 
 
 function getTotalCount(headers: Headers): number {
@@ -238,4 +336,10 @@ function on_validation_error(error: HttpError) {
     return Promise.reject(error)
 }
 
-export default Provider;
+export default function halRestDataProvider(
+    apiInfo: IApiInfo,
+    uploadProvider: IFileUploadProvider,
+    httpClient: IHttpClient = fetchUtils.fetchJson,
+): DataProvider {
+    return new DefaultDataProvider(apiInfo, uploadProvider, httpClient);
+}

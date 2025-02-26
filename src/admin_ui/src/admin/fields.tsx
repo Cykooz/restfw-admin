@@ -7,7 +7,7 @@ import {
     Datagrid,
     DateField,
     DateInput,
-    DateTimeInput,
+    DateTimeInput, FileField, FileInput,
     FunctionField,
     NullableBooleanInput,
     NumberField,
@@ -237,6 +237,15 @@ function mapping_input_fabric(key: string, field: IField) {
     );
 }
 
+// File input
+
+function file_input_fabric(key: string, field: IField) {
+    return (
+        <FileInput key={key} source={field.source} {...field.params}>
+            <FileField source="src" title="title" />
+        </FileInput>
+    );
+}
 
 const COMPONENTS: Record<string, IFabric> = {
     'TextField': view_fabric(TextField),
@@ -269,6 +278,7 @@ const COMPONENTS: Record<string, IFabric> = {
     'ReferenceInput': referenceInputFabric,
     'MappingInput': mapping_input_fabric,
     'JsonInput': input_fabric(JsonInput),
+    'FileInput': file_input_fabric,
 };
 
 

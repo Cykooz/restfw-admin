@@ -43,6 +43,7 @@ export interface IResourceInfo {
     update_method: string;
     deletable: boolean;
     order_by: string[];
+    extra: {[key: string]: null | string | number | boolean | object};
     views: {
         list: IListView | null,
         show: IShowView | null,
@@ -63,6 +64,10 @@ export interface IApiInfo {
 
     resourceIdField(name: string): string;
 
+    resourceFileInputs(name: string): string[];
+
+    resourceExtra(name: string): { [key: string]: null | string | number | boolean | object };
+
     getOrderBy(name: string, sort?: SortPayload): { [key: string]: string };
 
     resourceId(name: string, data: any, def?: Identifier | null): Identifier;
@@ -76,6 +81,8 @@ export interface IApiInfo {
     isInfinitePagination(resource_name: string): boolean;
 
     mapResources<T>(callback: MapCallback<T>): T[];
+
+    getExtra(): { [name: string]: null | string | number | boolean | object };
 }
 
 
@@ -86,7 +93,10 @@ export class ApiInfo implements IApiInfo {
         [name: string]: IResourceInfo
     };
     private readonly extra: {
-        [name: string]: any
+        [name: string]: null | string | number | boolean | object
+    };
+    private readonly file_inputs: {
+        [name: string]: string[]
     };
 
     constructor(public raw_info: any) {
@@ -94,6 +104,20 @@ export class ApiInfo implements IApiInfo {
         this.title = raw_info.title;
         this.resources = raw_info.resources;
         this.extra = raw_info.extra;
+
+        const file_inputs: {[name: string]: string[]} = {};
+        for (const res_name in this.resources) {
+            const info = this.resources[res_name];
+            let names: string[] = [];
+            if (info.views.create != null) {
+                names = names.concat(getFileInputNames(info.views.create.fields, ""));
+            }
+            if (info.views.edit != null) {
+                names = names.concat(getFileInputNames(info.views.edit.fields, ""));
+            }
+            file_inputs[res_name] = Array.from(new Set(names));
+        }
+        this.file_inputs = file_inputs;
     }
 
     getTitle() {
@@ -110,6 +134,14 @@ export class ApiInfo implements IApiInfo {
 
     resourceIdField(name: string): string {
         return this.resources[name].id_field;
+    }
+
+    resourceFileInputs(name: string): string[] {
+        return this.file_inputs[name]
+    }
+
+    resourceExtra(name: string): { [key: string]: null | string | number | boolean | object } {
+        return this.resources[name].extra;
     }
 
     getOrderBy(name: string, sort?: SortPayload): { [key: string]: string } {
@@ -219,9 +251,25 @@ export class ApiInfo implements IApiInfo {
         return result;
     }
 
-    getExtra(): { [name: string]: any } {
+    getExtra(): { [name: string]: null | string | number | boolean | object } {
         return this.extra;
     }
 }
 
-export default ApiInfo;
+
+function getFileInputNames(fields_array: IField[], prefix: string): string[] {
+    let names: string[] = [];
+    for (const i in fields_array) {
+        const field = fields_array[i];
+        const field_name = prefix.concat(field.source);
+        if (field.type == 'FileInput') {
+            names.push(field_name);
+        } else if (field.type == 'MappingInput' || field.type == 'ArrayInput') {
+            const {fields} = field.params;
+            if (fields instanceof Array) {
+                names = names.concat(getFileInputNames(fields, field_name.concat(".")));
+            }
+        }
+    }
+    return names;
+}

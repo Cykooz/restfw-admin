@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import {FC, memo, ReactElement, useEffect, useState} from 'react';
 import get from 'lodash/get';
-import {ListContextProvider, useRecordContext} from 'ra-core';
+import {ListContextProvider, useListController, useRecordContext} from 'ra-core';
 import {FieldProps} from "react-admin";
 
 export interface NestedArrayFieldProps extends FieldProps {
@@ -23,46 +23,17 @@ export const NestedArrayField: FC<NestedArrayFieldProps> = memo(props => {
         }
     }, [record, source]);
 
+    const controllerProps = useListController({
+        sort: {field: '', order: 'ASC'},
+        perPage: 1000000,
+        resource: resource || "",
+    });
+    controllerProps.data = data;
+    controllerProps.total = data.length;
+    controllerProps.hasPreviousPage = false;
+    controllerProps.hasNextPage = false;
     return (
-        <ListContextProvider
-            value={{
-                data,
-                selectedIds: [],
-                sort: {field: '', order: 'ASC'},
-                displayedFilters: null,
-                filterValues: null,
-                hasNextPage: false,
-                hasPreviousPage: false,
-                hideFilter: (v) => {
-                },
-                isFetching: false,
-                isLoading: false,
-                onSelect: (v) => {
-                },
-                onToggleItem: (v) => {
-                },
-                onUnselectItems: () => {
-                },
-                page: 0,
-                perPage: 1000000,
-                refetch: () => {
-                },
-                resource: resource || "",
-                setFilters: (a, b, c) => {
-                },
-                setPage: (v) => {
-                },
-                setPerPage: (v) => {
-                },
-                setSort: (v) => {
-                },
-                showFilter: (a, b) => {
-                },
-                total: data.length,
-                error: null,
-                isPending: false
-            }}
-        >
+        <ListContextProvider value={controllerProps}>
             {children}
         </ListContextProvider>
     );

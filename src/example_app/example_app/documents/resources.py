@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 31.07.2020
 """
+
 import decimal
 from dataclasses import dataclass, field
 from typing import Dict, Optional
@@ -19,11 +20,18 @@ class DocMetaDataModel:
 
 
 @dataclass()
+class File:
+    src: str = ''
+    title: str = ''
+
+
+@dataclass()
 class DocModel:
     id: int
     user_id: int
     name: str = ''
     data: str = ''
+    image: Optional[File] = None
     publish_date: Optional[datetime.datetime] = None
     weight: decimal.Decimal = decimal.Decimal('0.00')
     meta: DocMetaDataModel = field(default_factory=DocMetaDataModel)

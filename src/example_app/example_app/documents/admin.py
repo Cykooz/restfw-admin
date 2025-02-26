@@ -40,12 +40,13 @@ class DocsAdmin(ResourceAdmin):
         'user_id',
         'name',
         'data',
+        'image',
         'publish_date',
         'weight',
         'meta',
     )
     list_view = ListViewSettings(
-        fields=Exclude('data', 'meta.custom'),
+        fields=Exclude('data', 'image', 'meta.custom'),
         widgets={
             'user_id': all_widgets.ReferenceField(
                 reference='users',

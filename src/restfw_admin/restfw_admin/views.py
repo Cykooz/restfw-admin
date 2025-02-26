@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 18.07.2020
 """
+
 import dataclasses
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPOk
@@ -16,11 +17,12 @@ from .models import ApiInfoModel
 from .resources import Admin, AdminChoices, ApiInfo, get_admin, AdminChoice
 
 
-TEMPLATE = '''<script>
+TEMPLATE = """<script>
 {auth_provider}
 {http_client}
+{upload_provider}
 window.__RESTFW_ADMIN_PARAMS__ = {admin_params};
-</script>'''
+</script>"""
 
 
 def admin_ui(request: PyramidRequest):
@@ -28,7 +30,7 @@ def admin_ui(request: PyramidRequest):
     api_info_url = request.resource_url(admin_resource['api_info.json']).rstrip('/')
     admin_params = [f'"apiInfoUrl": "{api_info_url}"']
 
-    auth_provider = http_client = ''
+    auth_provider = http_client = upload_provider = ''
     ui_settings = get_admin_ui_settings(request.registry)
     if ui_settings.auth_provider:
         auth_provider = ui_settings.auth_provider.code
@@ -36,11 +38,17 @@ def admin_ui(request: PyramidRequest):
     if ui_settings.http_client:
         http_client = ui_settings.http_client.code
         admin_params.append(f'"getHttpClient": {ui_settings.http_client.name}')
+    if ui_settings.upload_provider:
+        upload_provider = ui_settings.upload_provider.code
+        admin_params.append(
+            f'"getFileUploadProvider": {ui_settings.upload_provider.name}'
+        )
 
     admin_params = ','.join(admin_params)
     admin_ui_params = TEMPLATE.format(
         auth_provider=auth_provider,
         http_client=http_client,
+        upload_provider=upload_provider,
         admin_params=f'{{{admin_params}}}',
     )
     html = ui_settings.index_html_tpl.replace('__ADMIN_PARAMS__', admin_ui_params)
@@ -56,6 +64,7 @@ def redirect_to_admin_ui(request: PyramidRequest):
 
 
 # ApiInfo
+
 
 @views.resource_view_config()
 class ApiInfoView(views.HalResourceView):
@@ -80,11 +89,13 @@ class ApiInfoView(views.HalResourceView):
 
 # AdminChoices
 
+
 @views.resource_view_config()
 class AdminChoiceView(views.ResourceView):
     resource: AdminChoice
     options_for_get = MethodOptions(
-        None, schemas.AdminChoiceSchema,
+        None,
+        schemas.AdminChoiceSchema,
         permission='admin_choices.get',
     )
 
@@ -96,22 +107,28 @@ class AdminChoiceView(views.ResourceView):
 class AdminChoicesView(views.HalResourceWithEmbeddedView):
     resource: AdminChoices
     options_for_get = MethodOptions(
-        schemas.GetAdminChoicesSchema, schemas.AdminChoicesSchema,
+        schemas.GetAdminChoicesSchema,
+        schemas.AdminChoicesSchema,
         permission='admin_choices.get',
     )
 
     def get_embedded(self, params):
         group = params.get('group')
         choice_ids = params.get('id')
-        choices = list(self.resource.get_choices(self.request.registry, group, choice_ids))
+        choices = list(
+            self.resource.get_choices(self.request.registry, group, choice_ids)
+        )
         return views.list_to_embedded_resources(
-            self.request, params, choices,
+            self.request,
+            params,
+            choices,
             parent=self.resource,
             embedded_name='choices',
         )
 
 
 # Admin
+
 
 @views.resource_view_config()
 class AdminView(views.HalResourceView):

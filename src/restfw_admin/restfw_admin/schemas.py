@@ -3,8 +3,11 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
+
 import colander
 from restfw import schemas
+
+from restfw_admin import widgets
 
 
 class AdminChoiceSchema(schemas.ResourceSchema):
@@ -21,9 +24,10 @@ class AdminChoicesSchema(schemas.HalResourceWithEmbeddedSchema):
     _embedded = schemas.EmbeddedNode(
         colander.SequenceSchema(
             AdminChoiceSchema(title='Choice'),
-            name='choices', title='List of embedded choices'
+            name='choices',
+            title='List of embedded choices',
         ),
-        missing=colander.drop
+        missing=colander.drop,
     )
 
 
@@ -34,5 +38,13 @@ class GetAdminChoicesSchema(schemas.GetEmbeddedSchema):
     )
     id = schemas.SequenceNode(
         schemas.StringNode(title='ID'),
-        title='Choices IDs', missing=colander.drop,
+        title='Choices IDs',
+        missing=colander.drop,
     )
+
+
+class FileNode(schemas.MappingNode):
+    src = schemas.EmptyStringNode(title='File source')
+    title = schemas.EmptyStringNode(title='File name', missing='')
+
+    widget = (widgets.FileField(), widgets.FileInput())
