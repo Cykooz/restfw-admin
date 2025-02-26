@@ -1,5 +1,5 @@
 """
-:Version: 1.3.2
+:Version: 1.3.1
 
 Look for the latest version of the script in the GIST:
 https://gist.github.com/Cykooz/118fba100c9ceb76ee822f7541d480c4
@@ -18,13 +18,13 @@ from tempfile import TemporaryDirectory
 from urllib.request import urlopen
 
 
-BUILDOUT_VERSION = '4.0.0'
-PIP_VERSION = '25.0.1'
+BUILDOUT_VERSION = '3.0.1'
+PIP_VERSION = '24.0.0'
 # With newer version, a build is failed due to
 # an incorrect version of dependencies in some packages.
 # Need to recheck in the future.
-SETUPTOOLS_VERSION = '75.8.0'
-WHEEL_VERSION = '0.45.1'
+SETUPTOOLS_VERSION = '66.1.1'
+WHEEL_VERSION = '0.43.0'
 
 GET_PIP_URL = 'https://bootstrap.pypa.io/get-pip.py'
 
