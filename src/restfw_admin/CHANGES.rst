@@ -14,14 +14,15 @@
 CHANGELOG
 *********
 
-1.4.6 (2025-02-27)
-==================
+Next release
+============
 
 Features
 --------
 
 - Added ``FileField`` and ``FileInput`` widgets.
 - Added custom implementation of ``IFileUploadProvider``.
+- Added support default values for ``InputWidgets``.
 
 1.4 (2024-12-11)
 ================

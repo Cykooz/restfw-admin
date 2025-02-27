@@ -84,8 +84,8 @@ class FieldWidget(Widget):
 
 @dataclass()
 class InputWidget(Widget):
-    # Value to be set when the property is null or undefined.
-    initial_value: Optional[Json] = ra_field('defaultValue')
+    # Value to be set when the property is undefined.
+    default_value: Optional[Json] = ra_field('defaultValue')
     # Validation rules for the current property.
     validators: Optional[List[Validator]] = None
     # Text to be displayed under the input (cannot be used inside a filter)

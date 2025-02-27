@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 25.04.2020
 """
+
 import copy
 from functools import partial
 from typing import Callable, Dict, Optional, Type
@@ -20,8 +21,12 @@ from .validators_converters import get_validators, get_validators_by_type
 from .widgets import FieldWidget, InputWidget, SelectField, SelectInput
 
 
-FieldConverter = Callable[[Registry, ColanderNode, colander.SchemaType], Optional[FieldWidget]]
-InputConverter = Callable[[Registry, ColanderNode, colander.SchemaType], Optional[InputWidget]]
+FieldConverter = Callable[
+    [Registry, ColanderNode, colander.SchemaType], Optional[FieldWidget]
+]
+InputConverter = Callable[
+    [Registry, ColanderNode, colander.SchemaType], Optional[InputWidget]
+]
 
 
 def get_field_widgets(registry: Registry, schema: ColanderNode):
@@ -43,15 +48,14 @@ def get_input_widgets(registry: Registry, schema: ColanderNode):
 
 
 def get_field_widget(
-        registry: Registry,
-        node: ColanderNode,
-        node_type: Optional[colander.SchemaType] = None,
+    registry: Registry,
+    node: ColanderNode,
+    node_type: Optional[colander.SchemaType] = None,
 ) -> Optional[FieldWidget]:
     widget = None
     node_type = node_type or node.typ
     converter: Optional[FieldConverter] = registry.queryAdapter(
-        node_type,
-        interfaces.ISchemaNodeToFieldWidget
+        node_type, interfaces.ISchemaNodeToFieldWidget
     )
     if converter:
         widget = converter(registry, node, node_type)
@@ -75,18 +79,26 @@ def get_field_widget(
 
 
 def get_input_widget(
-        registry: Registry,
-        node: ColanderNode,
-        node_type: Optional[colander.SchemaType] = None,
+    registry: Registry,
+    node: ColanderNode,
+    node_type: Optional[colander.SchemaType] = None,
 ) -> Optional[InputWidget]:
     widget = None
     node_type = node_type or node.typ
     converter: Optional[InputConverter] = registry.queryAdapter(
-        node_type,
-        interfaces.ISchemaNodeToInputWidget
+        node_type, interfaces.ISchemaNodeToInputWidget
     )
     if converter:
         widget = converter(registry, node, node_type)
+        if not any(
+            node.missing is v
+            for v in (
+                colander.drop,
+                colander.null,
+                colander.required,
+            )
+        ):
+            widget.default_value = node.missing
 
     if user_widgets := node.widget:
         # Try to find input widget in widgets from colander's node
@@ -97,13 +109,9 @@ def get_input_widget(
             if isinstance(user_widget, InputWidget):
                 user_widget = copy.deepcopy(user_widget)
                 if widget:
-                    for name in ('label', 'helper_text'):
+                    for name in ('label', 'helper_text', 'default_value'):
                         if not getattr(user_widget, name):
-                            setattr(
-                                user_widget,
-                                name,
-                                getattr(widget, name)
-                            )
+                            setattr(user_widget, name, getattr(widget, name))
                 widget = user_widget
                 break
 
@@ -112,7 +120,9 @@ def get_input_widget(
     return widget
 
 
-def _try_convert_to_select_field(registry: Registry, widget: FieldWidget, node: ColanderNode) -> FieldWidget:
+def _try_convert_to_select_field(
+    registry: Registry, widget: FieldWidget, node: ColanderNode
+) -> FieldWidget:
     if isinstance(widget, SelectField):
         return widget
 
@@ -122,16 +132,14 @@ def _try_convert_to_select_field(registry: Registry, widget: FieldWidget, node: 
         return widget
 
     choices = [
-        (choice, slug_to_title(str(choice)))
-        for choice in choices_validators[0].choices
+        (choice, slug_to_title(str(choice))) for choice in choices_validators[0].choices
     ]
-    return SelectField(
-        choices=choices,
-        **widget.get_fields()
-    )
+    return SelectField(choices=choices, **widget.get_fields())
 
 
-def _try_convert_to_select_input(registry: Registry, widget: InputWidget, node: ColanderNode) -> InputWidget:
+def _try_convert_to_select_input(
+    registry: Registry, widget: InputWidget, node: ColanderNode
+) -> InputWidget:
     if isinstance(widget, SelectInput):
         return widget
 
@@ -141,22 +149,18 @@ def _try_convert_to_select_input(registry: Registry, widget: InputWidget, node: 
         return widget
 
     choices = [
-        (choice, slug_to_title(str(choice)))
-        for choice in choices_validators[0].choices
+        (choice, slug_to_title(str(choice))) for choice in choices_validators[0].choices
     ]
     params = widget.get_fields()
     params['validators'] = get_validators_by_type(validators, Required)
-    return SelectInput(
-        choices=choices,
-        **params
-    )
+    return SelectInput(choices=choices, **params)
 
 
 def add_field_converter(
-        config: Configurator,
-        node_type: Type[colander.SchemaType],
-        converter: FieldConverter,
-        is_input=False,
+    config: Configurator,
+    node_type: Type[colander.SchemaType],
+    converter: FieldConverter,
+    is_input=False,
 ):
     dotted = config.maybe_dotted
     node_type = dotted(node_type)
@@ -180,7 +184,6 @@ def add_field_converter(
     intr['converter'] = converter
 
     def register():
-
         def adapter(_):
             return converter
 
@@ -208,7 +211,8 @@ def _field_converter(is_input: bool, node_type: Type[colander.SchemaType], **kwa
 
     def wrapper(wrapped):
         venusian.attach(
-            wrapped, register,
+            wrapped,
+            register,
             category=category,
             depth=depth + 1,
         )
