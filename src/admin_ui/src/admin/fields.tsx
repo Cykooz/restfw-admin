@@ -7,7 +7,9 @@ import {
     Datagrid,
     DateField,
     DateInput,
-    DateTimeInput, FileField, FileInput,
+    DateTimeInput,
+    FileField,
+    FileInput,
     FunctionField,
     NullableBooleanInput,
     NumberField,
@@ -265,6 +267,7 @@ const COMPONENTS: Record<string, IFabric> = {
     'JsonField': view_fabric(JsonField),
     'ChipField': view_fabric(ChipField),
     'UrlField': view_fabric(UrlField),
+    'FileField': view_fabric(FileField),
     // Inputs
     'TextInput': input_fabric(TextInput),
     'RichTextInput': view_fabric(RichTextInput),

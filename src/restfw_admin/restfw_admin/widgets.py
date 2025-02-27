@@ -493,6 +493,11 @@ class JsonInput(TextInput):
 @dataclass()
 class FileField(FieldWidget):
     type = 'FileField'
+    # Relative path to a source of file URL
+    url_source: Optional[str] = None
+    # Points to the file title property, used for title attributes.
+    # It can either be a hard-written string or a path within your JSON object.
+    title: Optional[str] = None
     # The link target. Set to “_blank” to open the file on a new tab
     target: Optional[str] = None
     # Prompts the user to save the linked URL instead of navigating to it
@@ -507,9 +512,11 @@ class FileField(FieldWidget):
 
     def to_model(self, field_name: Optional[str]) -> FieldModel:
         model = super().to_model(field_name)
-        if field_name:
-            model.source = field_name + '.src'
-            model.params['title'] = field_name + '.title'
+        if field_name and self.url_source:
+            model.source = f'{field_name}.{self.url_source}'
+            if self.title:
+                model.params['title'] = f'{field_name}.{self.title}'
+            del model.params['url_source']
         return model
 
 

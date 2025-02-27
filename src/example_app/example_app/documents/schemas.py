@@ -11,6 +11,7 @@ from restfw import schemas
 
 from restfw_admin import widgets
 from restfw_admin.schemas import FileNode
+from restfw_admin.widgets import FileField, FileInput
 from ..users.schemas import user_id_validator
 
 
@@ -35,12 +36,22 @@ class EditDocMetaDataSchema(schemas.MappingNode):
     )
 
 
+_file_widget = (
+    FileField(url_source='src', title='title', target='_blank'),
+    FileInput(),
+)
+
+
 class DocSchema(schemas.HalResourceSchema):
     id = schemas.UnsignedIntegerNode(title='ID')
     user_id = schemas.IntegerNode(title='User ID')
     name = schemas.StringNode(title='Document name')
     data = schemas.EmptyStringNode(title='Document data')
-    image = FileNode(title='Document image', nullable=True)
+    image = FileNode(
+        title='Document image',
+        nullable=True,
+        widget=_file_widget,
+    )
     publish_date = schemas.DateTimeNode(
         title='Publish date',
         nullable=True,
@@ -75,7 +86,7 @@ class CreateDocSchema(schemas.MappingNode):
     user_id = schemas.IntegerNode(title='User ID', validator=user_id_validator)
     name = schemas.StringNode(title='Document name')
     data = schemas.EmptyStringNode(title='Document data')
-    image = FileNode(title='Document image', nullable=True)
+    image = FileNode(title='Document image', nullable=True, widget=_file_widget)
     meta = EditDocMetaDataSchema(title='Meta data')
     publish_date = schemas.DateTimeNode(
         title='Publish date',
