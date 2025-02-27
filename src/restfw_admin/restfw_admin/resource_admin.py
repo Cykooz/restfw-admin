@@ -269,7 +269,7 @@ class ResourceAdmin:
         )
         fields = fields if fields is not None else self.fields
         only_field_names: list[str] = []
-        for fields in (default_fields, fields, view_settings.fields):
+        for fields in (view_settings.fields, fields, default_fields):
             if fields:
                 names = unflat(fields.names)
                 if isinstance(fields, Only):
