@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Fixed default value for ``InputWidgets``.
+
 1.5 (2025-02-27)
 ================
 

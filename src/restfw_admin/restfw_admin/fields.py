@@ -91,14 +91,14 @@ def get_input_widget(
     if converter:
         widget = converter(registry, node, node_type)
         if not any(
-            node.missing is v
+            node.default is v
             for v in (
                 colander.drop,
                 colander.null,
                 colander.required,
             )
         ):
-            widget.default_value = node.missing
+            widget.default_value = node.default
 
     if user_widgets := node.widget:
         # Try to find input widget in widgets from colander's node
