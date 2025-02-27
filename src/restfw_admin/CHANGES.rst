@@ -14,7 +14,7 @@
 CHANGELOG
 *********
 
-NExt release
+Next release
 ============
 
 Features
