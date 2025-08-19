@@ -30,7 +30,7 @@ class EditDocMetaDataSchema(schemas.MappingNode):
         title='Custom data',
         unknown='preserve',
         widget=widgets.JsonInput(
-            initial_value={},
+            default_value={},
             full_width=True,
         ),
     )
