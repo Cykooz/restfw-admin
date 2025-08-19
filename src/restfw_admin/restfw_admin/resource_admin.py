@@ -269,12 +269,14 @@ class ResourceAdmin:
         )
         fields = fields if fields is not None else self.fields
         only_field_names: list[str] = []
+        was_only = False
         for fields in (view_settings.fields, fields, default_fields):
             if fields:
                 names = unflat(fields.names)
-                if isinstance(fields, Only):
+                if isinstance(fields, Only) and not was_only:
                     widgets = only_widgets(widgets, names)
                     only_field_names.extend(fields.names)
+                    was_only = True
                 elif isinstance(fields, Exclude):
                     widgets = exclude_widgets(widgets, names)
         if view_settings.widgets:

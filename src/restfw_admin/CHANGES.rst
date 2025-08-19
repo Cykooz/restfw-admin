@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Fixed processing ``Only`` fields in admin UI settings.
+
 1.5.2 (2025-02-27)
 ==================
 
