@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 15.07.2020
 """
+
 from dataclasses import dataclass, fields
 from typing import ClassVar, List
 

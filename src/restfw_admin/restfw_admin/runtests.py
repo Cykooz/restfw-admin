@@ -10,6 +10,7 @@ def runtests():
     import pytest
     from os import environ
     from os.path import dirname, join
+
     cfg_path = join(dirname(dirname(__file__)), 'setup.cfg')
 
     args = sys.argv[1:]

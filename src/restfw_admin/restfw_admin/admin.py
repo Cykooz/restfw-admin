@@ -2,6 +2,7 @@
 :Authors: cykooz
 :Date: 06.07.2023
 """
+
 from pyramid.decorator import reify
 
 from .config import resource_admin_config

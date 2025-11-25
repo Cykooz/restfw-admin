@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
+
 from typing import List, Optional
 
 import colander
@@ -27,32 +28,31 @@ class IAdminChoices(Interface):
 
 
 class IResourceAdminFabric(Interface):
-
     def __call__(request: Request, name: str):
         pass
 
 
 class ISchemaNodeToFieldWidget(Interface):
-
-    def __call__(registry: Registry, node: ColanderNode,
-                 node_type: colander.SchemaType) -> Optional[FieldWidget]:
+    def __call__(
+        registry: Registry, node: ColanderNode, node_type: colander.SchemaType
+    ) -> Optional[FieldWidget]:
         pass
 
 
 class ISchemaNodeToInputWidget(Interface):
-
-    def __call__(registry: Registry, node: ColanderNode,
-                 node_type: colander.SchemaType) -> Optional[InputWidget]:
+    def __call__(
+        registry: Registry, node: ColanderNode, node_type: colander.SchemaType
+    ) -> Optional[InputWidget]:
         pass
 
 
 class IValidatorConverter(Interface):
-
-    def __call__(registry: Registry, validator: ColanderValidator) -> List[ValidatorModel]:
+    def __call__(
+        registry: Registry, validator: ColanderValidator
+    ) -> List[ValidatorModel]:
         pass
 
 
 class IColanderValidator(Interface):
-
     def __call__(node, value):
         pass

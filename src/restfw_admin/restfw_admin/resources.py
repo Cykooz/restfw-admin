@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
+
 from typing import TypedDict
 
 from pyramid.authorization import Allow, Everyone
@@ -26,10 +27,7 @@ class ApiInfo(HalResource):
             resource_admin: ResourceAdmin = fabric(request, name)
             info = resource_admin.get_resource_info()
             resources.append(info)
-        return {
-            info.name: info
-            for info in sorted(resources, key=lambda x: x.title)
-        }
+        return {info.name: info for info in sorted(resources, key=lambda x: x.title)}
 
 
 class ChoiceModel(TypedDict):
@@ -49,7 +47,6 @@ class AdminChoice(HalResource):
 
 
 class AdminChoices(HalResource):
-
     def __getitem__(self, key):
         group = key.split(':', 1)
         if group:
@@ -80,9 +77,9 @@ class AdminChoices(HalResource):
                         'uniq_id': f'{group}:{value}',
                         'group': group,
                         'id': value,
-                        'name': title
+                        'name': title,
                     },
-                    parent=self
+                    parent=self,
                 )
 
 

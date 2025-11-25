@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 25.04.2020
 """
+
 from typing import Any, Callable
 
 import colander

@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
+
 from __future__ import print_function
 from wsgiref.simple_server import make_server
 from wsgicors import CORS

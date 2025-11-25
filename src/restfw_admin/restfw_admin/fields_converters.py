@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 10.06.2020
 """
+
 from typing import Dict
 
 import colander
@@ -11,13 +12,19 @@ from pyramid.registry import Registry
 from restfw import schemas
 
 from . import widgets
-from .fields import get_field_widget, get_input_widget, input_field_converter, view_field_converter
+from .fields import (
+    get_field_widget,
+    get_input_widget,
+    input_field_converter,
+    view_field_converter,
+)
 from .typing import ColanderNode
 from .validators import MinLength, Number, Required
 from .validators_converters import get_validators
 
 
 # Boolean
+
 
 @view_field_converter(colander.Boolean)
 def boolean_field(registry: Registry, node: ColanderNode, node_type: SchemaType):
@@ -36,6 +43,7 @@ def boolean_input(registry: Registry, node: ColanderNode, node_type: SchemaType)
 
 
 # Number
+
 
 @view_field_converter(colander.Integer)
 @view_field_converter(colander.Float)
@@ -61,6 +69,7 @@ def number_input(registry: Registry, node: ColanderNode, node_type: SchemaType):
 
 
 # String
+
 
 @view_field_converter(colander.String)
 def string_field(registry: Registry, node: ColanderNode, node_type: colander.String):
@@ -88,6 +97,7 @@ def string_input(registry: Registry, node: ColanderNode, node_type: colander.Str
 
 # Date
 
+
 @view_field_converter(colander.Date)
 def date_field(registry: Registry, node: ColanderNode, node_type: SchemaType):
     return widgets.DateField(
@@ -105,6 +115,7 @@ def date_input(registry: Registry, node: ColanderNode, node_type: SchemaType):
 
 
 # DateTime
+
 
 @view_field_converter(colander.DateTime)
 def datetime_field(registry: Registry, node: ColanderNode, node_type: SchemaType):
@@ -125,6 +136,7 @@ def datetime_input(registry: Registry, node: ColanderNode, node_type: SchemaType
 
 # Nullable
 
+
 @view_field_converter(schemas.Nullable)
 def nullable_field(registry: Registry, node: ColanderNode, node_type: schemas.Nullable):
     return get_field_widget(registry, node, node_type.typ)
@@ -142,14 +154,13 @@ def nullable_input(registry: Registry, node: ColanderNode, node_type: schemas.Nu
                 widget.empty_value = None
             if widget.validators:
                 widget.validators = [
-                    v
-                    for v in widget.validators
-                    if not isinstance(v, Required)
+                    v for v in widget.validators if not isinstance(v, Required)
                 ]
         return widget
 
 
 # Sequence
+
 
 @view_field_converter(colander.Sequence)
 def sequence_field(registry: Registry, node: ColanderNode, node_type: SchemaType):
@@ -184,6 +195,7 @@ def sequence_input(registry: Registry, node: ColanderNode, node_type: SchemaType
 
 
 # Mapping
+
 
 @view_field_converter(colander.Mapping)
 def mapping_field(registry: Registry, node: ColanderNode, node_type: colander.Mapping):

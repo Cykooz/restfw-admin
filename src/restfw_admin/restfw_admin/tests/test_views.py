@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 06.08.2020
 """
+
 import pytest
 from cykooz.testing import D
 
@@ -44,7 +45,7 @@ def test_api_info(web_app, pyramid_request):
         {
             'foo': 123,
             'bar': 'http://admin.go',
-        }
+        },
     )
     res = web_app.get(url)
     assert res.json == {

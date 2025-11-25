@@ -3,11 +3,15 @@
 :Authors: cykooz
 :Date: 09.02.2020
 """
+
 from restfw_admin import widgets
 from restfw_admin.config import resource_admin_config
 from restfw_admin.resource_admin import (
-    Only, ResourceAdmin, ListViewSettings, Filters,
-    Exclude
+    Only,
+    ResourceAdmin,
+    ListViewSettings,
+    Filters,
+    Exclude,
 )
 from .views import UserView, UsersView
 
@@ -31,12 +35,8 @@ class UsersAdmin(ResourceAdmin):
             'tags',
         ),
         widgets={
-            'children': {
-                'name': widgets.TextField(label='Child names')
-            },
-            'current_work': {
-                'title': widgets.TextField(label='Current work title')
-            }
+            'children': {'name': widgets.TextField(label='Child names')},
+            'current_work': {'title': widgets.TextField(label='Current work title')},
         },
         filters=Filters(
             fields=Exclude('id__in'),

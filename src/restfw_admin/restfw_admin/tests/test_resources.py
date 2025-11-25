@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
+
 from ..config import admin_choices_config
 from ..resources import get_admin_choices
 
@@ -43,10 +44,7 @@ def test_admin_choices(web_app, pyramid_request, app_config):
     ]
 
     app_config.scan()
-    choices = [
-        c.model
-        for c in admin_choices.get_choices(pyramid_request.registry)
-    ]
+    choices = [c.model for c in admin_choices.get_choices(pyramid_request.registry)]
     assert choices == product_type_choices
 
     choices = [
@@ -59,9 +57,7 @@ def test_admin_choices(web_app, pyramid_request, app_config):
 
     choices = [
         c.model
-        for c in admin_choices.get_choices(
-            pyramid_request.registry, group='unknown'
-        )
+        for c in admin_choices.get_choices(pyramid_request.registry, group='unknown')
     ]
     assert choices == []
 

@@ -2,6 +2,7 @@
 :Authors: cykooz
 :Date: 12.07.2021
 """
+
 from pyramid.authentication import extract_http_basic_credentials
 from pyramid.authorization import Authenticated, Everyone
 from pyramid.interfaces import ISecurityPolicy

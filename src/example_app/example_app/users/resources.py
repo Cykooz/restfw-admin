@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
+
 from dataclasses import dataclass
 from typing import Dict, List, Literal, Optional, Union
 
@@ -83,11 +84,15 @@ class Users(HalResource):
         return User(model, parent=self)
 
     def create_user(
-            self, first_name, last_name, age: Optional[int] = None,
-            sex: Optional[Literal['m', 'f']] = 'm',
-            children=None, current_work: Union[None, dict, WorkModel] = None,
-            join_work_time: Optional[datetime.datetime] = None,
-            tags: Optional[list[str]] = None
+        self,
+        first_name,
+        last_name,
+        age: Optional[int] = None,
+        sex: Optional[Literal['m', 'f']] = 'm',
+        children=None,
+        current_work: Union[None, dict, WorkModel] = None,
+        join_work_time: Optional[datetime.datetime] = None,
+        tags: Optional[list[str]] = None,
     ):
         user_id = self._next_id
         children = children or []
