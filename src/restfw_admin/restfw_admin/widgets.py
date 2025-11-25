@@ -431,15 +431,19 @@ class DynSelectInput(InputWidget, DynSelectBase):
     from AdminChoices resource."""
 
     type = 'ReferenceInput'
-    # If True, add an empty item to the list of choices to allow for empty value
-    allow_empty: Optional[bool] = ra_field('allowEmpty')
     per_page: Optional[int] = ra_field('perPage')
 
     def to_model(self, field_name: str) -> FieldModel:
         model = super().to_model(field_name)
         model.params['reference'] = 'admin_choices'
         model.params['filter'] = {'group': model.params.pop('group')}
-        widget = SelectInput(option_text='name')
+        model.params.pop('label', None)
+        model.validators = []
+        widget = SelectInput(
+            option_text='name',
+            label=self.label,
+            validators=self.validators,
+        )
         model.params['child'] = widget.to_model(field_name=None)
         return model
 

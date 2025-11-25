@@ -14,6 +14,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Fixed validators for custom input widgets.
+
 1.7 (2025-11-25)
 ================
 

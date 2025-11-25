@@ -112,6 +112,8 @@ def get_input_widget(
                     for name in ('label', 'helper_text', 'default_value'):
                         if not getattr(user_widget, name):
                             setattr(user_widget, name, getattr(widget, name))
+                    if user_widget.validators is None:
+                        user_widget.validators = widget.validators
                 widget = user_widget
                 break
 
