@@ -17,6 +17,12 @@ CHANGELOG
 Next release
 ============
 
+Features
+--------
+
+- Updated all dependencies.
+- ``react-admin`` was updated to version 5.13.2.
+
 Changes
 -------
 
