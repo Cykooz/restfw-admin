@@ -84,16 +84,10 @@ class DocsAdmin(ResourceAdmin):
                 validators=[Required()],
             ),
             'data': all_widgets.RichTextInput(),
-            'meta': {
-                'type': all_widgets.DynSelectInput(group='doc_types'),
-            },
         }
     )
     edit_view = ViewSettings(
         widgets={
             'data': all_widgets.RichTextInput(),
-            'meta': {
-                'type': all_widgets.DynSelectInput(group='doc_types'),
-            },
         }
     )

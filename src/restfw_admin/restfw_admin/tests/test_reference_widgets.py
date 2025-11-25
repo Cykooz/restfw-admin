@@ -133,13 +133,15 @@ def test_reference_field_and_input(pyramid_request, app_config):
             source='user_id',
             params={
                 'reference': 'users',
-                'label': 'User',
                 'child': FieldModel(
-                    type='SelectInput', source=None, params={'optionText': 'name'}
+                    type='SelectInput',
+                    source=None,
+                    params={'label': 'User', 'optionText': 'name'},
+                    validators=[ValidatorModel(name='required')],
                 ),
                 'perPage': 500,
             },
-            validators=[ValidatorModel(name='required')],
+            validators=[],
         ),
     ]
     assert fields == expected

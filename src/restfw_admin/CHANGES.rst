@@ -14,6 +14,22 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Changes
+-------
+
+- Added binding schema node before use it to create admin UI description.
+- Updated ``bootstrap.py``.
+
+Bug Fixes
+---------
+
+- Removed "Remove" button from empty FileInput widget.
+- Fixed ``ReferenceInput`` widget.
+- Fixed getting default values of input fields from schema.
+
 1.6 (2025-08-19)
 ================
 

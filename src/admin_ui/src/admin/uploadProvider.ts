@@ -17,8 +17,12 @@ export class DefaultFileUploadProvider implements IFileUploadProvider {
         const new_fields: { [name: string]: IFile } = {};
         for (const name in fields) {
             const file = fields[name];
-            if (file.rawFile instanceof File) {
-                new_fields[name] = await convertFileToBase64(file);
+            if (file) {
+                if (file.rawFile instanceof File) {
+                    new_fields[name] = await convertFileToBase64(file);
+                }
+            } else {
+                new_fields[name] = null;
             }
         }
         return new_fields;

@@ -9,8 +9,7 @@ from restfw import views
 from restfw.interfaces import MethodOptions
 
 from . import schemas
-from .resources import Doc, Docs, File
-
+from .resources import Doc, Docs
 
 # Doc
 
@@ -28,8 +27,6 @@ class DocView(views.HalResourceView):
 
     def as_dict(self):
         res = asdict(self.resource.model)
-        if res['image'] is None:
-            res['image'] = asdict(File())
         return res
 
 

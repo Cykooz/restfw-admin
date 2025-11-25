@@ -11,7 +11,8 @@ from restfw import schemas
 
 from restfw_admin import widgets
 from restfw_admin.schemas import FileNode
-from restfw_admin.widgets import FileField, FileInput
+from restfw_admin.widgets import DynSelectInput, FileField, FileInput
+
 from ..users.schemas import user_id_validator
 
 
@@ -25,14 +26,16 @@ class DocMetaDataSchema(schemas.MappingNode):
 
 
 class EditDocMetaDataSchema(schemas.MappingNode):
-    type = schemas.EmptyStringNode(title='Document type', missing='')
+    type = schemas.EmptyStringNode(
+        title='Document type',
+        missing='',
+        widget=DynSelectInput(group='doc_types'),
+    )
     custom = schemas.MappingNode(
         title='Custom data',
         unknown='preserve',
-        widget=widgets.JsonInput(
-            default_value={},
-            full_width=True,
-        ),
+        widget=widgets.JsonInput(full_width=True),
+        missing=colander.deferred(lambda n, k: {}),
     )
 
 
@@ -85,8 +88,13 @@ class GetDocsSchema(schemas.GetEmbeddedSchema):
 class CreateDocSchema(schemas.MappingNode):
     user_id = schemas.IntegerNode(title='User ID', validator=user_id_validator)
     name = schemas.StringNode(title='Document name')
-    data = schemas.EmptyStringNode(title='Document data')
-    image = FileNode(title='Document image', nullable=True, widget=_file_widget)
+    data = schemas.EmptyStringNode(title='Document data', missing='')
+    image = FileNode(
+        title='Document image',
+        nullable=True,
+        widget=_file_widget,
+        missing=None,
+    )
     meta = EditDocMetaDataSchema(title='Meta data')
     publish_date = schemas.DateTimeNode(
         title='Publish date',

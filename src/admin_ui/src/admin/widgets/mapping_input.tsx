@@ -47,5 +47,3 @@ export const MappingInput: FC<MappingInputProps> =
             </FormControl>
         );
     }
-
-export default MappingInput;

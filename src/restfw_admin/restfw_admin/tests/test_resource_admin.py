@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 25.04.2020
 """
+
 import colander
 import pytest
 from cykooz.testing import D
@@ -13,13 +14,21 @@ from restfw.interfaces import MethodOptions
 from .. import widgets, widgets as all_widgets
 from ..models import FieldModel, ValidatorModel
 from ..resource_admin import (
-    Exclude, Only, ResourceAdmin, exclude_widgets, only_widgets, replace_widgets,
-    unflat, ListViewSettings, Filters,
+    Exclude,
+    Only,
+    ResourceAdmin,
+    exclude_widgets,
+    only_widgets,
+    replace_widgets,
+    unflat,
+    ListViewSettings,
+    Filters,
 )
 from ..resources import get_admin
 
 
 # Users
+
 
 class Child(schemas.MappingNode):
     sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
@@ -39,7 +48,9 @@ class Child(schemas.MappingNode):
 
 
 class Work(schemas.MappingNode):
-    title = schemas.StringNode(title='Title', validator=schemas.LaconicNoneOf(['God', 'Duck']))
+    title = schemas.StringNode(
+        title='Title', validator=schemas.LaconicNoneOf(['God', 'Duck'])
+    )
     address = schemas.StringNode(title='Address')
 
 
@@ -65,8 +76,7 @@ class UserSchema(schemas.HalResourceSchema):
 class UsersSchema(schemas.HalResourceWithEmbeddedSchema):
     _embedded = schemas.EmbeddedNode(
         schemas.SequenceNode(
-            UserSchema(title='User'),
-            name='users', title='List of embedded users'
+            UserSchema(title='User'), name='users', title='List of embedded users'
         ),
         missing=colander.drop,
     )
@@ -96,10 +106,19 @@ class CreateUserSchema(schemas.MappingNode):
         ),
     )
     age = schemas.UnsignedIntegerNode(
-        title='Age', nullable=True, missing=colander.drop,
+        title='Age',
+        nullable=True,
+        missing=colander.drop,
     )
-    sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']), nullable=True)
-    description = schemas.EmptyStringNode(title='Description', validator=description_validator)
+    sex = schemas.StringNode(
+        title='Sex',
+        validator=colander.OneOf(['m', 'f']),
+        nullable=True,
+        missing=None,
+    )
+    description = schemas.EmptyStringNode(
+        title='Description', validator=description_validator, missing=''
+    )
     children = schemas.SequenceNode(
         Child(title='Child', missing=colander.drop),
     )
@@ -109,18 +128,19 @@ class CreateUserSchema(schemas.MappingNode):
 
 class PatchItemSchema(schemas.MappingNode):
     name = schemas.StringNode(
-        title='User name', missing=colander.drop,
+        title='User name',
+        missing=colander.drop,
         validator=colander.All(
-            colander.Length(max=50),
-            colander.Regex(r'^[a-zA-z0-9]+$')
+            colander.Length(max=50), colander.Regex(r'^[a-zA-z0-9]+$')
         ),
     )
     age = schemas.UnsignedIntegerNode(
-        title='Age', nullable=True, missing=colander.drop,
+        title='Age',
+        nullable=True,
+        missing=colander.drop,
     )
     sex = schemas.StringNode(
-        title='Sex', missing=colander.drop,
-        validator=colander.OneOf(['m', 'f'])
+        title='Sex', missing=colander.drop, validator=colander.OneOf(['m', 'f'])
     )
     children = schemas.SequenceNode(
         Child(title='Child', missing=colander.drop),
@@ -136,7 +156,9 @@ class User(HalResource):
 @views.resource_view_config(User)
 class UserView(views.HalResourceView):
     options_for_get = MethodOptions(None, UserSchema, permission='users.get')
-    options_for_patch = MethodOptions(PatchItemSchema, UserSchema, permission='users.edit')
+    options_for_patch = MethodOptions(
+        PatchItemSchema, UserSchema, permission='users.edit'
+    )
 
 
 class Users(HalResource):
@@ -146,7 +168,9 @@ class Users(HalResource):
 @views.resource_view_config(Users)
 class UsersView(views.HalResourceWithEmbeddedView):
     options_for_get = MethodOptions(GetUsersSchema, UsersSchema, permission='users.get')
-    options_for_post = MethodOptions(CreateUserSchema, UserSchema, permission='users.edit')
+    options_for_post = MethodOptions(
+        CreateUserSchema, UserSchema, permission='users.edit'
+    )
 
 
 class UsersAdmin(ResourceAdmin):
@@ -166,16 +190,12 @@ class UsersAdmin(ResourceAdmin):
             'previews_work.title',
         ),
         widgets={
-            'current_work': {
-                'title': widgets.TextField(label='Current work title')
-            },
-            'previews_work': {
-                'title': widgets.TextField(label='Previews work title')
-            }
+            'current_work': {'title': widgets.TextField(label='Current work title')},
+            'previews_work': {'title': widgets.TextField(label='Previews work title')},
         },
         filters=Filters(
             always_on=['id'],
-        )
+        ),
     )
 
 
@@ -189,19 +209,25 @@ def scan(app_config):
 def widgets_fixture():
     return {
         'name': all_widgets.TextField(),
-        'child': all_widgets.ArrayField(fields={
-            'name': all_widgets.TextField(),
-            'sex': all_widgets.TextField(),
-            'age': all_widgets.NumberField(),
-        }),
-        'parent': all_widgets.ArrayField(fields={
-            'name': all_widgets.TextField(),
-            'age': all_widgets.NumberField(),
-            'work': all_widgets.ArrayField(fields={
+        'child': all_widgets.ArrayField(
+            fields={
                 'name': all_widgets.TextField(),
-                'phone': all_widgets.TextField(),
-            }),
-        }),
+                'sex': all_widgets.TextField(),
+                'age': all_widgets.NumberField(),
+            }
+        ),
+        'parent': all_widgets.ArrayField(
+            fields={
+                'name': all_widgets.TextField(),
+                'age': all_widgets.NumberField(),
+                'work': all_widgets.ArrayField(
+                    fields={
+                        'name': all_widgets.TextField(),
+                        'phone': all_widgets.TextField(),
+                    }
+                ),
+            }
+        ),
         'phone': all_widgets.TextField(),
     }
 
@@ -210,34 +236,48 @@ def test_only_widgets(widgets):
     names = unflat(['child.age', 'child.name', 'parent.work.name', 'name'])
     res = only_widgets(widgets, names)
     assert res == {
-        'child': all_widgets.ArrayField(fields={
-            'age': all_widgets.NumberField(),
-            'name': all_widgets.TextField(),
-        }),
-        'parent': all_widgets.ArrayField(fields={
-            'work': all_widgets.ArrayField(fields={
+        'child': all_widgets.ArrayField(
+            fields={
+                'age': all_widgets.NumberField(),
                 'name': all_widgets.TextField(),
-            }),
-        }),
+            }
+        ),
+        'parent': all_widgets.ArrayField(
+            fields={
+                'work': all_widgets.ArrayField(
+                    fields={
+                        'name': all_widgets.TextField(),
+                    }
+                ),
+            }
+        ),
         'name': all_widgets.TextField(),
     }
     assert list(res.keys()) == ['child', 'parent', 'name']
 
 
 def test_exclude_widgets(widgets):
-    names = unflat(['child.sex', 'parent.work.phone', 'parent.name', 'parent.age', 'phone'])
+    names = unflat(
+        ['child.sex', 'parent.work.phone', 'parent.name', 'parent.age', 'phone']
+    )
     res = exclude_widgets(widgets, names)
     assert res == {
         'name': all_widgets.TextField(),
-        'child': all_widgets.ArrayField(fields={
-            'name': all_widgets.TextField(),
-            'age': all_widgets.NumberField(),
-        }),
-        'parent': all_widgets.ArrayField(fields={
-            'work': all_widgets.ArrayField(fields={
+        'child': all_widgets.ArrayField(
+            fields={
                 'name': all_widgets.TextField(),
-            }),
-        }),
+                'age': all_widgets.NumberField(),
+            }
+        ),
+        'parent': all_widgets.ArrayField(
+            fields={
+                'work': all_widgets.ArrayField(
+                    fields={
+                        'name': all_widgets.TextField(),
+                    }
+                ),
+            }
+        ),
     }
     assert list(res.keys()) == ['name', 'child', 'parent']
 
@@ -260,18 +300,26 @@ def test_replace_widgets(widgets):
     replace_widgets(widgets, replaces)
     assert widgets == {
         'name': all_widgets.TextField(label='New name'),
-        'child': all_widgets.ArrayField(fields={
-            'sex': all_widgets.TextField(),
-            'age': all_widgets.TextField(),
-        }),
-        'parent': all_widgets.ArrayField(fields={
-            'name': all_widgets.TextField(),
-            'age': all_widgets.NumberField(),
-            'work': all_widgets.ArrayField(fields={
-                'name': all_widgets.SelectField(choices=[('w1', 'W1'), ('w2', 'W2')]),
-                'phone': all_widgets.TextField(),
-            }),
-        }),
+        'child': all_widgets.ArrayField(
+            fields={
+                'sex': all_widgets.TextField(),
+                'age': all_widgets.TextField(),
+            }
+        ),
+        'parent': all_widgets.ArrayField(
+            fields={
+                'name': all_widgets.TextField(),
+                'age': all_widgets.NumberField(),
+                'work': all_widgets.ArrayField(
+                    fields={
+                        'name': all_widgets.SelectField(
+                            choices=[('w1', 'W1'), ('w2', 'W2')]
+                        ),
+                        'phone': all_widgets.TextField(),
+                    }
+                ),
+            }
+        ),
     }
 
 
@@ -281,35 +329,50 @@ def test_get_user_list_view(pyramid_request):
     fields = sorted(view.fields, key=lambda f: f.source)
     assert fields == [
         FieldModel(
-            type='NumberField', source='age',
+            type='NumberField',
+            source='age',
             params={
                 'label': 'Age',
                 'options': {
                     'useGrouping': False,
                 },
-            }
+            },
         ),
-        FieldModel(type='DateField', source='created', params={'label': 'Created', 'showTime': True}),
-        FieldModel(type='TextField', source='current_work.title', params={'label': 'Current work title'}),
         FieldModel(
-            type='NumberField', source='id',
+            type='DateField',
+            source='created',
+            params={'label': 'Created', 'showTime': True},
+        ),
+        FieldModel(
+            type='TextField',
+            source='current_work.title',
+            params={'label': 'Current work title'},
+        ),
+        FieldModel(
+            type='NumberField',
+            source='id',
             params={
                 'label': 'ID',
                 'options': {
                     'useGrouping': False,
                 },
-            }
+            },
         ),
         FieldModel(type='TextField', source='name', params={'label': 'User name'}),
-        FieldModel(type='TextField', source='previews_work.title', params={'label': 'Previews work title'}),
         FieldModel(
-            type='SelectField', source='sex',
+            type='TextField',
+            source='previews_work.title',
+            params={'label': 'Previews work title'},
+        ),
+        FieldModel(
+            type='SelectField',
+            source='sex',
             params={
                 'label': 'Sex',
                 'choices': [
                     {'id': 'm', 'name': 'M'},
                     {'id': 'f', 'name': 'F'},
-                ]
+                ],
             },
         ),
     ]
@@ -321,7 +384,8 @@ def test_get_user_list_view(pyramid_request):
             params={'label': 'Has children'},
         ),
         FieldModel(
-            type='TextInput', source='id',
+            type='TextInput',
+            source='id',
             params={'label': 'ID', 'alwaysOn': True},
             validators=[
                 ValidatorModel(name='minValue', args=(0,)),
@@ -329,20 +393,22 @@ def test_get_user_list_view(pyramid_request):
             ],
         ),
         FieldModel(
-            type='TextInput', source='name',
+            type='TextInput',
+            source='name',
             params={'label': 'User name'},
             validators=[
                 ValidatorModel(name='minLength', args=(1,)),
-            ]
+            ],
         ),
         FieldModel(
-            type='SelectInput', source='sex',
+            type='SelectInput',
+            source='sex',
             params={
                 'label': 'Sex',
                 'choices': [
                     {'id': 'm', 'name': 'M'},
                     {'id': 'f', 'name': 'F'},
-                ]
+                ],
             },
         ),
     ]
@@ -351,7 +417,13 @@ def test_get_user_list_view(pyramid_request):
     resource_admin.fields = Exclude('name', 'age')
     view = resource_admin.get_list_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'sex', 'current_work.title', 'previews_work.title'}
+    assert fields == {
+        'id',
+        'created',
+        'sex',
+        'current_work.title',
+        'previews_work.title',
+    }
     filters = sorted(view.filters, key=lambda f: f.source)
     assert filters == [
         FieldModel(
@@ -360,7 +432,8 @@ def test_get_user_list_view(pyramid_request):
             params={'label': 'Has children'},
         ),
         FieldModel(
-            type='TextInput', source='id',
+            type='TextInput',
+            source='id',
             params={'label': 'ID', 'alwaysOn': True},
             validators=[
                 ValidatorModel(name='minValue', args=(0,)),
@@ -369,20 +442,22 @@ def test_get_user_list_view(pyramid_request):
         ),
         # Filter by name is not excluded by global settings
         FieldModel(
-            type='TextInput', source='name',
+            type='TextInput',
+            source='name',
             params={'label': 'User name'},
             validators=[
                 ValidatorModel(name='minLength', args=(1,)),
-            ]
+            ],
         ),
         FieldModel(
-            type='SelectInput', source='sex',
+            type='SelectInput',
+            source='sex',
             params={
                 'label': 'Sex',
                 'choices': [
                     {'id': 'm', 'name': 'M'},
                     {'id': 'f', 'name': 'F'},
-                ]
+                ],
             },
         ),
     ]
@@ -391,7 +466,14 @@ def test_get_user_list_view(pyramid_request):
     resource_admin.list_view.fields = Exclude('sex')
     view = resource_admin.get_list_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'created', 'current_work', 'description', 'children', 'previews_work', 'id'}
+    assert fields == {
+        'created',
+        'current_work',
+        'description',
+        'children',
+        'previews_work',
+        'id',
+    }
 
     # Only fields for view
     resource_admin.list_view.fields = Only('id')
@@ -406,13 +488,14 @@ def test_get_user_show_view(pyramid_request):
     fields = sorted(view.fields, key=lambda f: f.source)
     assert fields == [
         FieldModel(
-            type='NumberField', source='age',
+            type='NumberField',
+            source='age',
             params={
                 'label': 'Age',
                 'options': {
                     'useGrouping': False,
                 },
-            }
+            },
         ),
         FieldModel(
             type='ArrayField',
@@ -425,18 +508,24 @@ def test_get_user_show_view(pyramid_request):
                         source='sex',
                         params={
                             'label': 'Sex',
-                            'choices': [{'id': 'm', 'name': 'M'}, {'id': 'f', 'name': 'F'}]
-                        }
+                            'choices': [
+                                {'id': 'm', 'name': 'M'},
+                                {'id': 'f', 'name': 'F'},
+                            ],
+                        },
                     ),
-                    FieldModel(type='TextField', source='name', params={'label': 'Name'}),
                     FieldModel(
-                        type='NumberField', source='age',
+                        type='TextField', source='name', params={'label': 'Name'}
+                    ),
+                    FieldModel(
+                        type='NumberField',
+                        source='age',
                         params={
                             'label': 'Age',
                             'options': {
                                 'useGrouping': False,
                             },
-                        }
+                        },
                     ),
                     FieldModel(
                         type='NestedArrayField',
@@ -449,8 +538,8 @@ def test_get_user_show_view(pyramid_request):
                                 source='_value',
                                 params={
                                     'label': 'Toy name',
-                                }
-                            )
+                                },
+                            ),
                         },
                     ),
                     FieldModel(
@@ -461,9 +550,14 @@ def test_get_user_show_view(pyramid_request):
                             'showTime': True,
                         },
                     ),
-                ]
-            }),
-        FieldModel(type='DateField', source='created', params={'label': 'Created', 'showTime': True}),
+                ],
+            },
+        ),
+        FieldModel(
+            type='DateField',
+            source='created',
+            params={'label': 'Created', 'showTime': True},
+        ),
         FieldModel(
             type='MappingField',
             source='current_work',
@@ -471,23 +565,30 @@ def test_get_user_show_view(pyramid_request):
                 'label': 'Current work',
                 'fields': [
                     FieldModel(
-                        type='TextField', source='title', params={'label': 'Title'},
+                        type='TextField',
+                        source='title',
+                        params={'label': 'Title'},
                     ),
                     FieldModel(
-                        type='TextField', source='address', params={'label': 'Address'},
-                    )
-                ]
+                        type='TextField',
+                        source='address',
+                        params={'label': 'Address'},
+                    ),
+                ],
             },
         ),
-        FieldModel(type='TextField', source='description', params={'label': 'Description'}),
         FieldModel(
-            type='NumberField', source='id',
+            type='TextField', source='description', params={'label': 'Description'}
+        ),
+        FieldModel(
+            type='NumberField',
+            source='id',
             params={
                 'label': 'ID',
                 'options': {
                     'useGrouping': False,
                 },
-            }
+            },
         ),
         FieldModel(type='TextField', source='name', params={'label': 'User name'}),
         FieldModel(
@@ -497,20 +598,25 @@ def test_get_user_show_view(pyramid_request):
                 'label': 'Previews work',
                 'fields': [
                     FieldModel(
-                        type='TextField', source='title', params={'label': 'Title'},
+                        type='TextField',
+                        source='title',
+                        params={'label': 'Title'},
                     ),
                     FieldModel(
-                        type='TextField', source='address', params={'label': 'Address'},
-                    )
-                ]
+                        type='TextField',
+                        source='address',
+                        params={'label': 'Address'},
+                    ),
+                ],
             },
         ),
         FieldModel(
-            type='SelectField', source='sex',
+            type='SelectField',
+            source='sex',
             params={
                 'label': 'Sex',
-                'choices': [{'id': 'm', 'name': 'M'}, {'id': 'f', 'name': 'F'}]
-            }
+                'choices': [{'id': 'm', 'name': 'M'}, {'id': 'f', 'name': 'F'}],
+            },
         ),
     ]
 
@@ -518,13 +624,28 @@ def test_get_user_show_view(pyramid_request):
     resource_admin.fields = Exclude('name', 'age')
     view = resource_admin.get_show_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'sex', 'description', 'children', 'current_work', 'previews_work'}
+    assert fields == {
+        'id',
+        'created',
+        'sex',
+        'description',
+        'children',
+        'current_work',
+        'previews_work',
+    }
 
     # Exclude fields for view
     resource_admin.show_view.fields = Exclude('sex')
     view = resource_admin.get_show_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'id', 'created', 'children', 'description', 'current_work', 'previews_work'}
+    assert fields == {
+        'id',
+        'created',
+        'children',
+        'description',
+        'current_work',
+        'previews_work',
+    }
 
     # Only fields for view
     resource_admin.show_view.fields = Only('id')
@@ -540,39 +661,49 @@ def test_get_user_create_view(pyramid_request):
 
     assert fields == [
         FieldModel(
-            type='TextInput', source='age',
+            type='TextInput',
+            source='age',
             params={'label': 'Age'},
             validators=[
                 ValidatorModel(name='minValue', args=(0,)),
                 ValidatorModel(name='number'),
-            ]
+            ],
         ),
         FieldModel(
-            type='ArrayInput', source='children',
+            type='ArrayInput',
+            source='children',
             params={
                 'label': 'Children',
                 'fields': [
                     FieldModel(
-                        type='SelectInput', source='sex',
+                        type='SelectInput',
+                        source='sex',
                         params={
                             'label': 'Sex',
-                            'choices': [{'id': 'm', 'name': 'M'}, {'id': 'f', 'name': 'F'}]
+                            'choices': [
+                                {'id': 'm', 'name': 'M'},
+                                {'id': 'f', 'name': 'F'},
+                            ],
                         },
-                        validators=[ValidatorModel(name='required', args=())]
+                        validators=[ValidatorModel(name='required', args=())],
                     ),
                     FieldModel(
-                        type='TextInput', source='name',
+                        type='TextInput',
+                        source='name',
                         params={'label': 'Name'},
-                        validators=[ValidatorModel(name='required', args=()),
-                                    ValidatorModel(name='minLength', args=(1,))]
+                        validators=[
+                            ValidatorModel(name='required', args=()),
+                            ValidatorModel(name='minLength', args=(1,)),
+                        ],
                     ),
                     FieldModel(
-                        type='TextInput', source='age',
+                        type='TextInput',
+                        source='age',
                         params={'label': 'Age'},
                         validators=[
                             ValidatorModel(name='minValue', args=(0,)),
                             ValidatorModel(name='number'),
-                        ]
+                        ],
                     ),
                     FieldModel(
                         type='ArrayInput',
@@ -587,11 +718,11 @@ def test_get_user_create_view(pyramid_request):
                                     validators=[
                                         ValidatorModel(name='required', args=()),
                                         ValidatorModel(name='minLength', args=(1,)),
-                                    ]
+                                    ],
                                 )
-                            ]
+                            ],
                         },
-                        validators=[ValidatorModel(name='required', args=())]
+                        validators=[ValidatorModel(name='required', args=())],
                     ),
                     FieldModel(
                         type='DateInput',
@@ -600,9 +731,9 @@ def test_get_user_create_view(pyramid_request):
                             'label': 'Birth date',
                         },
                     ),
-                ]
+                ],
             },
-            validators=[ValidatorModel(name='required', args=())]
+            validators=[ValidatorModel(name='required', args=())],
         ),
         FieldModel(
             type='MappingInput',
@@ -611,36 +742,45 @@ def test_get_user_create_view(pyramid_request):
                 'label': 'Current work',
                 'fields': [
                     FieldModel(
-                        type='TextInput', source='title', params={'label': 'Title'},
+                        type='TextInput',
+                        source='title',
+                        params={'label': 'Title'},
                         validators=[
                             ValidatorModel(name='required', args=()),
-                            ValidatorModel(name='minLength', args=(1,))
-                        ]
+                            ValidatorModel(name='minLength', args=(1,)),
+                        ],
                     ),
                     FieldModel(
-                        type='TextInput', source='address', params={'label': 'Address'},
+                        type='TextInput',
+                        source='address',
+                        params={'label': 'Address'},
                         validators=[
                             ValidatorModel(name='required', args=()),
-                            ValidatorModel(name='minLength', args=(1,))
-                        ]
-                    )
-                ]
+                            ValidatorModel(name='minLength', args=(1,)),
+                        ],
+                    ),
+                ],
             },
         ),
         FieldModel(
             type='TextInput',
             source='description',
-            params={'label': 'Description'},
-            validators=[ValidatorModel(name='required')]
+            params={
+                'label': 'Description',
+                'defaultValue': '',
+            },
+            validators=[],
         ),
         FieldModel(
-            type='TextInput', source='name',
+            type='TextInput',
+            source='name',
             params={'label': 'User name'},
             validators=[
-                ValidatorModel(name='required', args=()), ValidatorModel(name='maxLength', args=(50,)),
+                ValidatorModel(name='required', args=()),
+                ValidatorModel(name='maxLength', args=(50,)),
                 ValidatorModel(name='regex', args=('^[a-zA-z0-9]+$',)),
-                ValidatorModel(name='minLength', args=(1,))
-            ]
+                ValidatorModel(name='minLength', args=(1,)),
+            ],
         ),
         FieldModel(
             type='MappingInput',
@@ -649,31 +789,36 @@ def test_get_user_create_view(pyramid_request):
                 'label': 'Previews work',
                 'fields': [
                     FieldModel(
-                        type='TextInput', source='title', params={'label': 'Title'},
+                        type='TextInput',
+                        source='title',
+                        params={'label': 'Title'},
                         validators=[
                             ValidatorModel(name='required', args=()),
-                            ValidatorModel(name='minLength', args=(1,))
-                        ]
+                            ValidatorModel(name='minLength', args=(1,)),
+                        ],
                     ),
                     FieldModel(
-                        type='TextInput', source='address', params={'label': 'Address'},
+                        type='TextInput',
+                        source='address',
+                        params={'label': 'Address'},
                         validators=[
                             ValidatorModel(name='required', args=()),
-                            ValidatorModel(name='minLength', args=(1,))
-                        ]
-                    )
-                ]
+                            ValidatorModel(name='minLength', args=(1,)),
+                        ],
+                    ),
+                ],
             },
         ),
         FieldModel(
-            type='SelectInput', source='sex',
+            type='SelectInput',
+            source='sex',
             params={
                 'label': 'Sex',
                 'choices': [{'id': 'm', 'name': 'M'}, {'id': 'f', 'name': 'F'}],
                 'emptyText': '<none>',
                 'emptyValue': None,
             },
-            validators=[]
+            validators=[],
         ),
     ]
 
@@ -681,13 +826,26 @@ def test_get_user_create_view(pyramid_request):
     resource_admin.fields = Exclude('age')
     view = resource_admin.get_create_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'name', 'sex', 'description', 'children', 'current_work', 'previews_work'}
+    assert fields == {
+        'name',
+        'sex',
+        'description',
+        'children',
+        'current_work',
+        'previews_work',
+    }
 
     # Exclude fields for view
     resource_admin.create_view.fields = Exclude('sex')
     view = resource_admin.get_create_view()
     fields = {f.source for f in view.fields}
-    assert fields == {'name', 'children', 'description', 'current_work', 'previews_work'}
+    assert fields == {
+        'name',
+        'children',
+        'description',
+        'current_work',
+        'previews_work',
+    }
 
     # Only fields for view
     resource_admin.create_view.fields = Only('sex')
@@ -702,38 +860,49 @@ def test_get_user_edit_view(pyramid_request):
     fields = sorted(view.fields, key=lambda f: f.source)
     assert fields == [
         FieldModel(
-            type='TextInput', source='age',
+            type='TextInput',
+            source='age',
             params={'label': 'Age'},
             validators=[
                 ValidatorModel(name='minValue', args=(0,)),
                 ValidatorModel(name='number'),
-            ]
+            ],
         ),
         FieldModel(
-            type='ArrayInput', source='children',
+            type='ArrayInput',
+            source='children',
             params={
                 'label': 'Children',
                 'fields': [
                     FieldModel(
-                        type='SelectInput', source='sex',
+                        type='SelectInput',
+                        source='sex',
                         params={
                             'label': 'Sex',
-                            'choices': [{'id': 'm', 'name': 'M'}, {'id': 'f', 'name': 'F'}]
+                            'choices': [
+                                {'id': 'm', 'name': 'M'},
+                                {'id': 'f', 'name': 'F'},
+                            ],
                         },
-                        validators=[ValidatorModel(name='required', args=())]
+                        validators=[ValidatorModel(name='required', args=())],
                     ),
                     FieldModel(
-                        type='TextInput', source='name', params={'label': 'Name'},
-                        validators=[ValidatorModel(name='required', args=()),
-                                    ValidatorModel(name='minLength', args=(1,))]
+                        type='TextInput',
+                        source='name',
+                        params={'label': 'Name'},
+                        validators=[
+                            ValidatorModel(name='required', args=()),
+                            ValidatorModel(name='minLength', args=(1,)),
+                        ],
                     ),
                     FieldModel(
-                        type='TextInput', source='age',
+                        type='TextInput',
+                        source='age',
                         params={'label': 'Age'},
                         validators=[
                             ValidatorModel(name='minValue', args=(0,)),
                             ValidatorModel(name='number'),
-                        ]
+                        ],
                     ),
                     FieldModel(
                         type='ArrayInput',
@@ -748,11 +917,11 @@ def test_get_user_edit_view(pyramid_request):
                                     validators=[
                                         ValidatorModel(name='required', args=()),
                                         ValidatorModel(name='minLength', args=(1,)),
-                                    ]
+                                    ],
                                 )
-                            ]
+                            ],
                         },
-                        validators=[ValidatorModel(name='required', args=())]
+                        validators=[ValidatorModel(name='required', args=())],
                     ),
                     FieldModel(
                         type='DateInput',
@@ -761,7 +930,7 @@ def test_get_user_edit_view(pyramid_request):
                             'label': 'Birth date',
                         },
                     ),
-                ]
+                ],
             },
         ),
         FieldModel(
@@ -771,36 +940,42 @@ def test_get_user_edit_view(pyramid_request):
                 'label': 'Current work',
                 'fields': [
                     FieldModel(
-                        type='TextInput', source='title', params={'label': 'Title'},
+                        type='TextInput',
+                        source='title',
+                        params={'label': 'Title'},
                         validators=[
                             ValidatorModel(name='required', args=()),
-                            ValidatorModel(name='minLength', args=(1,))
-                        ]
+                            ValidatorModel(name='minLength', args=(1,)),
+                        ],
                     ),
                     FieldModel(
-                        type='TextInput', source='address', params={'label': 'Address'},
+                        type='TextInput',
+                        source='address',
+                        params={'label': 'Address'},
                         validators=[
                             ValidatorModel(name='required', args=()),
-                            ValidatorModel(name='minLength', args=(1,))
-                        ]
-                    )
-                ]
+                            ValidatorModel(name='minLength', args=(1,)),
+                        ],
+                    ),
+                ],
             },
         ),
         FieldModel(
-            type='TextInput', source='name',
+            type='TextInput',
+            source='name',
             params={'label': 'User name'},
             validators=[
                 ValidatorModel(name='maxLength', args=(50,)),
                 ValidatorModel(name='regex', args=('^[a-zA-z0-9]+$',)),
-                ValidatorModel(name='minLength', args=(1,))
-            ]
+                ValidatorModel(name='minLength', args=(1,)),
+            ],
         ),
         FieldModel(
-            type='SelectInput', source='sex',
+            type='SelectInput',
+            source='sex',
             params={
                 'label': 'Sex',
-                'choices': [{'id': 'm', 'name': 'M'}, {'id': 'f', 'name': 'F'}]
+                'choices': [{'id': 'm', 'name': 'M'}, {'id': 'f', 'name': 'F'}],
             },
         ),
     ]

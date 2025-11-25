@@ -93,7 +93,7 @@ class InputWidget(Widget):
     # If true, the input will expand to fill the form width.
     full_width: Optional[bool] = ra_field('fullWidth')
 
-    def to_model(self, field_name: str) -> FieldModel:
+    def to_model(self, field_name: Optional[str]) -> FieldModel:
         field_model = super().to_model(field_name)
         if self.validators:
             field_model.validators = [v.to_model() for v in self.validators]
@@ -361,21 +361,41 @@ class ReferenceInputBase:
 @dataclass()
 class ReferenceInput(InputWidget, ReferenceInputBase):
     type = 'ReferenceInput'
+    per_page: Optional[int] = ra_field('perPage', default=500)
     # Default is SelectInput
     widget: Optional[ChoicesInputWidget] = None
-    # If True, add an empty item to the list of choices to allow for empty value
-    allow_empty: Optional[bool] = ra_field('allowEmpty')
-    per_page: Optional[int] = ra_field('perPage', default=500)
+    # If the input isn’t required, users can select an empty choice
+    # with an empty_text as label and empty_value as value.
+    # Overwrite value of "empty value".
+    empty_value: Optional[SimpleJsonValue] = ra_field('emptyValue', default='')
+    # The text to display for the empty option.
+    empty_text: Optional[str] = ra_field('emptyText')
     # Field name of record to display in the default SelectInput widget.
     option_text: Optional[str] = ra_field('optionText')
 
     def to_model(self, field_name: str) -> FieldModel:
         model = super().to_model(field_name)
-        widget = model.params.pop('widget', None)
+        widget: Optional[InputWidget] = model.params.pop('widget', None)
         option_text = model.params.pop('optionText', None)
         if not widget:
-            widget = SelectInput(option_text=option_text)
-        model.params['child'] = widget.to_model(field_name=None)
+            widget = SelectInput(
+                label=self.label,
+                empty_value=self.empty_value,
+                empty_text=self.empty_text,
+                option_text=option_text,
+            )
+
+        if self.validators:
+            widget.validators = self.validators
+            model.validators = []
+
+        child_model = widget.to_model(field_name=None)
+        # ReferenceInput doesn’t accept the common input props (like label);
+        # it is the responsibility of the child component to apply them.
+        for name in ('label', 'emptyValue', 'emptyText', 'optionText'):
+            model.params.pop(name, None)
+
+        model.params['child'] = child_model
         return model
 
 

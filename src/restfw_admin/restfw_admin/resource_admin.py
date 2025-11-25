@@ -215,6 +215,7 @@ class ResourceAdmin:
                 models.EditViewModel,
                 fields_type='input',
             )
+        return None
 
     def _get_view(
         self,
@@ -226,7 +227,7 @@ class ResourceAdmin:
         use_nested_array_field=False,
     ) -> Optional[models.ViewModelType]:
         if schema_node is None:
-            return
+            return None
 
         if fields_type == 'input':
             get_widgets = get_input_widgets
@@ -249,12 +250,13 @@ class ResourceAdmin:
     ) -> Optional[ColanderNode]:
         method_options = getattr(view_class, f'options_for_{method}')
         if not method_options:
-            return
+            return None
         schema_class: Type[ColanderNode] = getattr(
             method_options, f'{schema_type}_schema'
         )
         if schema_class:
-            return schema_class()
+            return schema_class().bind(request=self._request, context=None)
+        return None
 
     def _widgets_to_fields(
         self,

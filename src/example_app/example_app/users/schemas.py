@@ -3,6 +3,7 @@
 :Authors: cykooz
 :Date: 05.02.2020
 """
+
 import colander
 from restfw import schemas
 
@@ -14,8 +15,8 @@ class Child(schemas.MappingNode):
 
 
 class Work(schemas.MappingNode):
-    title = schemas.StringNode(title="Title")
-    address = schemas.StringNode(title="Address")
+    title = schemas.StringNode(title='Title')
+    address = schemas.StringNode(title='Address')
 
 
 def name_wo_spaces(node, value):
@@ -32,32 +33,26 @@ class UserSchema(schemas.HalResourceSchema):
     sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
     children = schemas.SequenceNode(Child(title='Child'))
     current_work = Work(title='Current work')
-    tags = schemas.SequenceNode(
-        schemas.StringNode(title='Tag'),
-        title='Tags'
-    )
+    tags = schemas.SequenceNode(schemas.StringNode(title='Tag'), title='Tags')
 
 
 class CreateUserSchema(schemas.MappingNode):
     first_name = schemas.StringNode(
         title='First Name',
-        validator=colander.All(
-            colander.Length(max=50),
-            name_wo_spaces
-        ),
+        validator=colander.All(colander.Length(max=50), name_wo_spaces),
     )
     last_name = schemas.EmptyStringNode(
         title='Last Name',
         validator=schemas.NullableValidator(
-            colander.All(
-                colander.Length(max=50),
-                colander.Regex(r'^[a-zA-z0-9]*$')
-            )
+            colander.All(colander.Length(max=50), colander.Regex(r'^[a-zA-z0-9]*$'))
         ),
         nullable=True,
+        missing=None,
     )
     age = schemas.UnsignedIntegerNode(
-        title='Age', nullable=True, missing=None,
+        title='Age',
+        nullable=True,
+        missing=None,
     )
     sex = schemas.StringNode(
         title='Sex',
@@ -73,12 +68,9 @@ class CreateUserSchema(schemas.MappingNode):
     join_work_time = schemas.DateTimeNode(
         title='Join Work Time',
         nullable=True,
-        # missing=None,
+        missing=None,
     )
-    tags = schemas.SequenceNode(
-        schemas.StringNode(title='Tag'),
-        title='Tags'
-    )
+    tags = schemas.SequenceNode(schemas.StringNode(title='Tag'), title='Tags')
 
 
 PatchUserSchema = schemas.clone_schema_class(
@@ -91,8 +83,7 @@ PatchUserSchema = schemas.clone_schema_class(
 class UsersSchema(schemas.HalResourceWithEmbeddedSchema):
     _embedded = schemas.EmbeddedNode(
         schemas.SequenceNode(
-            UserSchema(title='User'),
-            name='users', title='List of embedded users'
+            UserSchema(title='User'), name='users', title='List of embedded users'
         ),
         missing=colander.drop,
     )

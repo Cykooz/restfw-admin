@@ -1,5 +1,5 @@
 """
-:Version: 1.3.1
+:Version: 1.4.0
 
 Look for the latest version of the script in the GIST:
 https://gist.github.com/Cykooz/118fba100c9ceb76ee822f7541d480c4
@@ -18,13 +18,13 @@ from tempfile import TemporaryDirectory
 from urllib.request import urlopen
 
 
-BUILDOUT_VERSION = '3.0.1'
-PIP_VERSION = '24.0.0'
+BUILDOUT_VERSION = '5.0.0a3'
+PIP_VERSION = '25.2.0'
 # With newer version, a build is failed due to
 # an incorrect version of dependencies in some packages.
 # Need to recheck in the future.
-SETUPTOOLS_VERSION = '66.1.1'
-WHEEL_VERSION = '0.43.0'
+SETUPTOOLS_VERSION = '80.9.0'
+WHEEL_VERSION = '0.45.1'
 
 GET_PIP_URL = 'https://bootstrap.pypa.io/get-pip.py'
 
@@ -162,8 +162,8 @@ def main():
         ]
     )
 
-    # Delete zc.buildout.egg-link from list of develop eggs
-    buildout_link = project_dir / 'develop-eggs' / 'zc.buildout.egg-link'
+    logger.info('Delete zc-buildout.egg-link from list of develop eggs')
+    buildout_link = project_dir / 'develop-eggs' / 'zc-buildout.egg-link'
     if buildout_link.is_file():
         os.remove(buildout_link)
 
