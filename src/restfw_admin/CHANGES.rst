@@ -1,15 +1,18 @@
-..  Changelog format guide.
-- Before make new release of core egg you MUST add here a header for new version with name "Next release".
-- After all headers and paragraphs you MUST add only ONE empty line.
-- At the end of sentence which describes some changes SHOULD be identifier of task from our task manager.
-This identifier MUST be placed in brackets. If a hot fix has not the task identifier then you
-can use the word "HOTFIX" instead of it.
-- At the end of sentence MUST stand a point.
-- List of changes in the one version MUST be grouped in the next sections:
-- Features
-- Changes
-- Bug Fixes
-- Docs
+.. Changelog format guide.
+.. - Before make a new release of the core you MUST add here a header for
+..   a new version with name "Next release".
+.. - You MUST add only ONE empty line after all headers and paragraphs.
+.. - At the end of sentence which describes some changes SHOULD be an identifier
+..   of task from our task manager.
+..   This identifier MUST be placed in brackets. If a hot fix doesn't have a task
+..   identifier then you can use the word "HOTFIX" instead.
+.. - At the end of sentence MUST stand a point.
+.. - List of changes in the one version MUST be grouped into next sections:
+..     - Features
+..     - Changes
+..     - Bug Fixes
+..     - Breaking Changes
+..     - Docs
 
 CHANGELOG
 *********
