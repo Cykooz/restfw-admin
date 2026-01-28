@@ -18,11 +18,11 @@ from tempfile import TemporaryDirectory
 from urllib.request import urlopen
 
 
-BUILDOUT_VERSION = '5.0.0a3'
-PIP_VERSION = '25.2.0'
-# With newer version, a build is failed due to
-# an incorrect version of dependencies in some packages.
-# Need to recheck in the future.
+BUILDOUT_VERSION = '5.1.1'
+PIP_VERSION = '25.3.0'
+# Note from zc.buildout CHANGES.rst
+# > Require setuptools<81.
+# > We need the pkg_resources module which is scheduled for removal in 81 (#81).
 SETUPTOOLS_VERSION = '80.9.0'
 WHEEL_VERSION = '0.45.1'
 
@@ -77,7 +77,7 @@ def main():
         venv_python_path = venv_dir / 'bin' / 'python'
 
     if venv_python_path.is_file():
-        logger.debug('Checking version of exists virtual python...')
+        logger.debug('Checking version of exists virtual python.')
         proc = subprocess.Popen(
             [
                 str(venv_python_path),
@@ -91,7 +91,7 @@ def main():
         if env_version != sys.version:
             logger.info(
                 'Removing exists virtual python environment '
-                'due to incorrect version of Python in it...'
+                'due to incorrect version of Python in it.'
             )
             shutil.rmtree(venv_dir)
 
@@ -103,7 +103,7 @@ def main():
             system_site_packages=False,
             with_pip=False,
         )
-        logger.info('Virtual python environment has installed.')
+        logger.info('Virtual python environment was installed.')
 
     dep_args = {
         'pip': 'pip_version',

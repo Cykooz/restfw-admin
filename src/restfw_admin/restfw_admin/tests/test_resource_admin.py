@@ -25,6 +25,7 @@ from ..resource_admin import (
     Filters,
 )
 from ..resources import get_admin
+from ..validators import Required
 
 
 # Users
@@ -42,7 +43,7 @@ class Child(schemas.MappingNode):
         title='Birth date',
         widget=(
             widgets.DateField(show_time=True),
-            widgets.DateInput(),
+            widgets.DateInput(validators=[Required()]),
         ),
     )
 
@@ -82,12 +83,18 @@ class UsersSchema(schemas.HalResourceWithEmbeddedSchema):
     )
 
 
+@colander.deferred
+def deferred_sex_validator(node, kw):
+    request = kw['request']
+    return colander.OneOf(['m', 'f'])
+
+
 class GetUsersSchema(schemas.GetEmbeddedSchema):
     id = schemas.UnsignedIntegerNode(title='ID', missing=colander.drop)
     name = schemas.StringNode(title='User name', missing=colander.drop)
     sex = schemas.StringNode(
         title='Sex',
-        validator=colander.OneOf(['m', 'f']),
+        validator=deferred_sex_validator,
         missing=colander.drop,
     )
     has_children = schemas.BooleanNode(
@@ -112,7 +119,7 @@ class CreateUserSchema(schemas.MappingNode):
     )
     sex = schemas.StringNode(
         title='Sex',
-        validator=colander.OneOf(['m', 'f']),
+        validator=deferred_sex_validator,
         nullable=True,
         missing=None,
     )
@@ -654,6 +661,10 @@ def test_get_user_show_view(pyramid_request):
     assert fields == {'id'}
 
 
+import pytest
+
+
+@pytest.mark.now
 def test_get_user_create_view(pyramid_request):
     resource_admin = UsersAdmin(pyramid_request, 'items')
     view = resource_admin.get_create_view()
@@ -730,6 +741,7 @@ def test_get_user_create_view(pyramid_request):
                         params={
                             'label': 'Birth date',
                         },
+                        validators=[ValidatorModel(name='required', args=())],
                     ),
                 ],
             },
@@ -929,6 +941,7 @@ def test_get_user_edit_view(pyramid_request):
                         params={
                             'label': 'Birth date',
                         },
+                        validators=[ValidatorModel(name='required', args=())],
                     ),
                 ],
             },

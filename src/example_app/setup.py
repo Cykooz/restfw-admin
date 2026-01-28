@@ -2,6 +2,7 @@
 import os
 import sys
 from setuptools import setup, find_packages
+
 sys.path.append('.')
 
 
@@ -41,7 +42,7 @@ setup(
     install_requires=[
         'setuptools',
         'six',
-        'restfw>=4.0',
+        'restfw>=8.7.3',
         'restfw_admin',
         'wsgicors',
         'pendulum',

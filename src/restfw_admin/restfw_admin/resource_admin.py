@@ -125,59 +125,63 @@ class ResourceAdmin:
 
     def get_list_view(self) -> Optional[models.ListViewModel]:
         if self.list_view is None:
-            return
+            return None
         options_for_get = self.container_view_class.options_for_get
-        if options_for_get and options_for_get.output_schema:
-            schema: ColanderNode = options_for_get.output_schema()
-            embedded_node: Optional[ColanderNode] = schema.get('_embedded')
-            if not embedded_node:
-                return
-            embedded_item_node: Optional[ColanderNode] = embedded_node.get(
-                self.embedded_name
+        if not options_for_get or not options_for_get.output_schema:
+            return None
+        schema: ColanderNode = options_for_get.output_schema().bind(
+            request=self._request, context=None
+        )
+        embedded_node: Optional[ColanderNode] = schema.get('_embedded')
+        if not embedded_node:
+            return None
+        embedded_item_node: Optional[ColanderNode] = embedded_node.get(
+            self.embedded_name
+        )
+        if not embedded_item_node or not isinstance(
+            embedded_item_node.typ, colander.Sequence
+        ):
+            return None
+        list_item_node = embedded_item_node.children[0]
+        list_view = self._get_view(
+            list_item_node,
+            self.list_view,
+            models.ListViewModel,
+            fields_type='view',
+            use_nested_array_field=True,
+        )
+        if list_view and self.list_view.filters:
+            filters = self.list_view.filters
+            input_schema: ColanderNode = options_for_get.input_schema().bind(
+                request=self._request, context=None
             )
-            if embedded_item_node and isinstance(
-                embedded_item_node.typ, colander.Sequence
-            ):
-                list_item_node = embedded_item_node.children[0]
-                list_view = self._get_view(
-                    list_item_node,
-                    self.list_view,
-                    models.ListViewModel,
-                    fields_type='view',
+            if input_schema:
+                filters_widgets = get_input_widgets(self._registry, input_schema)
+                for widget in filters_widgets.values():
+                    widget.helper_text = None
+                list_view.filters = self._widgets_to_fields(
+                    ViewSettings(
+                        fields=filters.fields,
+                        widgets=filters.widgets,
+                    ),
+                    filters_widgets,
                     use_nested_array_field=True,
+                    default_fields=Exclude(
+                        'embedded',
+                        'offset',
+                        'limit',
+                        'total_count',
+                        'total_count',
+                    ),
+                    fields=[],
                 )
-                if list_view and self.list_view.filters:
-                    filters = self.list_view.filters
-                    input_schema: ColanderNode = options_for_get.input_schema()
-                    if input_schema:
-                        filters_widgets = get_input_widgets(
-                            self._registry, input_schema
-                        )
-                        for widget in filters_widgets.values():
-                            widget.helper_text = None
-                        list_view.filters = self._widgets_to_fields(
-                            ViewSettings(
-                                fields=filters.fields,
-                                widgets=filters.widgets,
-                            ),
-                            filters_widgets,
-                            use_nested_array_field=True,
-                            default_fields=Exclude(
-                                'embedded',
-                                'offset',
-                                'limit',
-                                'total_count',
-                                'total_count',
-                            ),
-                            fields=[],
-                        )
-                        if filters.always_on:
-                            for field in list_view.filters:
-                                if field.source in filters.always_on:
-                                    field.params['alwaysOn'] = True
-                if list_view:
-                    list_view.infinite_pagination = self.list_view.infinite_pagination
-                return list_view
+                if filters.always_on:
+                    for field in list_view.filters:
+                        if field.source in filters.always_on:
+                            field.params['alwaysOn'] = True
+        if list_view:
+            list_view.infinite_pagination = self.list_view.infinite_pagination
+        return list_view
 
     def get_show_view(self) -> Optional[models.ShowViewModel]:
         return self._get_view(

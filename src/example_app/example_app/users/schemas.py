@@ -8,8 +8,14 @@ import colander
 from restfw import schemas
 
 
+@colander.deferred
+def sex_validator(node, kw):
+    request = kw['request']
+    return colander.OneOf(['m', 'f'])
+
+
 class Child(schemas.MappingNode):
-    sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
+    sex = schemas.StringNode(title='Sex', validator=sex_validator)
     name = schemas.StringNode(title='Name')
     age = schemas.UnsignedIntegerNode(title='Age', nullable=True)
 
@@ -30,7 +36,7 @@ class UserSchema(schemas.HalResourceSchema):
     first_name = schemas.StringNode(title='First Name')
     last_name = schemas.StringNode(title='Last Name')
     age = schemas.UnsignedIntegerNode(title='Age', nullable=True)
-    sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
+    sex = schemas.StringNode(title='Sex', validator=sex_validator)
     children = schemas.SequenceNode(Child(title='Child'))
     current_work = Work(title='Current work')
     tags = schemas.SequenceNode(schemas.StringNode(title='Tag'), title='Tags')
@@ -56,7 +62,7 @@ class CreateUserSchema(schemas.MappingNode):
     )
     sex = schemas.StringNode(
         title='Sex',
-        validator=colander.OneOf(['m', 'f']),
+        validator=sex_validator,
         nullable=True,
         missing=None,
     )
@@ -107,7 +113,7 @@ class GetUsersSchema(schemas.GetEmbeddedSchema):
     sex = schemas.StringNode(
         title='Sex',
         description='Filter by user sex',
-        validator=colander.OneOf(['m', 'f']),
+        validator=sex_validator,
         missing=colander.drop,
     )
     age = schemas.UnsignedIntegerNode(
