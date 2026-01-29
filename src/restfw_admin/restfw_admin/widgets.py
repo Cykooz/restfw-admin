@@ -211,8 +211,12 @@ class ChoicesWidget(Widget):
                 field_model.params['choices'] = [
                     {'id': _id, 'name': name} for _id, name in self.choices
                 ]
-            else:
+            elif isinstance(self.choices[0], dict):
                 field_model.params['choices'] = self.choices.copy()
+            else:
+                field_model.params['choices'] = [
+                    {'id': v, 'name': v} for v in self.choices
+                ]
         return field_model
 
 

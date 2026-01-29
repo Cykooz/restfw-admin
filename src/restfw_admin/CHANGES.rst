@@ -17,6 +17,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Fixed conversation ``choices`` field of ``ChoicesWidget`` into field model.
+
 1.8 (2026-01-29)
 ================
 

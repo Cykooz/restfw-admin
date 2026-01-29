@@ -520,7 +520,10 @@ def test_get_user_show_view(pyramid_request):
                         source='sex',
                         params={
                             'label': 'Sex',
-                            'choices': ['m', 'f'],
+                            'choices': [
+                                {'id': 'm', 'name': 'm'},
+                                {'id': 'f', 'name': 'f'},
+                            ],
                         },
                     ),
                     FieldModel(
@@ -693,7 +696,10 @@ def test_get_user_create_view(pyramid_request):
                         source='sex',
                         params={
                             'label': 'Sex',
-                            'choices': ['m', 'f'],
+                            'choices': [
+                                {'id': 'm', 'name': 'm'},
+                                {'id': 'f', 'name': 'f'},
+                            ],
                         },
                         validators=[ValidatorModel(name='required', args=())],
                     ),
@@ -890,7 +896,10 @@ def test_get_user_edit_view(pyramid_request):
                         source='sex',
                         params={
                             'label': 'Sex',
-                            'choices': ['m', 'f'],
+                            'choices': [
+                                {'id': 'm', 'name': 'm'},
+                                {'id': 'f', 'name': 'f'},
+                            ],
                         },
                         validators=[ValidatorModel(name='required', args=())],
                     ),
