@@ -559,3 +559,10 @@ class FileInput(InputWidget):
     max_size: Optional[int] = ra_field('maxSize')
     # Additional options passed to react-dropzone’s useDropzone() hook.
     options: Optional[dict[str, Json]] = None
+
+
+@dataclass()
+class WidgetOptions:
+    # It is used to control how values from colander.OneOf validator
+    # will be converted into choices for SelectField or SelectInput.
+    slug_to_title: bool = True

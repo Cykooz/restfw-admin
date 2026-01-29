@@ -17,6 +17,15 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Added
+-----
+
+- Added ``WidgetOptions`` dataclass that can be used to specify ``widget_options``
+  argument of schema node.
+
 1.7.5 (2026-01-29)
 ==================
 

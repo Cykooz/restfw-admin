@@ -26,13 +26,18 @@ from ..resource_admin import (
 )
 from ..resources import get_admin
 from ..validators import Required
+from ..widgets import WidgetOptions
 
 
 # Users
 
 
 class Child(schemas.MappingNode):
-    sex = schemas.StringNode(title='Sex', validator=colander.OneOf(['m', 'f']))
+    sex = schemas.StringNode(
+        title='Sex',
+        validator=colander.OneOf(['m', 'f']),
+        widget_options=WidgetOptions(slug_to_title=False),
+    )
     name = schemas.StringNode(title='Name')
     age = schemas.UnsignedIntegerNode(title='Age', nullable=True)
     toys = schemas.SequenceNode(
@@ -515,10 +520,7 @@ def test_get_user_show_view(pyramid_request):
                         source='sex',
                         params={
                             'label': 'Sex',
-                            'choices': [
-                                {'id': 'm', 'name': 'M'},
-                                {'id': 'f', 'name': 'F'},
-                            ],
+                            'choices': ['m', 'f'],
                         },
                     ),
                     FieldModel(
@@ -691,10 +693,7 @@ def test_get_user_create_view(pyramid_request):
                         source='sex',
                         params={
                             'label': 'Sex',
-                            'choices': [
-                                {'id': 'm', 'name': 'M'},
-                                {'id': 'f', 'name': 'F'},
-                            ],
+                            'choices': ['m', 'f'],
                         },
                         validators=[ValidatorModel(name='required', args=())],
                     ),
@@ -891,10 +890,7 @@ def test_get_user_edit_view(pyramid_request):
                         source='sex',
                         params={
                             'label': 'Sex',
-                            'choices': [
-                                {'id': 'm', 'name': 'M'},
-                                {'id': 'f', 'name': 'F'},
-                            ],
+                            'choices': ['m', 'f'],
                         },
                         validators=[ValidatorModel(name='required', args=())],
                     ),

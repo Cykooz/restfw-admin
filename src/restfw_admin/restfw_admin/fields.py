@@ -18,7 +18,7 @@ from .typing import ColanderNode
 from .utils import slug_to_title
 from .validators import Choices, Required
 from .validators_converters import get_validators, get_validators_by_type
-from .widgets import FieldWidget, InputWidget, SelectField, SelectInput
+from .widgets import FieldWidget, InputWidget, SelectField, SelectInput, WidgetOptions
 
 
 FieldConverter = Callable[
@@ -133,9 +133,11 @@ def _try_convert_to_select_field(
     if not choices_validators:
         return widget
 
-    choices = [
-        (choice, slug_to_title(str(choice))) for choice in choices_validators[0].choices
-    ]
+    choices = choices_validators[0].choices
+    widget_options: WidgetOptions = getattr(node, 'widget_options', WidgetOptions())
+    if widget_options.slug_to_title:
+        choices = [(choice, slug_to_title(str(choice))) for choice in choices]
+
     return SelectField(choices=choices, **widget.get_fields())
 
 
@@ -150,9 +152,11 @@ def _try_convert_to_select_input(
     if not choices_validators:
         return widget
 
-    choices = [
-        (choice, slug_to_title(str(choice))) for choice in choices_validators[0].choices
-    ]
+    choices = choices_validators[0].choices
+    widget_options: WidgetOptions = getattr(node, 'widget_options', WidgetOptions())
+    if widget_options.slug_to_title:
+        choices = [(choice, slug_to_title(str(choice))) for choice in choices]
+
     params = widget.get_fields()
     params['validators'] = get_validators_by_type(validators, Required)
     return SelectInput(choices=choices, **params)
