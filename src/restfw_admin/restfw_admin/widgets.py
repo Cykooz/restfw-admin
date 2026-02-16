@@ -435,7 +435,7 @@ class DynSelectInput(InputWidget, DynSelectBase):
     from AdminChoices resource."""
 
     type = 'ReferenceInput'
-    per_page: Optional[int] = ra_field('perPage')
+    per_page: Optional[int] = ra_field('perPage', default=500)
 
     def to_model(self, field_name: str) -> FieldModel:
         model = super().to_model(field_name)

@@ -17,6 +17,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Fixed default value of ``DynSelectInput.per_page``.
+
 1.8.2 (2026-01-29)
 ==================
 
