@@ -17,6 +17,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Added clamping long texts in a list view.
+
 1.8.4 (2026-02-16)
 ==================
 
