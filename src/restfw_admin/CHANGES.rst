@@ -24,6 +24,7 @@ Features
 --------
 
 - Added option ``redirect`` for ``CreateViewSettings``.
+- ``react-admin`` was updated to version 5.14.3.
 
 1.8.6 (2026-02-20)
 ==================
