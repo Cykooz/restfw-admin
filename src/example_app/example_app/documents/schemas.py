@@ -64,6 +64,7 @@ class DocSchema(schemas.HalResourceSchema):
         title='Weight',
         description='Used for documents ordering.',
     )
+    tags = schemas.SequenceNode(schemas.StringNode(title='Tag'), title='Tags')
     meta = DocMetaDataSchema(title='Meta data')
 
 
@@ -94,6 +95,11 @@ class CreateDocSchema(schemas.MappingNode):
         nullable=True,
         widget=_file_widget,
         missing=None,
+    )
+    tags = schemas.SequenceNode(
+        schemas.StringNode(title='Tag'),
+        title='Tags',
+        missing=colander.deferred(lambda n, k: []),
     )
     meta = EditDocMetaDataSchema(title='Meta data')
     publish_date = schemas.DateTimeNode(

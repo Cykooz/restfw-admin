@@ -43,6 +43,7 @@ class DocsAdmin(ResourceAdmin):
         'image',
         'publish_date',
         'weight',
+        'tags',
         'meta',
     )
     list_view = ListViewSettings(

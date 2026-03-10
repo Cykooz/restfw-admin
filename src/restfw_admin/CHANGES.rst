@@ -17,6 +17,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Bug Fixes
+---------
+
+- Fixed ``NestedArrayField`` implementation.
+
 1.9 (2026-03-10)
 ================
 

@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-import {FC, memo, ReactElement, useEffect, useState} from 'react';
+import {FC, memo, ReactNode, useEffect, useState} from 'react';
 import get from 'lodash/get';
-import {ListContextProvider, useListController, useRecordContext} from 'ra-core';
+import {ListContextProvider, useList, useRecordContext} from 'ra-core';
 import {FieldProps} from "react-admin";
+import * as React from "react";
 
 export interface NestedArrayFieldProps extends FieldProps {
-    children: ReactElement;
+    children: ReactNode;
 }
 
 const initialState: any[] = [];
@@ -23,7 +23,7 @@ export const NestedArrayField: FC<NestedArrayFieldProps> = memo(props => {
         }
     }, [record, source]);
 
-    const controllerProps = useListController({
+    const controllerProps = useList({
         sort: {field: '', order: 'ASC'},
         perPage: 1000000,
         resource: resource || "",

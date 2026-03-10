@@ -34,6 +34,7 @@ class DocModel:
     image: Optional[File] = None
     publish_date: Optional[datetime.datetime] = None
     weight: decimal.Decimal = decimal.Decimal('0.00')
+    tags: list[str] = field(default_factory=list)
     meta: DocMetaDataModel = field(default_factory=DocMetaDataModel)
 
 
