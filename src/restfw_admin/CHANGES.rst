@@ -17,6 +17,14 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Added option ``redirect`` for ``CreateViewSettings``.
+
 1.8.6 (2026-02-20)
 ==================
 

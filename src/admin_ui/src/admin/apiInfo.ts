@@ -27,6 +27,7 @@ export interface IShowView {
 
 export interface ICreateView {
     fields: IField[];
+    redirect: 'list' | 'edit' | 'show' | 'create';
 }
 
 export interface IEditView {

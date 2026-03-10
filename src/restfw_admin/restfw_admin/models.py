@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, TypeVar, Union, Any
+from typing import Dict, List, Optional, Tuple, TypeVar, Union, Any, Literal
 
 from restfw.typing import Json, SimpleJsonValue
 
@@ -49,8 +49,9 @@ class ShowViewModel(ViewModel):
     pass
 
 
+@dataclass()
 class CreateViewModel(ViewModel):
-    pass
+    redirect: Literal['list', 'edit', 'show', 'create'] = 'edit'
 
 
 class EditViewModel(ViewModel):

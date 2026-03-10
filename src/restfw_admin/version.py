@@ -34,12 +34,13 @@ With that setup, a new release can be labelled by simply invoking:
 
     git tag -a v1.0
 """
+
 import re
 import subprocess
 import sys
 from typing import Optional
 
-from pkg_resources import parse_version as Version
+from packaging.version import Version
 
 
 __author__ = (
@@ -61,7 +62,7 @@ RELEASE_VERSION_FILE = 'RELEASE-VERSION'
 _PEP440_SHORT_VERSION_RE = r'\d+(?:\.\d+)+(?:(?:[abc]|rc)\d+(?:\.\d+)*)?'
 _PEP440_VERSION_RE = r'^%s(?:\.post\d+)?(?:\.dev\d+)?$' % _PEP440_SHORT_VERSION_RE
 _GIT_DESCRIPTION_RE = (
-        r'^v(?P<ver>%s)-(?P<commits>\d+)-g(?P<sha>[\da-f]+)$' % _PEP440_SHORT_VERSION_RE
+    r'^v(?P<ver>%s)-(?P<commits>\d+)-g(?P<sha>[\da-f]+)$' % _PEP440_SHORT_VERSION_RE
 )
 
 
@@ -104,8 +105,7 @@ def read_release_version() -> Optional[Version]:
             fd.close()
         if not re.search(_PEP440_VERSION_RE, ver):
             sys.stderr.write(
-                'version: release version (%s) is invalid, '
-                'will use it anyway\n' % ver
+                'version: release version (%s) is invalid, will use it anyway\n' % ver
             )
         return Version(ver)
     except Exception:
@@ -145,8 +145,8 @@ def main():
         '-u',
         dest='version',
         help='replace title "Next release" in CHANGES.txt on given version number '
-             'and current date. You can use "auto" as version number for generate '
-             'version number automatically',
+        'and current date. You can use "auto" as version number for generate '
+        'version number automatically',
     )
     args = parser.parse_args()
     args_version = (args.version or '').strip()

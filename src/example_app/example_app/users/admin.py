@@ -12,6 +12,7 @@ from restfw_admin.resource_admin import (
     ListViewSettings,
     Filters,
     Exclude,
+    CreateViewSettings,
 )
 from .views import UserView, UsersView
 
@@ -43,3 +44,4 @@ class UsersAdmin(ResourceAdmin):
             always_on=['id'],
         ),
     )
+    create_view = CreateViewSettings(redirect='show')

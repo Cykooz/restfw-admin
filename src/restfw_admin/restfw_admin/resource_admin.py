@@ -56,6 +56,11 @@ class ListViewSettings(ViewSettings):
     infinite_pagination: bool = False
 
 
+@dataclasses.dataclass()
+class CreateViewSettings(ViewSettings):
+    redirect: Literal['list', 'edit', 'show', 'create'] = 'edit'
+
+
 class ResourceAdmin:
     title: str
     container_view_class: Type[HalResourceView]
@@ -73,7 +78,7 @@ class ResourceAdmin:
     fields: Optional[Union[Only, Exclude]] = None
     list_view: Optional[ListViewSettings] = ListViewSettings()
     show_view = ViewSettings()
-    create_view = ViewSettings()
+    create_view = CreateViewSettings()
     edit_view = ViewSettings()
     extra: dict[str, Any] = {}
 
@@ -196,7 +201,7 @@ class ResourceAdmin:
         )
 
     def get_create_view(self) -> Optional[models.CreateViewModel]:
-        return self._get_view(
+        view_model = self._get_view(
             self._get_schema_node(
                 self.container_view_class,
                 method='post',
@@ -206,6 +211,9 @@ class ResourceAdmin:
             models.CreateViewModel,
             fields_type='input',
         )
+        if view_model and isinstance(self.create_view, CreateViewSettings):
+            view_model.redirect = self.create_view.redirect
+        return view_model
 
     def get_edit_view(self) -> Optional[models.EditViewModel]:
         if self.update_method:

@@ -666,15 +666,16 @@ def test_get_user_show_view(pyramid_request):
     assert fields == {'id'}
 
 
-import pytest
-
-
-@pytest.mark.now
 def test_get_user_create_view(pyramid_request):
     resource_admin = UsersAdmin(pyramid_request, 'items')
     view = resource_admin.get_create_view()
-    fields = sorted(view.fields, key=lambda f: f.source)
+    assert view.redirect == 'edit'
 
+    resource_admin.create_view.redirect = 'show'
+    view = resource_admin.get_create_view()
+    assert view.redirect == 'show'
+
+    fields = sorted(view.fields, key=lambda f: f.source)
     assert fields == [
         FieldModel(
             type='TextInput',

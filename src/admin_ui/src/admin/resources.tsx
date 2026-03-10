@@ -124,7 +124,7 @@ function getCreateView(resourceInfo: IResourceInfo) {
 
     return () => {
         return (
-            <Create>
+            <Create redirect={create.redirect}>
                 <SimpleForm toolbar={<CreateToolbar/>}>
                     {getInputs(create.fields)}
                 </SimpleForm>
