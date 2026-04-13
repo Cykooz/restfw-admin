@@ -18,7 +18,15 @@ from .typing import ColanderNode
 from .utils import slug_to_title
 from .validators import Choices, Required
 from .validators_converters import get_validators, get_validators_by_type
-from .widgets import FieldWidget, InputWidget, SelectField, SelectInput, WidgetOptions
+from .widgets import (
+    FieldWidget,
+    InputWidget,
+    SelectField,
+    SelectInput,
+    WidgetOptions,
+    DynSelectField,
+    DynSelectInput,
+)
 
 
 FieldConverter = Callable[
@@ -125,7 +133,7 @@ def get_input_widget(
 def _try_convert_to_select_field(
     registry: Registry, widget: FieldWidget, node: ColanderNode
 ) -> FieldWidget:
-    if isinstance(widget, SelectField):
+    if isinstance(widget, (SelectField, DynSelectField)):
         return widget
 
     validators = get_validators(registry, node)
@@ -144,7 +152,7 @@ def _try_convert_to_select_field(
 def _try_convert_to_select_input(
     registry: Registry, widget: InputWidget, node: ColanderNode
 ) -> InputWidget:
-    if isinstance(widget, SelectInput):
+    if isinstance(widget, (SelectInput, DynSelectInput)):
         return widget
 
     validators = get_validators(registry, node)

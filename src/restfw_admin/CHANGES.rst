@@ -17,6 +17,19 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Changes
+-------
+
+- Updated all TS dependencies.
+
+Bug Fixes
+---------
+
+- Fixed ``_try_convert_to_select_field`` and ``_try_convert_to_select_input``.
+
 1.9.2 (2026-03-10)
 ==================
 
