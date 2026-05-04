@@ -30,8 +30,18 @@ import {IField} from "./apiInfo";
 import {JSX, ReactElement} from "react";
 import {getFieldValidators} from "./validators";
 import {RichTextInput} from "ra-input-rich-text";
-import {JsonField, JsonInput, MappingField, MappingInput, NestedArrayField, SimpleArrayField} from "./widgets";
+import {
+    JsonField,
+    JsonInput,
+    MappingField,
+    MappingInput,
+    NestedArrayField,
+    NullableTextField,
+    NullableTextInput,
+    SimpleArrayField
+} from "./widgets";
 import Chip from "@mui/material/Chip";
+
 
 export const defaultFieldStyle = {
     // maxWidth: '18em',
@@ -251,6 +261,7 @@ function file_input_fabric(key: string, field: IField) {
 
 const COMPONENTS: Record<string, IFabric> = {
     'TextField': view_fabric(TextField),
+    'NullableTextField': view_fabric(NullableTextField),
     'RichTextField': view_fabric(RichTextField),
     'DateField': view_fabric(DateField),
     'DateTimeField': view_fabric(DateField, {showTime: true}),
@@ -270,6 +281,7 @@ const COMPONENTS: Record<string, IFabric> = {
     'FileField': view_fabric(FileField),
     // Inputs
     'TextInput': input_fabric(TextInput),
+    'NullableTextInput': input_fabric(NullableTextInput),
     'RichTextInput': view_fabric(RichTextInput),
     'DateInput': input_fabric(DateInput),
     'DateTimeInput': input_fabric(DateTimeInput),

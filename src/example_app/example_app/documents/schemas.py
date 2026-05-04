@@ -66,6 +66,7 @@ class DocSchema(schemas.HalResourceSchema):
     )
     tags = schemas.SequenceNode(schemas.StringNode(title='Tag'), title='Tags')
     meta = DocMetaDataSchema(title='Meta data')
+    nullable_comment = schemas.EmptyStringNode(title='Nullable comment', nullable=True)
 
 
 class DocsSchema(schemas.HalResourceWithEmbeddedSchema):
@@ -112,6 +113,9 @@ class CreateDocSchema(schemas.MappingNode):
         title='Weight',
         description='Used for documents ordering.',
         missing=decimal.Decimal('0.00'),
+    )
+    nullable_comment = schemas.EmptyStringNode(
+        title='Nullable comment', nullable=True, missing=None
     )
 
 

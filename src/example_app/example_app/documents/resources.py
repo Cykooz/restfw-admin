@@ -36,6 +36,7 @@ class DocModel:
     weight: decimal.Decimal = decimal.Decimal('0.00')
     tags: list[str] = field(default_factory=list)
     meta: DocMetaDataModel = field(default_factory=DocMetaDataModel)
+    nullable_comment: Optional[str] = None
 
 
 class Doc(HalResource):

@@ -17,6 +17,20 @@
 CHANGELOG
 *********
 
+Next release
+============
+
+Features
+--------
+
+- Added ``NullableTextField`` and ``NullableTextInput`` components for distinguishing
+  between ``null`` and empty values.
+
+Changes
+-------
+
+- Upgraded dependencies including ``react-admin`` to 5.14.6.
+
 1.9.4 (2026-04-13)
 ==================
 

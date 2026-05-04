@@ -106,6 +106,11 @@ class TextField(FieldWidget):
 
 
 @dataclass()
+class NullableTextField(TextField):
+    type = 'NullableTextField'
+
+
+@dataclass()
 class TextInput(InputWidget):
     type = 'TextInput'
     # If True, display a button to reset the changes in this input value.
@@ -113,6 +118,11 @@ class TextInput(InputWidget):
     # Type attribute passed to the <input> element.
     input_type: Optional[str] = ra_field('type')
     multiline: Optional[bool] = None
+
+
+@dataclass()
+class NullableTextInput(TextInput):
+    type = 'NullableTextInput'
 
 
 @dataclass()

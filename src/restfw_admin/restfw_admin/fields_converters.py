@@ -139,7 +139,11 @@ def datetime_input(registry: Registry, node: ColanderNode, node_type: SchemaType
 
 @view_field_converter(schemas.Nullable)
 def nullable_field(registry: Registry, node: ColanderNode, node_type: schemas.Nullable):
-    return get_field_widget(registry, node, node_type.typ)
+    widget = get_field_widget(registry, node, node_type.typ)
+    if widget:
+        if isinstance(widget, widgets.TextField):
+            widget = widgets.NullableTextField(**widget.get_fields())
+    return widget
 
 
 @input_field_converter(schemas.Nullable)
@@ -148,6 +152,8 @@ def nullable_input(registry: Registry, node: ColanderNode, node_type: schemas.Nu
     if widget:
         if isinstance(widget, widgets.BooleanInput):
             widget = widgets.NullableBooleanInput(**widget.get_fields())
+        elif isinstance(widget, widgets.TextInput):
+            widget = widgets.NullableTextInput(**widget.get_fields())
         else:
             if isinstance(widget, widgets.SelectInput):
                 widget.empty_text = '<none>'
@@ -156,7 +162,7 @@ def nullable_input(registry: Registry, node: ColanderNode, node_type: schemas.Nu
                 widget.validators = [
                     v for v in widget.validators if not isinstance(v, Required)
                 ]
-        return widget
+    return widget
 
 
 # Sequence

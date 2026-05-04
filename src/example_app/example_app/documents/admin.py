@@ -45,6 +45,7 @@ class DocsAdmin(ResourceAdmin):
         'weight',
         'tags',
         'meta',
+        'nullable_comment',
     )
     list_view = ListViewSettings(
         fields=Exclude('data', 'image', 'meta.custom'),

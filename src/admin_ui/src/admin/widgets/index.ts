@@ -4,3 +4,5 @@ export * from "./mapping_field";
 export * from "./mapping_input";
 export * from "./simple_array_field";
 export * from "./nested_array_field";
+export * from "./nullable_text_input";
+export * from "./nullable_text_field";
